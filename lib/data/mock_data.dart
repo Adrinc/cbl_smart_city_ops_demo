@@ -1,36 +1,109 @@
-// Mock data for DemoCorp CRM Demo
-// All data is hardcoded and lives only in memory during the session
+/// Mock data for CBLuna Dashboard Demos
+/// All data is hardcoded and lives only in memory during the session
+/// NO backend connections, NO authentication, NO persistence
+library;
 
-/// Company information
-class CompanyInfo {
-  static const String name = 'DemoCorp';
-  static const String fullName = 'DemoCorp International';
-  static const String tagline = 'Plataforma de gestión de clientes y equipos';
-  static const String industry = 'Tecnología y Consultoría';
-}
+/// ============================================================================
+/// SALES DASHBOARD DATA
+/// ============================================================================
 
-/// Mock user for demo session
-class MockUser {
-  final String id;
-  final String name;
-  final String email;
-  final String role;
+class SalesSummary {
+  final double totalRevenue;
+  final int totalClients;
+  final int totalSales;
+  final double averageTicket;
+  final double monthlyGrowth;
 
-  MockUser({
-    required this.id,
-    required this.name,
-    required this.email,
-    required this.role,
+  SalesSummary({
+    required this.totalRevenue,
+    required this.totalClients,
+    required this.totalSales,
+    required this.averageTicket,
+    required this.monthlyGrowth,
   });
 }
 
-/// Demo user (logged in after fake login)
-final mockCurrentUser = MockUser(
-  id: 'user-demo-001',
-  name: 'Admin Demo',
-  email: 'admin@democorp.com',
-  role: 'Administrador',
+final mockSalesSummary = SalesSummary(
+  totalRevenue: 1250000.00,
+  totalClients: 342,
+  totalSales: 1850,
+  averageTicket: 675.68,
+  monthlyGrowth: 12.5,
 );
+
+class SalesDataPoint {
+  final String month;
+  final double value;
+
+  SalesDataPoint(this.month, this.value);
+}
+
+final List<SalesDataPoint> mockMonthlySales = [
+  SalesDataPoint('Ene', 95000),
+  SalesDataPoint('Feb', 105000),
+  SalesDataPoint('Mar', 98000),
+  SalesDataPoint('Abr', 120000),
+  SalesDataPoint('May', 135000),
+  SalesDataPoint('Jun', 125000),
+];
+
+/// ============================================================================
+/// VIDEO CONTENT DASHBOARD DATA
+/// ============================================================================
+
+class VideoStats {
+  final int totalViews;
+  final int subscribers;
+  final int totalVideos;
+  final double avgWatchTime;
+  final double engagement;
+
+  VideoStats({
+    required this.totalViews,
+    required this.subscribers,
+    required this.totalVideos,
+    required this.avgWatchTime,
+    required this.engagement,
+  });
+}
+
+final mockVideoStats = VideoStats(
+  totalViews: 2500000,
+  subscribers: 45000,
+  totalVideos: 156,
+  avgWatchTime: 8.5,
+  engagement: 6.2,
+);
+
+class TopVideo {
+  final String title;
+  final int views;
+  final String duration;
+
+  TopVideo(this.title, this.views, this.duration);
+}
+
+final List<TopVideo> mockTopVideos = [
+  TopVideo('Tutorial Flutter Avanzado', 125000, '15:30'),
+  TopVideo('Diseño UI/UX Moderno', 98000, '12:45'),
+  TopVideo('Dashboard con Flutter', 87000, '18:20'),
+  TopVideo('State Management Provider', 76000, '22:15'),
+  TopVideo('Responsive Design Tips', 65000, '10:30'),
+];
+
+class VideoCategory {
+  final String name;
+  final int videoCount;
+  final int views;
+
+  VideoCategory(this.name, this.videoCount, this.views);
+}
+
+final List<VideoCategory> mockVideoCategories = [
+  VideoCategory('Tutoriales', 45, 850000),
+  VideoCategory('Reviews', 32, 620000),
+  VideoCategory('Tips & Tricks', 28, 480000),
+];
 
 /// Client model
 class Client {

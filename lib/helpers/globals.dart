@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
-import 'package:nethive_neo/data/mock_data.dart';
 import 'package:nethive_neo/theme/theme.dart';
 
 final GlobalKey<ScaffoldMessengerState> snackbarKey =
@@ -10,13 +9,8 @@ final GlobalKey<ScaffoldMessengerState> snackbarKey =
 
 late final SharedPreferences prefs;
 
-// Mock user - set after fake login
-MockUser? mockUser;
-
 Future<void> initGlobals() async {
   prefs = await SharedPreferences.getInstance();
-  // No user on init - will be set after login
-  mockUser = null;
 }
 
 PlutoGridScrollbarConfig plutoGridScrollbarConfig(BuildContext context) {

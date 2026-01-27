@@ -58,7 +58,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return Portal(
       child: MaterialApp.router(
-        title: 'DemoCorp CRM',
+        title: 'CBLuna Dashboard Demos',
         debugShowCheckedModeBanner: false,
         locale: _locale,
         localizationsDelegates: const [

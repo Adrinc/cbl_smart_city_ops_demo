@@ -1,14 +1,17 @@
-# Copilot Instructions for DemoCorp CRM
+# Copilot Instructions for CBLuna Dashboard Demos
 
 ## Project Overview
-**DemoCorp CRM** is a cross-platform Flutter demo application (Web, Windows, iOS, Android, macOS, Linux) showcasing a professional CRM system. Built with Provider state management, responsive design, and advanced UI components. **This is a demo application with hardcoded data - NO backend connections, NO real authentication, NO data persistence.**
+**CBLuna Dashboard Demos** is a cross-platform Flutter demo application (Web, Windows, iOS, Android, macOS, Linux) showcasing multiple interactive dashboards with different themes and data visualization styles. Built with Provider state management, responsive design, and advanced chart/graph components. **This is a pure demo application with hardcoded data - NO backend connections, NO authentication, NO data persistence.**
+
+**Purpose**: Demonstrate CBLuna's dashboard creation capabilities through varied, visually-appealing examples of business intelligence interfaces.
 
 ## Architecture Patterns
 
 ### State Management
 - **Provider Pattern**: Uses `provider: ^6.1.1` for dependency injection and state management
 - **Key Providers** (in `lib/providers/`):
-  - `VisualStateProvider()`: Handles UI state, dark/light theme, visual preferences
+  - `DashboardNavigationProvider()`: Handles switching between different dashboards
+  - `ThemeProvider()`: Manages dynamic theme changes per dashboard
   - Demo-specific providers for UI state only
 - **Setup**: Providers are registered in `main()` via `MultiProvider` before app initialization
 - Reference: [lib/main.dart](lib/main.dart)
@@ -17,23 +20,25 @@
 - **Router**: `go_router: ^14.8.1` for declarative navigation
 - **Key Config**: Single router file at [lib/router/router.dart](lib/router/router.dart)
 - **URL Strategy**: Uses `url_strategy: ^0.2.0` to remove `#` from web URLs (configured in `main()`)
-- **Fake Auth**: Simple redirect logic - no real authentication, just checks for mock user in memory
-- Routes: `/login`, `/dashboard`, `/clients`, `/employees`, `/locked-features`
+- **No Authentication**: Direct access to dashboard view - no login required
+- Routes: `/` (main dashboard container), `/dashboard/:dashboardId`, external redirect to `https://cbluna.com/`
 
 ### Theme System
-- **Static Theming**: Professional corporate colors (Blue #2563EB primary)
-- **Light/Dark Modes**: `AppTheme.lightTheme` and `AppTheme.darkTheme` with static colors
+- **Dynamic Theming**: Each dashboard has its own color palette and visual identity
+- **Dashboard Themes**:
+  - Sales Dashboard: Professional blue/green corporate (#2563EB, #10B981)
+  - Video Content Dashboard: Purple/pink creative (#8B5CF6, #EC4899)
+  - Additional dashboards: Unique palettes matching their domain
+- **Light/Dark Modes**: All dashboards support both modes with appropriate color adjustments
 - **Storage**: Theme preference saved via `SharedPreferences` under key `__theme_mode__`
-- **No External Config**: All colors hardcoded in [lib/theme/theme.dart](lib/theme/theme.dart)
+- **Theme Switching**: Automatically changes when navigating between dashboards
 - Font: Uses `google_fonts: ^6.2.1` with Poppins as primary font
 
 ### Data Layer (Mock/Hardcoded)
 - **Mock Data**: All data in [lib/data/mock_data.dart](lib/data/mock_data.dart)
-  - Clients list (20-30 records)
-  - Employees list (10-15 records)
-  - Dashboard KPIs and metrics
-  - Recent activities
-  - Company info: "DemoCorp"
+  - Sales dashboard: Revenue, clients, sales trends, KPIs (20-30 records)
+  - Video dashboard: Views, top videos, categories, subscribers (15-25 records)
+  - Additional dashboard data as needed
 - **No Persistence**: Changes exist only in memory during session
 - **No Backend**: Zero API calls, zero database queries
 - **Models**: Simplified models in [lib/models/](lib/models/) for demo data structure
@@ -43,41 +48,54 @@
 ```
 lib/
 ├── main.dart              # App entry, MultiProvider setup
-├── data/                  # Mock/hardcoded data (NEW)
-│   └── mock_data.dart     # All demo data (clients, employees, KPIs)
+├── data/                  # Mock/hardcoded data
+│   ├── mock_data.dart     # All demo data (sales, videos, KPIs)
+│   ├── sales_data.dart    # Sales dashboard specific data
+│   └── video_data.dart    # Video content dashboard data
 ├── functions/             # Pure utility functions (formatting, validation)
 ├── helpers/               # Shared utilities and constants
-│   ├── constants.dart     # Demo constants (company name, breakpoints)
-│   ├── globals.dart       # Global state (mockUser, prefs)
+│   ├── constants.dart     # Demo constants (breakpoints, dashboard IDs)
+│   ├── globals.dart       # Global state (prefs, navigation keys)
 │   └── color_extension.dart, scroll_behavior.dart
 ├── internationalization/  # i18n with intl package (multi-language support)
-├── models/                # Simplified Dart models (Client, Employee, etc.)
-├── pages/                 # Full-page widgets (routes)
-│   ├── login_page/        # Fake login (any credentials work)
-│   ├── dashboard_page/    # Main landing with KPIs
-│   ├── clients_page/      # Client CRUD (memory only)
-│   ├── employees_page/    # Employee management
-│   └── locked_feature/    # Placeholder for premium features
-├── providers/             # ChangeNotifier providers for UI state only
+├── models/                # Simplified Dart models (SalesSummary, VideoStats, etc.)
+├── pages/                 # Full-page widgets (dashboard container)
+│   ├── dashboard_container/  # Main container with sidebar
+│   ├── dashboards/          # Individual dashboard pages
+│   │   ├── sales_dashboard/
+│   │   ├── video_dashboard/
+│   │   └── ...
+│   └── page_not_found/      # 404 fallback
+├── providers/             # ChangeNotifier providers for UI state
+│   ├── dashboard_navigation_provider.dart  # Dashboard switching
+│   └── theme_provider.dart                 # Dynamic theme management
 ├── router/                # GoRouter configuration
-├── theme/                 # Theme definitions, hardcoded colors
+├── theme/                 # Theme definitions, dynamic color palettes
+│   ├── theme.dart         # Base theme system
+│   ├── dashboard_themes.dart  # Individual dashboard color schemes
+│   └── theme_provider.dart    # Theme switching logic
 └── widgets/               # Reusable UI components
+    ├── sidebar/           # Sidebar navigation widget
+    ├── kpi_card.dart      # KPI display cards
+    ├── chart_widgets/     # Chart/graph components
+    └── ...
 ```
 
 ## Critical Dependencies & Integration Points
 
 ### UI Libraries
-- **pluto_grid**: Data table widget (requires `intl: ^0.19.0` override)
-- **fl_chart**: Chart rendering for dashboard
+- **fl_chart**: Chart rendering for dashboard graphs and data visualization
 - **google_fonts**: Typography via Poppins font
 - **provider**: State management
 - **go_router**: Navigation and routing
+- **shared_preferences**: Theme mode persistence only
 
 ### Demo-Specific
-- **No external services**: Stripe, N8N, Supabase removed
-- **No authentication**: Login always succeeds
+- **No external services**: All third-party services removed
+- **No authentication**: Direct access to dashboards
 - **No persistence**: All changes in memory only
 - **Responsive**: Mobile breakpoint at 768px
+- **External redirect**: Exit button redirects to https://cbluna.com/
 
 ## Important Conventions
 
@@ -142,13 +160,15 @@ flutter build ios --release      # iOS
 
 ## What You MUST Know Before Coding
 
-1. **No backend**: This is a pure demo - no Supabase, no API calls, no real persistence
-2. **Dependency override**: `intl: ^0.19.0` is intentionally pinned - don't upgrade without testing pluto_grid
-3. **Mock data only**: All data in [lib/data/mock_data.dart](lib/data/mock_data.dart) - changes live in memory
-4. **Fake authentication**: Login accepts any credentials - no validation
-5. **Static theming**: Colors are hardcoded corporate blue (#2563EB) - no dynamic themes
+1. **No backend**: This is a pure demo - no APIs, no database, no real persistence
+2. **Mock data only**: All data in [lib/data/mock_data.dart](lib/data/mock_data.dart) - changes live in memory
+3. **No authentication**: Direct access to dashboards - no login page
+4. **Dynamic theming**: Each dashboard has unique color palette that switches automatically
+5. **Sidebar navigation**: Fixed sidebar with dashboard list + exit button to https://cbluna.com/
+6. **fl_chart**: Primary charting library for graphs and data visualization
 
 ## Quick Links
-- **Demo Purpose**: Showcase CRM capabilities without backend complexity
-- **Design System**: Professional blue/green corporate palette
-- **Target Audience**: Potential clients evaluating CRM features
+- **Demo Purpose**: Showcase CBLuna's dashboard creation capabilities
+- **Design System**: Multiple unique palettes per dashboard (Sales: blue/green, Videos: purple/pink, etc.)
+- **Target Audience**: Potential clients evaluating dashboard development services
+- **Main Site**: https://cbluna.com/ (exit button destination)
