@@ -21,69 +21,135 @@ class _OrdenesPageState extends State<OrdenesPage> {
   String? _filterEstatus;
   String? _filterCategoria;
 
-  static const _prioridades = ['critico','alto','medio','bajo'];
-  static const _estatuses = ['recibido','en_revision','aprobado','asignado','en_proceso','resuelto','cerrado','rechazado'];
-  static const _categorias = ['alumbrado','bacheo','basura','agua_drenaje','senalizacion','seguridad'];
+  static const _prioridades = ['critico', 'alto', 'medio', 'bajo'];
+  static const _estatuses = [
+    'recibido',
+    'en_revision',
+    'aprobado',
+    'asignado',
+    'en_proceso',
+    'resuelto',
+    'cerrado',
+    'rechazado'
+  ];
+  static const _categorias = [
+    'alumbrado',
+    'bacheo',
+    'basura',
+    'agua_drenaje',
+    'senalizacion',
+    'seguridad'
+  ];
 
   List<Incidencia> _applyFilters(List<Incidencia> source) {
     return source.where((i) {
-      if (_filterPrioridad != null && i.prioridad != _filterPrioridad) return false;
-      if (_filterEstatus   != null && i.estatus   != _filterEstatus) return false;
-      if (_filterCategoria != null && i.categoria != _filterCategoria) return false;
+      if (_filterPrioridad != null && i.prioridad != _filterPrioridad)
+        return false;
+      if (_filterEstatus != null && i.estatus != _filterEstatus) return false;
+      if (_filterCategoria != null && i.categoria != _filterCategoria)
+        return false;
       return true;
     }).toList();
   }
 
   List<PlutoColumn> _buildColumns(AppTheme theme) => [
-    PlutoColumn(title: 'ID',          field: 'id',          width: 80,  type: PlutoColumnType.text(),
-      renderer: (r) => Text(r.cell.value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: theme.primaryColor))),
-    PlutoColumn(title: 'Categoría',   field: 'categoria',   width: 110, type: PlutoColumnType.text(),
-      renderer: (r) => Text(labelCategoria(r.cell.value), style: TextStyle(fontSize: 12, color: theme.textPrimary))),
-    PlutoColumn(title: 'Descripción', field: 'descripcion', width: 260, type: PlutoColumnType.text(),
-      renderer: (r) => Text(r.cell.value, style: TextStyle(fontSize: 12, color: theme.textPrimary), maxLines: 1, overflow: TextOverflow.ellipsis)),
-    PlutoColumn(title: 'Prioridad',   field: 'prioridad',   width: 90,  type: PlutoColumnType.text(),
-      renderer: (r) => PriorityBadge(prioridad: r.cell.value)),
-    PlutoColumn(title: 'Estatus',     field: 'estatus',     width: 110, type: PlutoColumnType.text(),
-      renderer: (r) => EstatusBadge(estatus: r.cell.value)),
-    PlutoColumn(title: 'SLA',         field: 'sla',         width: 100, type: PlutoColumnType.text(),
-      renderer: (r) {
-        final vencido = r.cell.value.toString().startsWith('Vencido');
-        return Text(r.cell.value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600,
-          color: vencido ? theme.critical : theme.textPrimary));
-      }),
-    PlutoColumn(title: 'Técnico',     field: 'tecnico',     width: 130, type: PlutoColumnType.text(),
-      renderer: (r) => Text(r.cell.value.isEmpty ? '—' : r.cell.value,
-        style: TextStyle(fontSize: 12, color: r.cell.value.isEmpty ? theme.textSecondary : theme.textPrimary))),
-    PlutoColumn(title: 'Reportado',   field: 'fecha',       width: 100, type: PlutoColumnType.text(),
-      renderer: (r) => Text(r.cell.value, style: TextStyle(fontSize: 11, color: theme.textSecondary))),
-  ];
+        PlutoColumn(
+            title: 'ID',
+            field: 'id',
+            width: 80,
+            type: PlutoColumnType.text(),
+            renderer: (r) => Text(r.cell.value,
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: theme.primaryColor))),
+        PlutoColumn(
+            title: 'Categoría',
+            field: 'categoria',
+            width: 110,
+            type: PlutoColumnType.text(),
+            renderer: (r) => Text(labelCategoria(r.cell.value),
+                style: TextStyle(fontSize: 12, color: theme.textPrimary))),
+        PlutoColumn(
+            title: 'Descripción',
+            field: 'descripcion',
+            width: 260,
+            type: PlutoColumnType.text(),
+            renderer: (r) => Text(r.cell.value,
+                style: TextStyle(fontSize: 12, color: theme.textPrimary),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis)),
+        PlutoColumn(
+            title: 'Prioridad',
+            field: 'prioridad',
+            width: 90,
+            type: PlutoColumnType.text(),
+            renderer: (r) => PriorityBadge(prioridad: r.cell.value)),
+        PlutoColumn(
+            title: 'Estatus',
+            field: 'estatus',
+            width: 110,
+            type: PlutoColumnType.text(),
+            renderer: (r) => EstatusBadge(estatus: r.cell.value)),
+        PlutoColumn(
+            title: 'SLA',
+            field: 'sla',
+            width: 100,
+            type: PlutoColumnType.text(),
+            renderer: (r) {
+              final vencido = r.cell.value.toString().startsWith('Vencido');
+              return Text(r.cell.value,
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: vencido ? theme.critical : theme.textPrimary));
+            }),
+        PlutoColumn(
+            title: 'Técnico',
+            field: 'tecnico',
+            width: 130,
+            type: PlutoColumnType.text(),
+            renderer: (r) => Text(r.cell.value.isEmpty ? '—' : r.cell.value,
+                style: TextStyle(
+                    fontSize: 12,
+                    color: r.cell.value.isEmpty
+                        ? theme.textSecondary
+                        : theme.textPrimary))),
+        PlutoColumn(
+            title: 'Reportado',
+            field: 'fecha',
+            width: 100,
+            type: PlutoColumnType.text(),
+            renderer: (r) => Text(r.cell.value,
+                style: TextStyle(fontSize: 11, color: theme.textSecondary))),
+      ];
 
   List<PlutoRow> _buildRows(List<Incidencia> incs, IncidenciaProvider prov) {
     return incs.map((i) {
       final tecnico = i.tecnicoId != null
-        ? prov.todas.map((_) => null).firstOrNull // simplified lookup
-        : null;
+          ? prov.todas.map((_) => null).firstOrNull // simplified lookup
+          : null;
       return PlutoRow(cells: {
-        'id':          PlutoCell(value: formatIdIncidencia(i.id)),
-        'categoria':   PlutoCell(value: i.categoria),
+        'id': PlutoCell(value: formatIdIncidencia(i.id)),
+        'categoria': PlutoCell(value: i.categoria),
         'descripcion': PlutoCell(value: i.descripcion),
-        'prioridad':   PlutoCell(value: i.prioridad),
-        'estatus':     PlutoCell(value: i.estatus),
-        'sla':         PlutoCell(value: formatSla(i.fechaLimite)),
-        'tecnico':     PlutoCell(value: i.tecnicoId ?? ''),
-        'fecha':       PlutoCell(value: formatFechaCorta(i.fechaReporte)),
-        '_obj':        PlutoCell(value: i.id),
+        'prioridad': PlutoCell(value: i.prioridad),
+        'estatus': PlutoCell(value: i.estatus),
+        'sla': PlutoCell(value: formatSla(i.fechaLimite)),
+        'tecnico': PlutoCell(value: i.tecnicoId ?? ''),
+        'fecha': PlutoCell(value: formatFechaCorta(i.fechaReporte)),
+        '_obj': PlutoCell(value: i.id),
       });
     }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme  = AppTheme.of(context);
-    final prov   = context.watch<IncidenciaProvider>();
+    final theme = AppTheme.of(context);
+    final prov = context.watch<IncidenciaProvider>();
     final source = _applyFilters(prov.todas);
-    final cols   = _buildColumns(theme);
-    final rows   = _buildRows(source, prov);
+    final cols = _buildColumns(theme);
+    final rows = _buildRows(source, prov);
 
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -92,83 +158,128 @@ class _OrdenesPageState extends State<OrdenesPage> {
         children: [
           SectionHeader(
             title: 'Órdenes / Incidencias',
-            subtitle: '${source.length} registros · ${prov.criticas.length} críticas · ${prov.vencidas.length} vencidas',
-            trailing: Text('Ensenada', style: TextStyle(fontSize: 12, color: theme.textSecondary)),
+            subtitle:
+                '${source.length} registros · ${prov.criticas.length} críticas · ${prov.vencidas.length} vencidas',
+            trailing: Text('Ensenada',
+                style: TextStyle(fontSize: 12, color: theme.textSecondary)),
           ),
           const SizedBox(height: 12),
 
           // Filter bar
           _FilterBar(
             filterPrioridad: _filterPrioridad,
-            filterEstatus:   _filterEstatus,
+            filterEstatus: _filterEstatus,
             filterCategoria: _filterCategoria,
-            prioridades:  _prioridades,
-            estatuses:    _estatuses,
-            categorias:   _categorias,
-            theme:        theme,
-            onPrioridad:  (v) { setState(() { _filterPrioridad = v; }); },
-            onEstatus:    (v) { setState(() { _filterEstatus   = v; }); },
-            onCategoria:  (v) { setState(() { _filterCategoria = v; }); },
-            onClear:      ()  { setState(() { _filterPrioridad = null; _filterEstatus = null; _filterCategoria = null; }); },
+            prioridades: _prioridades,
+            estatuses: _estatuses,
+            categorias: _categorias,
+            theme: theme,
+            onPrioridad: (v) {
+              setState(() {
+                _filterPrioridad = v;
+              });
+            },
+            onEstatus: (v) {
+              setState(() {
+                _filterEstatus = v;
+              });
+            },
+            onCategoria: (v) {
+              setState(() {
+                _filterCategoria = v;
+              });
+            },
+            onClear: () {
+              setState(() {
+                _filterPrioridad = null;
+                _filterEstatus = null;
+                _filterCategoria = null;
+              });
+            },
           ),
           const SizedBox(height: 12),
 
           // PlutoGrid
           Expanded(
             child: rows.isEmpty
-              ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(Icons.inbox_outlined, size: 48, color: theme.textSecondary),
-                  const SizedBox(height: 12),
-                  Text('Sin resultados para el filtro aplicado',
-                    style: TextStyle(color: theme.textSecondary, fontSize: 14)),
-                ]))
-              : Container(
-                  decoration: BoxDecoration(
-                    color: theme.surface,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: theme.border, width: 1),
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: PlutoGrid(
-                      columns: cols + [PlutoColumn(title: '', field: '_obj', hide: true, width: 0, type: PlutoColumnType.text())],
-                      rows: rows,
-                      onLoaded: (e) {
-                        _stateManager = e.stateManager;
-                        e.stateManager.setPageSize(25, notify: false);
-                      },
-                      onRowDoubleTap: (e) {
-                        final id = e.row.cells['_obj']?.value as String?;
-                        if (id != null) {
-                          final inc = prov.byId(id);
-                          if (inc != null) _showDetail(context, inc, prov, theme);
-                        }
-                      },
-                      createFooter: (s) => PlutoPagination(s),
-                      configuration: PlutoGridConfiguration(
-                        style: PlutoGridStyleConfig(
-                          gridBorderColor: theme.border,
-                          gridBackgroundColor: theme.surface,
-                          rowColor: theme.surface,
-                          activatedColor: theme.primaryColor.withOpacity(0.08),
-                          activatedBorderColor: theme.primaryColor,
-                          cellColorInEditState: theme.surface,
-                          columnTextStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: theme.textSecondary),
-                          columnHeight: 40,
-                          rowHeight: 44,
+                ? Center(
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(Icons.inbox_outlined,
+                        size: 48, color: theme.textSecondary),
+                    const SizedBox(height: 12),
+                    Text('Sin resultados para el filtro aplicado',
+                        style: TextStyle(
+                            color: theme.textSecondary, fontSize: 14)),
+                  ]))
+                : Container(
+                    decoration: BoxDecoration(
+                      color: theme.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: theme.border, width: 1),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4))
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: PlutoGrid(
+                        columns: cols +
+                            [
+                              PlutoColumn(
+                                  title: '',
+                                  field: '_obj',
+                                  hide: true,
+                                  width: 0,
+                                  type: PlutoColumnType.text())
+                            ],
+                        rows: rows,
+                        onLoaded: (e) {
+                          _stateManager = e.stateManager;
+                          e.stateManager.setPageSize(25, notify: false);
+                        },
+                        onRowDoubleTap: (e) {
+                          final id = e.row.cells['_obj']?.value as String?;
+                          if (id != null) {
+                            final inc = prov.byId(id);
+                            if (inc != null)
+                              _showDetail(context, inc, prov, theme);
+                          }
+                        },
+                        createFooter: (s) => PlutoPagination(s),
+                        configuration: PlutoGridConfiguration(
+                          columnSize: const PlutoGridColumnSizeConfig(
+                            autoSizeMode: PlutoAutoSizeMode.scale,
+                          ),
+                          style: PlutoGridStyleConfig(
+                            gridBorderColor: theme.border,
+                            gridBackgroundColor: theme.surface,
+                            rowColor: theme.surface,
+                            activatedColor:
+                                theme.primaryColor.withOpacity(0.08),
+                            activatedBorderColor: theme.primaryColor,
+                            cellColorInEditState: theme.surface,
+                            columnTextStyle: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: theme.textSecondary),
+                            columnHeight: 40,
+                            rowHeight: 44,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
           ),
         ],
       ),
     );
   }
 
-  void _showDetail(BuildContext context, Incidencia inc, IncidenciaProvider prov, AppTheme theme) {
+  void _showDetail(BuildContext context, Incidencia inc,
+      IncidenciaProvider prov, AppTheme theme) {
     showDialog(
       context: context,
       builder: (_) => Dialog(
@@ -181,34 +292,63 @@ class _OrdenesPageState extends State<OrdenesPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(children: [
-                Text(formatIdIncidencia(inc.id), style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: theme.primaryColor)),
+                Text(formatIdIncidencia(inc.id),
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: theme.primaryColor)),
                 const Spacer(),
-                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
+                IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close)),
               ]),
               const SizedBox(height: 4),
-              Text(inc.descripcion, style: TextStyle(fontSize: 15, color: theme.textPrimary)),
+              Text(inc.descripcion,
+                  style: TextStyle(fontSize: 15, color: theme.textPrimary)),
               const SizedBox(height: 16),
               Wrap(spacing: 8, runSpacing: 8, children: [
                 PriorityBadge(prioridad: inc.prioridad),
                 EstatusBadge(estatus: inc.estatus),
-                _DetailChip(label: labelCategoria(inc.categoria), icon: Icons.category_outlined, theme: theme),
-                _DetailChip(label: labelEntorno(inc.entorno), icon: Icons.location_on_outlined, theme: theme),
+                _DetailChip(
+                    label: labelCategoria(inc.categoria),
+                    icon: Icons.category_outlined,
+                    theme: theme),
+                _DetailChip(
+                    label: labelEntorno(inc.entorno),
+                    icon: Icons.location_on_outlined,
+                    theme: theme),
               ]),
               const SizedBox(height: 16),
-              _DetailRow(label: 'SLA', value: formatSla(inc.fechaLimite),
-                valueColor: inc.estaVencida ? theme.critical : null, theme: theme),
-              _DetailRow(label: 'Reportado', value: formatFechaHora(inc.fechaReporte), theme: theme),
+              _DetailRow(
+                  label: 'SLA',
+                  value: formatSla(inc.fechaLimite),
+                  valueColor: inc.estaVencida ? theme.critical : null,
+                  theme: theme),
+              _DetailRow(
+                  label: 'Reportado',
+                  value: formatFechaHora(inc.fechaReporte),
+                  theme: theme),
               if (inc.tecnicoId != null)
-                _DetailRow(label: 'Técnico asignado', value: inc.tecnicoId!, theme: theme),
+                _DetailRow(
+                    label: 'Técnico asignado',
+                    value: inc.tecnicoId!,
+                    theme: theme),
               if (inc.esReincidente)
                 Container(
                   margin: const EdgeInsets.only(top: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(color: theme.high.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                      color: theme.high.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6)),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     Icon(Icons.repeat, size: 14, color: theme.high),
                     const SizedBox(width: 6),
-                    Text('Incidencia reincidente', style: TextStyle(fontSize: 12, color: theme.high, fontWeight: FontWeight.w600)),
+                    Text('Incidencia reincidente',
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: theme.high,
+                            fontWeight: FontWeight.w600)),
                   ]),
                 ),
               const SizedBox(height: 20),
@@ -219,12 +359,16 @@ class _OrdenesPageState extends State<OrdenesPage> {
                     onPressed: () {
                       prov.actualizarEstatus(inc.id, 'en_proceso');
                       Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('${formatIdIncidencia(inc.id)} marcada En Proceso'), backgroundColor: theme.medium));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(
+                              '${formatIdIncidencia(inc.id)} marcada En Proceso'),
+                          backgroundColor: theme.medium));
                     },
                     icon: const Icon(Icons.play_arrow_outlined, size: 16),
                     label: const Text('Iniciar'),
-                    style: ElevatedButton.styleFrom(backgroundColor: theme.medium, foregroundColor: Colors.white),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.medium,
+                        foregroundColor: Colors.white),
                   ),
                   const SizedBox(width: 8),
                   OutlinedButton(
@@ -238,19 +382,28 @@ class _OrdenesPageState extends State<OrdenesPage> {
                     onPressed: () {
                       prov.actualizarEstatus(inc.id, 'resuelto');
                       Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('${formatIdIncidencia(inc.id)} marcada como Resuelta'), backgroundColor: theme.low));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(
+                              '${formatIdIncidencia(inc.id)} marcada como Resuelta'),
+                          backgroundColor: theme.low));
                     },
                     icon: const Icon(Icons.check_circle_outline, size: 16),
                     label: const Text('Marcar Resuelta'),
-                    style: ElevatedButton.styleFrom(backgroundColor: theme.low, foregroundColor: Colors.white),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.low,
+                        foregroundColor: Colors.white),
                   ),
                   const SizedBox(width: 8),
-                  OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('Cerrar')),
+                  OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cerrar')),
                 ])
               else
-                Align(alignment: Alignment.centerRight,
-                  child: OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('Cerrar'))),
+                Align(
+                    alignment: Alignment.centerRight,
+                    child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Cerrar'))),
             ],
           ),
         ),
@@ -267,51 +420,71 @@ class _FilterBar extends StatelessWidget {
   final VoidCallback onClear;
 
   const _FilterBar({
-    required this.filterPrioridad, required this.filterEstatus, required this.filterCategoria,
-    required this.prioridades, required this.estatuses, required this.categorias,
-    required this.theme, required this.onPrioridad, required this.onEstatus,
-    required this.onCategoria, required this.onClear,
+    required this.filterPrioridad,
+    required this.filterEstatus,
+    required this.filterCategoria,
+    required this.prioridades,
+    required this.estatuses,
+    required this.categorias,
+    required this.theme,
+    required this.onPrioridad,
+    required this.onEstatus,
+    required this.onCategoria,
+    required this.onClear,
   });
 
-  bool get _hasFilter => filterPrioridad != null || filterEstatus != null || filterCategoria != null;
+  bool get _hasFilter =>
+      filterPrioridad != null ||
+      filterEstatus != null ||
+      filterCategoria != null;
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(spacing: 8, runSpacing: 8, crossAxisAlignment: WrapCrossAlignment.center, children: [
-      // Prioridad dropdown
-      _ChipDropdown(
-        label: filterPrioridad != null ? labelPrioridad(filterPrioridad!) : 'Prioridad',
-        active: filterPrioridad != null,
-        theme: theme,
-        items: [null, ...prioridades],
-        itemLabel: (v) => v == null ? 'Todas' : labelPrioridad(v),
-        onSelected: onPrioridad,
-      ),
-      _ChipDropdown(
-        label: filterEstatus != null ? labelEstatus(filterEstatus!) : 'Estatus',
-        active: filterEstatus != null,
-        theme: theme,
-        items: [null, ...estatuses],
-        itemLabel: (v) => v == null ? 'Todos' : labelEstatus(v),
-        onSelected: onEstatus,
-      ),
-      _ChipDropdown(
-        label: filterCategoria != null ? labelCategoria(filterCategoria!) : 'Categoría',
-        active: filterCategoria != null,
-        theme: theme,
-        items: [null, ...categorias],
-        itemLabel: (v) => v == null ? 'Todas' : labelCategoria(v),
-        onSelected: onCategoria,
-      ),
-      if (_hasFilter)
-        ActionChip(
-          label: const Text('Limpiar filtros'),
-          avatar: const Icon(Icons.clear, size: 14),
-          onPressed: onClear,
-          backgroundColor: theme.critical.withOpacity(0.1),
-          labelStyle: TextStyle(fontSize: 12, color: theme.critical),
-        ),
-    ]);
+    return Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          // Prioridad dropdown
+          _ChipDropdown(
+            label: filterPrioridad != null
+                ? labelPrioridad(filterPrioridad!)
+                : 'Prioridad',
+            active: filterPrioridad != null,
+            theme: theme,
+            items: [null, ...prioridades],
+            itemLabel: (v) => v == null ? 'Todas' : labelPrioridad(v),
+            onSelected: onPrioridad,
+          ),
+          _ChipDropdown(
+            label: filterEstatus != null
+                ? labelEstatus(filterEstatus!)
+                : 'Estatus',
+            active: filterEstatus != null,
+            theme: theme,
+            items: [null, ...estatuses],
+            itemLabel: (v) => v == null ? 'Todos' : labelEstatus(v),
+            onSelected: onEstatus,
+          ),
+          _ChipDropdown(
+            label: filterCategoria != null
+                ? labelCategoria(filterCategoria!)
+                : 'Categoría',
+            active: filterCategoria != null,
+            theme: theme,
+            items: [null, ...categorias],
+            itemLabel: (v) => v == null ? 'Todas' : labelCategoria(v),
+            onSelected: onCategoria,
+          ),
+          if (_hasFilter)
+            ActionChip(
+              label: const Text('Limpiar filtros'),
+              avatar: const Icon(Icons.clear, size: 14),
+              onPressed: onClear,
+              backgroundColor: theme.critical.withOpacity(0.1),
+              labelStyle: TextStyle(fontSize: 12, color: theme.critical),
+            ),
+        ]);
   }
 }
 
@@ -324,8 +497,12 @@ class _ChipDropdown extends StatelessWidget {
   final Function(String?) onSelected;
 
   const _ChipDropdown({
-    required this.label, required this.active, required this.theme,
-    required this.items, required this.itemLabel, required this.onSelected,
+    required this.label,
+    required this.active,
+    required this.theme,
+    required this.items,
+    required this.itemLabel,
+    required this.onSelected,
   });
 
   @override
@@ -333,24 +510,35 @@ class _ChipDropdown extends StatelessWidget {
     return PopupMenuButton<String?>(
       tooltip: '',
       child: Chip(
-        label: Text(label, style: TextStyle(fontSize: 12,
-          color: active ? theme.primaryColor : theme.textSecondary,
-          fontWeight: active ? FontWeight.w600 : FontWeight.w400)),
-        avatar: Icon(Icons.filter_list, size: 14, color: active ? theme.primaryColor : theme.textSecondary),
-        backgroundColor: active ? theme.primaryColor.withOpacity(0.1) : theme.surface,
-        side: BorderSide(color: active ? theme.primaryColor.withOpacity(0.4) : theme.border),
+        label: Text(label,
+            style: TextStyle(
+                fontSize: 12,
+                color: active ? theme.primaryColor : theme.textSecondary,
+                fontWeight: active ? FontWeight.w600 : FontWeight.w400)),
+        avatar: Icon(Icons.filter_list,
+            size: 14, color: active ? theme.primaryColor : theme.textSecondary),
+        backgroundColor:
+            active ? theme.primaryColor.withOpacity(0.1) : theme.surface,
+        side: BorderSide(
+            color: active ? theme.primaryColor.withOpacity(0.4) : theme.border),
       ),
-      itemBuilder: (_) => items.map((v) => PopupMenuItem<String?>(
-        value: v,
-        child: Text(itemLabel(v), style: const TextStyle(fontSize: 13)),
-      )).toList(),
+      itemBuilder: (_) => items
+          .map((v) => PopupMenuItem<String?>(
+                value: v,
+                child: Text(itemLabel(v), style: const TextStyle(fontSize: 13)),
+              ))
+          .toList(),
       onSelected: onSelected,
     );
   }
 }
 
 class _DetailRow extends StatelessWidget {
-  const _DetailRow({required this.label, required this.value, required this.theme, this.valueColor});
+  const _DetailRow(
+      {required this.label,
+      required this.value,
+      required this.theme,
+      this.valueColor});
   final String label, value;
   final AppTheme theme;
   final Color? valueColor;
@@ -359,16 +547,24 @@ class _DetailRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(children: [
-        SizedBox(width: 120, child: Text(label, style: TextStyle(fontSize: 12, color: theme.textSecondary))),
-        Expanded(child: Text(value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600,
-          color: valueColor ?? theme.textPrimary))),
+        SizedBox(
+            width: 120,
+            child: Text(label,
+                style: TextStyle(fontSize: 12, color: theme.textSecondary))),
+        Expanded(
+            child: Text(value,
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: valueColor ?? theme.textPrimary))),
       ]),
     );
   }
 }
 
 class _DetailChip extends StatelessWidget {
-  const _DetailChip({required this.label, required this.icon, required this.theme});
+  const _DetailChip(
+      {required this.label, required this.icon, required this.theme});
   final String label;
   final IconData icon;
   final AppTheme theme;
@@ -377,7 +573,8 @@ class _DetailChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: theme.border.withOpacity(0.5), borderRadius: BorderRadius.circular(6)),
+          color: theme.border.withOpacity(0.5),
+          borderRadius: BorderRadius.circular(6)),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 13, color: theme.textSecondary),
         const SizedBox(width: 4),

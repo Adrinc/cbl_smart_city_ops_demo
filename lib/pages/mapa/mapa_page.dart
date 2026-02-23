@@ -18,67 +18,103 @@ class _MapaPageState extends State<MapaPage> {
   Incidencia? _selected;
   String? _filterPrioridad;
   bool _showTecnicos = false;
+  final Set<String> _hoveredIds = {};
+
+  static const Map<String, IconData> _catIcon = {
+    'alumbrado': Icons.lightbulb_outline,
+    'bacheo': Icons.construction,
+    'basura': Icons.delete_outline,
+    'agua_drenaje': Icons.water_drop_outlined,
+    'senalizacion': Icons.traffic,
+    'señalizacion': Icons.traffic,
+    'seguridad': Icons.security,
+  };
 
   // Ensenada center
   static const _center = LatLng(31.8667, -116.5963);
 
   Color _prioColor(String p) {
     switch (p) {
-      case 'critico': return const Color(0xFFB91C1C);
-      case 'alto':    return const Color(0xFFD97706);
-      case 'medio':   return const Color(0xFF1D4ED8);
-      default:        return const Color(0xFF2D7A4F);
+      case 'critico':
+        return const Color(0xFFB91C1C);
+      case 'alto':
+        return const Color(0xFFD97706);
+      case 'medio':
+        return const Color(0xFF1D4ED8);
+      default:
+        return const Color(0xFF2D7A4F);
     }
   }
 
   List<Marker> _buildIncidenciaMarkers(List<Incidencia> incs) {
     return incs
-      .where((i) => _filterPrioridad == null || i.prioridad == _filterPrioridad)
-      .where((i) => i.estaActiva)
-      .map((i) {
-        final color = _prioColor(i.prioridad);
-        return Marker(
-          point: LatLng(i.latitud, i.longitud),
-          width: 32, height: 32,
+        .where(
+            (i) => _filterPrioridad == null || i.prioridad == _filterPrioridad)
+        .where((i) => i.estaActiva)
+        .map((i) {
+      final color = _prioColor(i.prioridad);
+      final isHovered = _hoveredIds.contains(i.id);
+      final icon = _catIcon[i.categoria] ?? Icons.report_problem_outlined;
+      return Marker(
+        point: LatLng(i.latitud, i.longitud),
+        width: isHovered ? 44 : 36,
+        height: isHovered ? 44 : 36,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (_) => setState(() => _hoveredIds.add(i.id)),
+          onExit: (_) => setState(() => _hoveredIds.remove(i.id)),
           child: GestureDetector(
             onTap: () => setState(() => _selected = i),
-            child: Container(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
               decoration: BoxDecoration(
                 color: color,
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
-                boxShadow: [BoxShadow(color: color.withOpacity(0.5), blurRadius: 6)],
+                border:
+                    Border.all(color: Colors.white, width: isHovered ? 3 : 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withOpacity(isHovered ? 0.7 : 0.4),
+                    blurRadius: isHovered ? 14 : 6,
+                    spreadRadius: isHovered ? 2 : 0,
+                  )
+                ],
               ),
-              child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 16),
+              child: Icon(icon, color: Colors.white, size: isHovered ? 22 : 17),
             ),
           ),
-        );
-      }).toList();
+        ),
+      );
+    }).toList();
   }
 
   List<Marker> _buildTecnicoMarkers(List<Tecnico> tecs) {
     if (!_showTecnicos) return [];
-    return tecs.map((t) => Marker(
-      point: LatLng(t.latitud, t.longitud),
-      width: 30, height: 30,
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF7A1E3A),
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 2),
-        ),
-        child: const Icon(Icons.engineering, color: Colors.white, size: 14),
-      ),
-    )).toList();
+    return tecs
+        .map((t) => Marker(
+              point: LatLng(t.latitud, t.longitud),
+              width: 30,
+              height: 30,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF7A1E3A),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                child: const Icon(Icons.engineering,
+                    color: Colors.white, size: 14),
+              ),
+            ))
+        .toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme  = AppTheme.of(context);
+    final theme = AppTheme.of(context);
     final incProv = context.watch<IncidenciaProvider>();
     final tecProv = context.watch<TecnicoProvider>();
-    final incs    = incProv.activas;
-    final tecs    = tecProv.activos;
+    final incs = incProv.activas;
+    final tecs = tecProv.activos;
 
     return Stack(
       children: [
@@ -101,27 +137,37 @@ class _MapaPageState extends State<MapaPage> {
 
         // Barra superior de controles
         Positioned(
-          top: 16, left: 16, right: 16,
+          top: 16,
+          left: 16,
+          right: 16,
           child: Row(children: [
             _MapControl(
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 const Text('Prioridad: ', style: TextStyle(fontSize: 12)),
-                ...[null, 'critico', 'alto', 'medio', 'bajo'].map((p) => Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: ChoiceChip(
-                    label: Text(p == null ? 'Todas' : labelPrioridad(p), style: const TextStyle(fontSize: 11)),
-                    selected: _filterPrioridad == p,
-                    onSelected: (_) => setState(() => _filterPrioridad = p),
-                    selectedColor: p == null ? theme.primaryColor : _prioColor(p),
-                    labelStyle: TextStyle(
-                      color: _filterPrioridad == p ? Colors.white : null,
-                      fontSize: 11,
-                    ),
-                    side: BorderSide.none,
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    visualDensity: VisualDensity.compact,
-                  ),
-                )),
+                ...[
+                  null,
+                  'critico',
+                  'alto',
+                  'medio',
+                  'bajo'
+                ].map((p) => Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: ChoiceChip(
+                        label: Text(p == null ? 'Todas' : labelPrioridad(p),
+                            style: const TextStyle(fontSize: 11)),
+                        selected: _filterPrioridad == p,
+                        onSelected: (_) => setState(() => _filterPrioridad = p),
+                        selectedColor:
+                            p == null ? theme.primaryColor : _prioColor(p),
+                        labelStyle: TextStyle(
+                          color: _filterPrioridad == p ? Colors.white : null,
+                          fontSize: 11,
+                        ),
+                        side: BorderSide.none,
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    )),
               ]),
             ),
             const SizedBox(width: 8),
@@ -142,31 +188,43 @@ class _MapaPageState extends State<MapaPage> {
 
         // Leyenda
         Positioned(
-          bottom: 16, left: 16,
+          bottom: 16,
+          left: 16,
           child: _MapControl(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('Leyenda', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                const Text('Leyenda',
+                    style:
+                        TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 6),
                 ...[
                   ('critico', 'Crítico'),
-                  ('alto',    'Alto'),
-                  ('medio',   'Medio'),
-                  ('bajo',    'Bajo'),
+                  ('alto', 'Alto'),
+                  ('medio', 'Medio'),
+                  ('bajo', 'Bajo'),
                 ].map((e) => Padding(
-                  padding: const EdgeInsets.only(bottom: 3),
-                  child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Container(width: 12, height: 12, decoration: BoxDecoration(color: _prioColor(e.$1), shape: BoxShape.circle)),
-                    const SizedBox(width: 6),
-                    Text(e.$2, style: const TextStyle(fontSize: 11)),
-                  ]),
-                )),
+                      padding: const EdgeInsets.only(bottom: 3),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                                color: _prioColor(e.$1),
+                                shape: BoxShape.circle)),
+                        const SizedBox(width: 6),
+                        Text(e.$2, style: const TextStyle(fontSize: 11)),
+                      ]),
+                    )),
                 if (_showTecnicos) ...[
                   const SizedBox(height: 2),
                   Row(mainAxisSize: MainAxisSize.min, children: [
-                    Container(width: 12, height: 12, decoration: const BoxDecoration(color: Color(0xFF7A1E3A), shape: BoxShape.circle)),
+                    Container(
+                        width: 12,
+                        height: 12,
+                        decoration: const BoxDecoration(
+                            color: Color(0xFF7A1E3A), shape: BoxShape.circle)),
                     const SizedBox(width: 6),
                     const Text('Técnico', style: TextStyle(fontSize: 11)),
                   ]),
@@ -178,10 +236,15 @@ class _MapaPageState extends State<MapaPage> {
 
         // Counter badge
         Positioned(
-          bottom: 16, right: 16,
+          bottom: 16,
+          right: 16,
           child: _MapControl(
             child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Text('${incs.length}', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: theme.primaryColor)),
+              Text('${incs.length}',
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: theme.primaryColor)),
               const Text('activas', style: TextStyle(fontSize: 11)),
             ]),
           ),
@@ -190,8 +253,13 @@ class _MapaPageState extends State<MapaPage> {
         // Detail panel
         if (_selected != null)
           Positioned(
-            bottom: 16, left: 50, right: 100,
-            child: _IncidenciaDetailPanel(inc: _selected!, theme: theme, onClose: () => setState(() => _selected = null)),
+            bottom: 16,
+            left: 50,
+            right: 100,
+            child: _IncidenciaDetailPanel(
+                inc: _selected!,
+                theme: theme,
+                onClose: () => setState(() => _selected = null)),
           ),
       ],
     );
@@ -208,7 +276,9 @@ class _MapControl extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.95),
         borderRadius: BorderRadius.circular(8),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8)
+        ],
       ),
       child: child,
     );
@@ -216,17 +286,22 @@ class _MapControl extends StatelessWidget {
 }
 
 class _IncidenciaDetailPanel extends StatelessWidget {
-  const _IncidenciaDetailPanel({required this.inc, required this.theme, required this.onClose});
+  const _IncidenciaDetailPanel(
+      {required this.inc, required this.theme, required this.onClose});
   final Incidencia inc;
   final AppTheme theme;
   final VoidCallback onClose;
 
   Color _prioColor(String p) {
     switch (p) {
-      case 'critico': return const Color(0xFFB91C1C);
-      case 'alto':    return const Color(0xFFD97706);
-      case 'medio':   return const Color(0xFF1D4ED8);
-      default:        return const Color(0xFF2D7A4F);
+      case 'critico':
+        return const Color(0xFFB91C1C);
+      case 'alto':
+        return const Color(0xFFD97706);
+      case 'medio':
+        return const Color(0xFF1D4ED8);
+      default:
+        return const Color(0xFF2D7A4F);
     }
   }
 
@@ -243,35 +318,57 @@ class _IncidenciaDetailPanel extends StatelessWidget {
       ),
       child: Row(children: [
         Container(
-          width: 6, height: 60,
-          decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(3)),
+          width: 6,
+          height: 60,
+          decoration: BoxDecoration(
+              color: color, borderRadius: BorderRadius.circular(3)),
         ),
         const SizedBox(width: 12),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-          Row(children: [
-            Text(formatIdIncidencia(inc.id), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: theme.primaryColor)),
-            const SizedBox(width: 8),
-            PriorityBadge(prioridad: inc.prioridad),
-            const Spacer(),
-            Text(labelCategoria(inc.categoria), style: TextStyle(fontSize: 12, color: theme.textSecondary)),
-          ]),
-          const SizedBox(height: 4),
-          Text(inc.descripcion, style: TextStyle(fontSize: 12, color: theme.textPrimary),
-            maxLines: 1, overflow: TextOverflow.ellipsis),
-          const SizedBox(height: 4),
-          Row(children: [
-            Icon(Icons.timer_outlined, size: 13, color: inc.estaVencida ? theme.critical : theme.textSecondary),
-            const SizedBox(width: 3),
-            Text(formatSla(inc.fechaLimite),
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600,
-                color: inc.estaVencida ? theme.critical : theme.textSecondary)),
-            const SizedBox(width: 12),
-            Icon(Icons.location_on_outlined, size: 13, color: theme.textSecondary),
-            const SizedBox(width: 3),
-            Text('${inc.latitud.toStringAsFixed(4)}, ${inc.longitud.toStringAsFixed(4)}',
-              style: TextStyle(fontSize: 11, color: theme.textSecondary)),
-          ]),
-        ])),
+        Expanded(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+              Row(children: [
+                Text(formatIdIncidencia(inc.id),
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: theme.primaryColor)),
+                const SizedBox(width: 8),
+                PriorityBadge(prioridad: inc.prioridad),
+                const Spacer(),
+                Text(labelCategoria(inc.categoria),
+                    style: TextStyle(fontSize: 12, color: theme.textSecondary)),
+              ]),
+              const SizedBox(height: 4),
+              Text(inc.descripcion,
+                  style: TextStyle(fontSize: 12, color: theme.textPrimary),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis),
+              const SizedBox(height: 4),
+              Row(children: [
+                Icon(Icons.timer_outlined,
+                    size: 13,
+                    color:
+                        inc.estaVencida ? theme.critical : theme.textSecondary),
+                const SizedBox(width: 3),
+                Text(formatSla(inc.fechaLimite),
+                    style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: inc.estaVencida
+                            ? theme.critical
+                            : theme.textSecondary)),
+                const SizedBox(width: 12),
+                Icon(Icons.location_on_outlined,
+                    size: 13, color: theme.textSecondary),
+                const SizedBox(width: 3),
+                Text(
+                    '${inc.latitud.toStringAsFixed(4)}, ${inc.longitud.toStringAsFixed(4)}',
+                    style: TextStyle(fontSize: 11, color: theme.textSecondary)),
+              ]),
+            ])),
         const SizedBox(width: 8),
         IconButton(onPressed: onClose, icon: const Icon(Icons.close, size: 18)),
       ]),

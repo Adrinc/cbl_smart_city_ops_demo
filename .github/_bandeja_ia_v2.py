@@ -1,4 +1,8 @@
-import 'package:flutter/material.dart';
+
+import pathlib
+ROOT = pathlib.Path(r"g:\TRABAJO\FLUTTER\cbl_portal_demos\sistema_smart_sistem_demo")
+
+bandeja_ia = r'''import 'package:flutter/material.dart';
 import 'package:nethive_neo/helpers/formatters.dart';
 import 'package:nethive_neo/models/models.dart';
 import 'package:nethive_neo/providers/providers.dart';
@@ -594,3 +598,8 @@ class _IaBar extends StatelessWidget {
     );
   }
 }
+'''
+
+p = ROOT / "lib" / "pages" / "bandeja_ia" / "bandeja_ia_page.dart"
+p.write_text(bandeja_ia, encoding='utf-8')
+print(f"✅ {p.name} ({len(bandeja_ia.splitlines())} líneas)")
