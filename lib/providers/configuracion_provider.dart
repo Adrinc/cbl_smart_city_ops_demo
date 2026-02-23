@@ -31,6 +31,11 @@ class ConfiguracionProvider extends ChangeNotifier {
   ReglaPriorizacion? byId(String id) =>
       _reglas.where((r) => r.id == id).firstOrNull;
 
+
+  void addRegla(ReglaPriorizacion r) {
+    _reglas.insert(0, r);
+    notifyListeners();
+  }
   String calcPrioridad(String categoria, String entorno, bool esReincidente) {
     try {
       final regla = _reglas.firstWhere((r) =>

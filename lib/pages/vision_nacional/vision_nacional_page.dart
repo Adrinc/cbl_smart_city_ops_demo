@@ -9,6 +9,7 @@ import 'package:nethive_neo/theme/theme.dart';
 import 'package:nethive_neo/widgets/shared/alerta_row.dart';
 import 'package:nethive_neo/widgets/shared/kpi_card.dart';
 import 'package:nethive_neo/widgets/shared/section_header.dart';
+import 'package:nethive_neo/widgets/shared/responsive_layout.dart';
 import 'package:provider/provider.dart';
 
 class VisionNacionalPage extends StatelessWidget {
@@ -39,33 +40,19 @@ class VisionNacionalPage extends StatelessWidget {
           _KpiRow(kpi: kpi, theme: theme),
           const SizedBox(height: 24),
 
-          // ── Charts Row ───────────────────────────────────────────────────
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                    flex: 6, child: _TendenciaCard(kpi: kpi, theme: theme)),
-                const SizedBox(width: 16),
-                Expanded(
-                    flex: 4, child: _CategoriaCard(kpi: kpi, theme: theme)),
-              ],
-            ),
+          // ── Charts Row — responsivo
+          TwoColumnLayout(
+            left: _TendenciaCard(kpi: kpi, theme: theme),
+            right: _CategoriaCard(kpi: kpi, theme: theme),
           ),
           const SizedBox(height: 24),
 
-          // ── Estados + Alertas ─────────────────────────────────────────────
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(flex: 5, child: _EstadosCard(kpi: kpi, theme: theme)),
-                const SizedBox(width: 16),
-                Expanded(
-                    flex: 5,
-                    child: _AlertasCard(alertas: alertas, theme: theme)),
-              ],
-            ),
+          // ── Estados + Alertas — responsivo
+          TwoColumnLayout(
+            left: _EstadosCard(kpi: kpi, theme: theme),
+            right: _AlertasCard(alertas: alertas, theme: theme),
+            leftFlex: 5,
+            rightFlex: 5,
           ),
           const SizedBox(height: 24),
 
@@ -119,53 +106,44 @@ class _KpiRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(children: [
-      Expanded(
-          child: KpiCard(
+    return KpiGrid(children: [
+      KpiCard(
         icon: Icons.assignment_outlined,
         accentColor: theme.medium,
         value:
             '${kpi.incidenciasActivas.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}',
         title: 'Activas',
         subtitle: 'En proceso activo',
-      )),
-      const SizedBox(width: 12),
-      Expanded(
-          child: KpiCard(
+      ),
+      KpiCard(
         icon: Icons.warning_amber_rounded,
         accentColor: theme.critical,
         value: '${kpi.criticas}',
         title: 'Críticas',
         subtitle: 'Requieren acción inmediata',
-      )),
-      const SizedBox(width: 12),
-      Expanded(
-          child: KpiCard(
+      ),
+      KpiCard(
         icon: Icons.verified_outlined,
         accentColor: theme.low,
         value: '${kpi.cumplimientoSla.toStringAsFixed(1)} %',
         title: 'SLA Cumplido',
         subtitle: 'Promedio nacional',
-      )),
-      const SizedBox(width: 12),
-      Expanded(
-          child: KpiCard(
+      ),
+      KpiCard(
         icon: Icons.timer_outlined,
         accentColor: theme.high,
         value: '${kpi.porVencer}',
         title: 'Por Vencer',
         subtitle: 'Próximas 4 horas',
-      )),
-      const SizedBox(width: 12),
-      Expanded(
-          child: KpiCard(
+      ),
+      KpiCard(
         icon: Icons.engineering_outlined,
         accentColor: theme.primaryColor,
         value:
             '${kpi.tecnicosActivos.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}',
         title: 'Técnicos',
         subtitle: 'Activos en campo',
-      )),
+      ),
     ]);
   }
 }

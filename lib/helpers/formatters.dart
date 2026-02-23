@@ -14,9 +14,19 @@ String formatFechaCorta(DateTime dt) {
   return DateFormat('dd/MM/yyyy').format(dt);
 }
 
-/// Fecha + hora: "22/02/2026 14:35"
+/// Fecha + hora larga: "22 de febrero de 2026 a las 14:35 h"
+/// Si son horas redondas: "22 de febrero de 2026 a las 14 h"
 String formatFechaHora(DateTime dt) {
-  return DateFormat('dd/MM/yyyy HH:mm').format(dt);
+  final fecha = DateFormat("d 'de' MMMM 'de' y", 'es_MX').format(dt);
+  final h = dt.hour;
+  final m = dt.minute;
+  if (m == 0) return '$fecha a las $h h';
+  return '$fecha a las ${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')} h';
+}
+
+/// Fecha + hora corta para tablas: "22/02 14:35"
+String formatFechaHoraCorta(DateTime dt) {
+  return DateFormat('dd/MM HH:mm').format(dt);
 }
 
 /// Solo hora: "14:35"
@@ -65,10 +75,10 @@ String formatIdIncidencia(String id) {
 /// Nombre legible de categoria
 String labelCategoria(String cat) {
   const Map<String, String> labels = {
-    'alumbrado':    'Alumbrado',
-    'bacheo':       'Bacheo',
-    'basura':       'Basura',
-    'seguridad':    'Seguridad',
+    'alumbrado': 'Alumbrado',
+    'bacheo': 'Bacheo',
+    'basura': 'Basura',
+    'seguridad': 'Seguridad',
     'agua_drenaje': 'Agua / Drenaje',
     'senalizacion': 'Senalizacion',
   };
@@ -79,9 +89,9 @@ String labelCategoria(String cat) {
 String labelPrioridad(String p) {
   const Map<String, String> labels = {
     'critico': 'Critico',
-    'alto':    'Alto',
-    'medio':   'Medio',
-    'bajo':    'Bajo',
+    'alto': 'Alto',
+    'medio': 'Medio',
+    'bajo': 'Bajo',
   };
   return labels[p] ?? p;
 }
@@ -89,14 +99,14 @@ String labelPrioridad(String p) {
 /// Nombre legible de estatus
 String labelEstatus(String s) {
   const Map<String, String> labels = {
-    'recibido':    'Recibido',
+    'recibido': 'Recibido',
     'en_revision': 'En Revision',
-    'aprobado':    'Aprobado',
-    'asignado':    'Asignado',
-    'en_proceso':  'En Proceso',
-    'resuelto':    'Resuelto',
-    'cerrado':     'Cerrado',
-    'rechazado':   'Rechazado',
+    'aprobado': 'Aprobado',
+    'asignado': 'Asignado',
+    'en_proceso': 'En Proceso',
+    'resuelto': 'Resuelto',
+    'cerrado': 'Cerrado',
+    'rechazado': 'Rechazado',
   };
   return labels[s] ?? s;
 }
@@ -104,10 +114,10 @@ String labelEstatus(String s) {
 /// Nombre legible de entorno
 String labelEntorno(String e) {
   const Map<String, String> labels = {
-    'residencial':  'Residencial',
-    'comercial':    'Comercial',
-    'industrial':   'Industrial',
-    'institucional':'Institucional',
+    'residencial': 'Residencial',
+    'comercial': 'Comercial',
+    'industrial': 'Industrial',
+    'institucional': 'Institucional',
   };
   return labels[e] ?? e;
 }
@@ -116,8 +126,8 @@ String labelEntorno(String e) {
 String labelRolTecnico(String rol) {
   const Map<String, String> labels = {
     'jefe_cuadrilla': 'Jefe de Cuadrilla',
-    'tecnico_campo':  'Tecnico de Campo',
-    'supervisor':     'Supervisor',
+    'tecnico_campo': 'Tecnico de Campo',
+    'supervisor': 'Supervisor',
   };
   return labels[rol] ?? rol;
 }
@@ -125,10 +135,10 @@ String labelRolTecnico(String rol) {
 /// Nombre legible de estatus de tecnico
 String labelEstatusTecnico(String s) {
   const Map<String, String> labels = {
-    'activo':    'Activo',
-    'en_campo':  'En Campo',
-    'inactivo':  'Inactivo',
-    'descanso':  'Descanso',
+    'activo': 'Activo',
+    'en_campo': 'En Campo',
+    'inactivo': 'Inactivo',
+    'descanso': 'Descanso',
   };
   return labels[s] ?? s;
 }
