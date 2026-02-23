@@ -9,7 +9,7 @@ class AppLocalizations {
   static AppLocalizations of(BuildContext context) =>
       Localizations.of<AppLocalizations>(context, AppLocalizations)!;
 
-  static List<String> languages() => ['en'];
+  static List<String> languages() => ['en', 'es'];
 
   String get languageCode => locale.languageCode;
   int get languageIndex => languages().contains(languageCode)

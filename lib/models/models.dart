@@ -1,5 +1,8 @@
-// Models for DemoCorp CRM Demo
-// All complex Supabase models removed - using simple mock data instead
-
-export 'package:nethive_neo/models/service.dart';
-export 'package:nethive_neo/models/state.dart';
+// Barrel file — Modelos Terranex Smart City
+export 'package:nethive_neo/models/incidencia.dart';
+export 'package:nethive_neo/models/tecnico.dart';
+export 'package:nethive_neo/models/material_item.dart';
+export 'package:nethive_neo/models/regla_priorizacion.dart';
+export 'package:nethive_neo/models/evento_auditoria.dart';
+export 'package:nethive_neo/models/kpis.dart';
+export 'package:nethive_neo/models/usuario_sistema.dart';

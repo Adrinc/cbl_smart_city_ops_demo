@@ -5,28 +5,30 @@ import 'package:nethive_neo/internationalization/internationalization.dart';
 import 'package:nethive_neo/router/router.dart';
 import 'package:nethive_neo/theme/theme.dart';
 import 'package:provider/provider.dart';
-
-import 'package:nethive_neo/providers/visual_state_provider.dart';
-import 'package:nethive_neo/helpers/globals.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'package:flutter_portal/flutter_portal.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'package:nethive_neo/helpers/globals.dart';
+import 'package:nethive_neo/providers/providers.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   setPathUrlStrategy();
-
-  // Initialize globals (SharedPreferences for theme)
   await initGlobals();
-
   GoRouter.optionURLReflectsImperativeAPIs = true;
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-            create: (context) => VisualStateProvider(context)),
+        ChangeNotifierProvider(create: (_) => AppLevelProvider()),
+        ChangeNotifierProvider(create: (_) => IncidenciaProvider()),
+        ChangeNotifierProvider(create: (_) => BandejaIAProvider()),
+        ChangeNotifierProvider(create: (_) => TecnicoProvider()),
+        ChangeNotifierProvider(create: (_) => InventarioProvider()),
+        ChangeNotifierProvider(create: (_) => SlaProvider()),
+        ChangeNotifierProvider(create: (_) => ReporteProvider()),
+        ChangeNotifierProvider(create: (_) => ConfiguracionProvider()),
       ],
       child: const MyApp(),
     ),
@@ -36,7 +38,6 @@ void main() async {
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   State<MyApp> createState() => _MyAppState();
 
@@ -45,7 +46,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  Locale _locale = const Locale('es');
+  Locale _locale = const Locale('es', 'MX');
   ThemeMode _themeMode = AppTheme.themeMode;
 
   void setLocale(Locale value) => setState(() => _locale = value);
@@ -58,7 +59,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return Portal(
       child: MaterialApp.router(
-        title: 'CBLuna Dashboard Demos',
+        title: 'Terranex — Smart City Operations',
         debugShowCheckedModeBanner: false,
         locale: _locale,
         localizationsDelegates: const [
@@ -67,15 +68,11 @@ class _MyAppState extends State<MyApp> {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        supportedLocales: const [Locale('en', 'US')],
-        theme: ThemeData(
-          brightness: Brightness.light,
-          dividerColor: Colors.grey,
-        ),
-        darkTheme: ThemeData(
-          brightness: Brightness.dark,
-          dividerColor: Colors.grey,
-        ),
+        supportedLocales: const [Locale('es', 'MX')],
+        theme:
+            ThemeData(brightness: Brightness.light, dividerColor: Colors.grey),
+        darkTheme:
+            ThemeData(brightness: Brightness.dark, dividerColor: Colors.grey),
         themeMode: _themeMode,
         routerConfig: router,
         scrollBehavior: MyCustomScrollBehavior(),

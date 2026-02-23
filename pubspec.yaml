@@ -89,6 +89,11 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/avatares/
+    - assets/images/casos/alumbrado/
+    - assets/images/casos/bacheo/
+    - assets/images/casos/basura/
+    - assets/images/casos/señalizacion/
     - assets/fonts/
     - assets/referencia/
 

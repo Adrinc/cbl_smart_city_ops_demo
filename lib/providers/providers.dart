@@ -1,4 +1,8 @@
-// Providers for DemoCorp CRM Demo
-// Only UI state providers - no backend connection providers
-
-export 'package:nethive_neo/providers/visual_state_provider.dart';
+export 'package:nethive_neo/providers/app_level_provider.dart';
+export 'package:nethive_neo/providers/incidencia_provider.dart';
+export 'package:nethive_neo/providers/bandeja_ia_provider.dart';
+export 'package:nethive_neo/providers/tecnico_provider.dart';
+export 'package:nethive_neo/providers/inventario_provider.dart';
+export 'package:nethive_neo/providers/sla_provider.dart';
+export 'package:nethive_neo/providers/reporte_provider.dart';
+export 'package:nethive_neo/providers/configuracion_provider.dart';

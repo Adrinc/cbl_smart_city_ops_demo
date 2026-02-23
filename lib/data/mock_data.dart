@@ -1,670 +1,809 @@
-/// Mock data for CBLuna Dashboard Demos
-/// All data is hardcoded and lives only in memory during the session
-/// NO backend connections, NO authentication, NO persistence
-library;
+// ignore_for_file: avoid_redundant_argument_values
+import 'package:nethive_neo/models/models.dart';
 
-/// ============================================================================
-/// SALES DASHBOARD DATA
-/// ============================================================================
+/// ─────────────────────────────────────────────────────────────────────────────
+/// MOCK DATA — Terranex Smart City Operations
+/// Todo hardcodeado. Sin backend.
+/// Estado demo : Baja California Norte
+/// Municipio   : Ensenada
+/// ─────────────────────────────────────────────────────────────────────────────
 
-class SalesSummary {
-  final double totalRevenue;
-  final int totalClients;
-  final int totalSales;
-  final double averageTicket;
-  final double monthlyGrowth;
+// ──────────────── TÉCNICOS ───────────────────────────────────────────────────
 
-  SalesSummary({
-    required this.totalRevenue,
-    required this.totalClients,
-    required this.totalSales,
-    required this.averageTicket,
-    required this.monthlyGrowth,
-  });
-}
+final List<Tecnico> mockTecnicosEnsenada = [
+  const Tecnico(
+    id: 'T01',
+    nombre: 'Carlos Mendoza',
+    rol: 'jefe_cuadrilla',
+    especialidad: 'alumbrado',
+    estatus: 'en_campo',
+    incidenciasActivas: 3,
+    incidenciasCerradasMes: 21,
+    latitud: 31.8590,
+    longitud: -116.5920,
+    municipioAsignado: 'Ensenada',
+    avatarPath: 'assets/images/avatares/Carlos.png',
+  ),
+  const Tecnico(
+    id: 'T02',
+    nombre: 'Eduardo Ruiz',
+    rol: 'tecnico_campo',
+    especialidad: 'alumbrado',
+    estatus: 'en_campo',
+    incidenciasActivas: 2,
+    incidenciasCerradasMes: 18,
+    latitud: 31.8650,
+    longitud: -116.5870,
+    municipioAsignado: 'Ensenada',
+    avatarPath: 'assets/images/avatares/Eduardo.png',
+  ),
+  const Tecnico(
+    id: 'T03',
+    nombre: 'Fernando Castro',
+    rol: 'tecnico_campo',
+    especialidad: 'bacheo',
+    estatus: 'en_campo',
+    incidenciasActivas: 2,
+    incidenciasCerradasMes: 15,
+    latitud: 31.8720,
+    longitud: -116.6010,
+    municipioAsignado: 'Ensenada',
+    avatarPath: 'assets/images/avatares/Fernando.png',
+  ),
+  const Tecnico(
+    id: 'T04',
+    nombre: 'Juan López',
+    rol: 'jefe_cuadrilla',
+    especialidad: 'bacheo',
+    estatus: 'activo',
+    incidenciasActivas: 2,
+    incidenciasCerradasMes: 24,
+    latitud: 31.8600,
+    longitud: -116.5950,
+    municipioAsignado: 'Ensenada',
+    avatarPath: 'assets/images/avatares/Juan.png',
+  ),
+  const Tecnico(
+    id: 'T05',
+    nombre: 'Mario Soto',
+    rol: 'tecnico_campo',
+    especialidad: 'basura',
+    estatus: 'en_campo',
+    incidenciasActivas: 1,
+    incidenciasCerradasMes: 30,
+    latitud: 31.8780,
+    longitud: -116.5900,
+    municipioAsignado: 'Ensenada',
+    avatarPath: 'assets/images/avatares/Mario.png',
+  ),
+  const Tecnico(
+    id: 'T06',
+    nombre: 'Laura Vega',
+    rol: 'supervisor',
+    especialidad: 'general',
+    estatus: 'activo',
+    incidenciasActivas: 0,
+    incidenciasCerradasMes: 12,
+    latitud: 31.8667,
+    longitud: -116.5963,
+    municipioAsignado: 'Ensenada',
+    avatarPath: 'assets/images/avatares/Laura.png',
+  ),
+  const Tecnico(
+    id: 'T07',
+    nombre: 'María Ramos',
+    rol: 'tecnico_campo',
+    especialidad: 'agua_drenaje',
+    estatus: 'en_campo',
+    incidenciasActivas: 2,
+    incidenciasCerradasMes: 11,
+    latitud: 31.8520,
+    longitud: -116.6080,
+    municipioAsignado: 'Ensenada',
+    avatarPath: 'assets/images/avatares/Maria.png',
+  ),
+  const Tecnico(
+    id: 'T08',
+    nombre: 'Marta Flores',
+    rol: 'tecnico_campo',
+    especialidad: 'alumbrado',
+    estatus: 'descanso',
+    incidenciasActivas: 0,
+    incidenciasCerradasMes: 19,
+    latitud: 31.8630,
+    longitud: -116.5940,
+    municipioAsignado: 'Ensenada',
+    avatarPath: 'assets/images/avatares/Marta.png',
+  ),
+  const Tecnico(
+    id: 'T09',
+    nombre: 'Valeria Cruz',
+    rol: 'tecnico_campo',
+    especialidad: 'senalizacion',
+    estatus: 'en_campo',
+    incidenciasActivas: 1,
+    incidenciasCerradasMes: 14,
+    latitud: 31.8700,
+    longitud: -116.5830,
+    municipioAsignado: 'Ensenada',
+    avatarPath: 'assets/images/avatares/Valeria.png',
+  ),
+  const Tecnico(
+    id: 'T10',
+    nombre: 'Yuna Torres',
+    rol: 'supervisor',
+    especialidad: 'general',
+    estatus: 'activo',
+    incidenciasActivas: 0,
+    incidenciasCerradasMes: 8,
+    latitud: 31.8667,
+    longitud: -116.5963,
+    municipioAsignado: 'Ensenada',
+    avatarPath: 'assets/images/avatares/Yuna.png',
+  ),
+  const Tecnico(
+    id: 'T11',
+    nombre: 'Roberto Silva',
+    rol: 'tecnico_campo',
+    especialidad: 'basura',
+    estatus: 'en_campo',
+    incidenciasActivas: 1,
+    incidenciasCerradasMes: 22,
+    latitud: 31.8810,
+    longitud: -116.5880,
+    municipioAsignado: 'Ensenada',
+    avatarPath: null,
+  ),
+  const Tecnico(
+    id: 'T12',
+    nombre: 'Andrés Morales',
+    rol: 'tecnico_campo',
+    especialidad: 'seguridad',
+    estatus: 'activo',
+    incidenciasActivas: 1,
+    incidenciasCerradasMes: 9,
+    latitud: 31.8480,
+    longitud: -116.6020,
+    municipioAsignado: 'Ensenada',
+    avatarPath: null,
+  ),
+  const Tecnico(
+    id: 'T13',
+    nombre: 'Sofía Herrera',
+    rol: 'tecnico_campo',
+    especialidad: 'seguridad',
+    estatus: 'inactivo',
+    incidenciasActivas: 0,
+    incidenciasCerradasMes: 6,
+    latitud: 31.8667,
+    longitud: -116.5963,
+    municipioAsignado: 'Ensenada',
+    avatarPath: null,
+  ),
+];
 
-final mockSalesSummary = SalesSummary(
-  totalRevenue: 1250000.00,
-  totalClients: 342,
-  totalSales: 1850,
-  averageTicket: 675.68,
-  monthlyGrowth: 12.5,
+// ──────────────── INCIDENCIAS ─────────────────────────────────────────────────
+
+final _now = DateTime.now();
+DateTime _dt(int diasAtras, {int hora = 8, int min = 0}) =>
+    _now.subtract(Duration(days: diasAtras, hours: 23 - hora, minutes: min));
+DateTime _sla(int horas) => _now.add(Duration(hours: horas));
+DateTime _slaVencido(int horas) => _now.subtract(Duration(hours: horas));
+
+final List<Incidencia> mockIncidenciasEnsenada = [
+  // ── CRÍTICOS ──
+  Incidencia(
+    id: '15420', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'alumbrado', entorno: 'institucional', prioridad: 'critico',
+    descripcion: 'Zona escolar sin alumbrado en 3 postes consecutivos. Riesgo de accidente nocturno.',
+    imagenPath: 'assets/images/casos/alumbrado/alumbrado_alta.jpg',
+    latitud: 31.8590, longitud: -116.5920,
+    estatus: 'en_proceso', tecnicoId: 'T01',
+    fechaReporte: _dt(1, hora: 7), fechaLimite: _sla(2),
+    esReincidente: true,
+    iaCategoriaSugerida: 'alumbrado', iaPrioridadSugerida: 'critico', iaConfianza: 0.97,
+    iaCoherenciaNota: 'Imagen y texto coinciden. Zona escolar confirma criticidad.',
+  ),
+  Incidencia(
+    id: '15415', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'agua_drenaje', entorno: 'residencial', prioridad: 'critico',
+    descripcion: 'Fuga de drenaje en calle principal. Aguas negras contaminando vía pública.',
+    imagenPath: null,
+    latitud: 31.8520, longitud: -116.6080,
+    estatus: 'asignado', tecnicoId: 'T07',
+    fechaReporte: _dt(0, hora: 6), fechaLimite: _slaVencido(1),
+    esReincidente: false,
+    iaCategoriaSugerida: 'agua_drenaje', iaPrioridadSugerida: 'critico', iaConfianza: 0.93,
+    iaCoherenciaNota: 'Descripción confirma emergencia sanitaria.',
+  ),
+  Incidencia(
+    id: '15410', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'seguridad', entorno: 'comercial', prioridad: 'critico',
+    descripcion: 'Cámara de vigilancia vandalizadas en zona del mercado. 4 unidades fuera de servicio.',
+    imagenPath: null,
+    latitud: 31.8700, longitud: -116.5830,
+    estatus: 'aprobado', tecnicoId: null,
+    fechaReporte: _dt(0, hora: 9), fechaLimite: _sla(4),
+    esReincidente: true,
+    iaCategoriaSugerida: 'seguridad', iaPrioridadSugerida: 'critico', iaConfianza: 0.88,
+    iaCoherenciaNota: 'Sin imagen. Texto coherente con categoría. Se eleva prioridad por reincidencia.',
+  ),
+  Incidencia(
+    id: '15408', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'bacheo', entorno: 'institucional', prioridad: 'critico',
+    descripcion: 'Hundimiento severo en acceso a hospital general. Peligro para ambulancias.',
+    imagenPath: 'assets/images/casos/bacheo/bacheo_alta.jpeg',
+    latitud: 31.8630, longitud: -116.5960,
+    estatus: 'en_proceso', tecnicoId: 'T04',
+    fechaReporte: _dt(2, hora: 14), fechaLimite: _slaVencido(3),
+    esReincidente: false,
+    iaCategoriaSugerida: 'bacheo', iaPrioridadSugerida: 'critico', iaConfianza: 0.96,
+    iaCoherenciaNota: 'Imagen muestra daño estructural severo. Entorno institucional elevar a crítico.',
+  ),
+  Incidencia(
+    id: '15402', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'basura', entorno: 'residencial', prioridad: 'critico',
+    descripcion: 'Acumulación masiva de basura en colonia. Focos de infección. Reporte ciudadano masivo.',
+    imagenPath: 'assets/images/casos/basura/basura_muyalta.png',
+    latitud: 31.8810, longitud: -116.5880,
+    estatus: 'en_proceso', tecnicoId: 'T11',
+    fechaReporte: _dt(1, hora: 16), fechaLimite: _sla(1),
+    esReincidente: true,
+    iaCategoriaSugerida: 'basura', iaPrioridadSugerida: 'critico', iaConfianza: 0.91,
+    iaCoherenciaNota: 'Imagen confirma acumulación masiva. Reincidencia + entorno residencial = urgente.',
+  ),
+
+  // ── ALTOS ──
+  Incidencia(
+    id: '15399', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'alumbrado', entorno: 'comercial', prioridad: 'alto',
+    descripcion: 'Semáforo peatonal sin funcionamiento en crucero de alta afluencia.',
+    imagenPath: 'assets/images/casos/alumbrado/alumbrado_media.jpg',
+    latitud: 31.8720, longitud: -116.5870,
+    estatus: 'asignado', tecnicoId: 'T02',
+    fechaReporte: _dt(1, hora: 10), fechaLimite: _sla(6),
+    esReincidente: false,
+    iaCategoriaSugerida: 'alumbrado', iaPrioridadSugerida: 'alto', iaConfianza: 0.84,
+    iaCoherenciaNota: 'Imagen muestra semáforo apagado. Zona comercial.',
+  ),
+  Incidencia(
+    id: '15395', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'agua_drenaje', entorno: 'industrial', prioridad: 'alto',
+    descripcion: 'Coladera tapada causa inundación de calle. Afecta 2 cuadras.',
+    imagenPath: null,
+    latitud: 31.8450, longitud: -116.6200,
+    estatus: 'asignado', tecnicoId: 'T07',
+    fechaReporte: _dt(0, hora: 11), fechaLimite: _sla(8),
+    esReincidente: false,
+    iaCategoriaSugerida: 'agua_drenaje', iaPrioridadSugerida: 'alto', iaConfianza: 0.79,
+    iaCoherenciaNota: 'Sin imagen, texto coherente con categoria de drenaje.',
+  ),
+  Incidencia(
+    id: '15390', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'bacheo', entorno: 'comercial', prioridad: 'alto',
+    descripcion: 'Bache de gran dimensión en calle 3a y Ruiz. Daña vehículos.',
+    imagenPath: 'assets/images/casos/bacheo/bacheo_media.jpg',
+    latitud: 31.8660, longitud: -116.5910,
+    estatus: 'en_proceso', tecnicoId: 'T03',
+    fechaReporte: _dt(2, hora: 8), fechaLimite: _sla(12),
+    esReincidente: false,
+    iaCategoriaSugerida: 'bacheo', iaPrioridadSugerida: 'alto', iaConfianza: 0.92,
+    iaCoherenciaNota: 'Imagen y descripción coherentes. Zona comercial.',
+  ),
+  Incidencia(
+    id: '15385', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'senalizacion', entorno: 'residencial', prioridad: 'alto',
+    descripcion: 'Semáforo parpadeando de manera irregular. Puede causar confusión a conductores.',
+    imagenPath: 'assets/images/casos/señalizacion/semaforo_muyalta.webp',
+    latitud: 31.8750, longitud: -116.5850,
+    estatus: 'aprobado', tecnicoId: null,
+    fechaReporte: _dt(0, hora: 15), fechaLimite: _sla(10),
+    esReincidente: false,
+    iaCategoriaSugerida: 'senalizacion', iaPrioridadSugerida: 'alto', iaConfianza: 0.87,
+    iaCoherenciaNota: 'Imagen muestra semáforo con luz irregular.',
+  ),
+  Incidencia(
+    id: '15380', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'basura', entorno: 'comercial', prioridad: 'alto',
+    descripcion: 'Contenedor de basura desbordado frente a restaurantes. Mal olor y sanitario.',
+    imagenPath: 'assets/images/casos/basura/basura_alta.jpg',
+    latitud: 31.8690, longitud: -116.5925,
+    estatus: 'en_proceso', tecnicoId: 'T05',
+    fechaReporte: _dt(1, hora: 9), fechaLimite: _sla(5),
+    esReincidente: true,
+    iaCategoriaSugerida: 'basura', iaPrioridadSugerida: 'alto', iaConfianza: 0.89,
+    iaCoherenciaNota: 'Imagen confirma desbordamiento.',
+  ),
+  Incidencia(
+    id: '15375', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'seguridad', entorno: 'industrial', prioridad: 'alto',
+    descripcion: 'Luminaria de seguridad dañada en zona industrial. Riesgo de robo nocturno.',
+    imagenPath: null,
+    latitud: 31.8420, longitud: -116.6300,
+    estatus: 'asignado', tecnicoId: 'T12',
+    fechaReporte: _dt(1, hora: 20), fechaLimite: _sla(8),
+    esReincidente: false,
+    iaCategoriaSugerida: 'seguridad', iaPrioridadSugerida: 'alto', iaConfianza: 0.76,
+    iaCoherenciaNota: 'Sin imagen. Descripción coherente con seguridad urbana.',
+  ),
+
+  // ── EN REVISIÓN (bandeja IA) ──
+  Incidencia(
+    id: '15421', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'alumbrado', entorno: 'residencial', prioridad: 'medio',
+    descripcion: 'Foco fundido en poste de colonia. Una luminaria apagada.',
+    imagenPath: 'assets/images/casos/alumbrado/alumbrado_baja.jfif',
+    latitud: 31.8580, longitud: -116.5970,
+    estatus: 'en_revision', tecnicoId: null,
+    fechaReporte: _dt(0, hora: 17), fechaLimite: _sla(24),
+    esReincidente: false,
+    iaCategoriaSugerida: 'alumbrado', iaPrioridadSugerida: 'bajo', iaConfianza: 0.91,
+    iaCoherenciaNota: 'Imagen y descripción coherentes. Impacto bajo. Recomiendo Bajo.',
+  ),
+  Incidencia(
+    id: '15422', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'bacheo', entorno: 'residencial', prioridad: 'medio',
+    descripcion: 'Pequeño bache en calle lateral. No obstruye el paso.',
+    imagenPath: 'assets/images/casos/bacheo/bacheo_muybaja.jfif',
+    latitud: 31.8555, longitud: -116.5940,
+    estatus: 'en_revision', tecnicoId: null,
+    fechaReporte: _dt(0, hora: 14), fechaLimite: _sla(48),
+    esReincidente: false,
+    iaCategoriaSugerida: 'bacheo', iaPrioridadSugerida: 'bajo', iaConfianza: 0.85,
+    iaCoherenciaNota: 'Imagen muestra daño menor. Usuario reporta como urgente pero impacto es bajo.',
+  ),
+  Incidencia(
+    id: '15423', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'basura', entorno: 'residencial', prioridad: 'medio',
+    descripcion: 'Bolsas de basura acumuladas en esquina. Falta recolección esta semana.',
+    imagenPath: 'assets/images/casos/basura/basura_media.jpg',
+    latitud: 31.8710, longitud: -116.5840,
+    estatus: 'en_revision', tecnicoId: null,
+    fechaReporte: _dt(0, hora: 12), fechaLimite: _sla(24),
+    esReincidente: false,
+    iaCategoriaSugerida: 'basura', iaPrioridadSugerida: 'medio', iaConfianza: 0.88,
+    iaCoherenciaNota: 'Imagen confirma acumulación moderada. Prioridad media adecuada.',
+  ),
+  Incidencia(
+    id: '15424', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'senalizacion', entorno: 'comercial', prioridad: 'medio',
+    descripcion: 'Señal de ALTO deteriorada, difícil leer desde 20m.',
+    imagenPath: 'assets/images/casos/señalizacion/alto_casi_ilegible_baja.jfif',
+    latitud: 31.8640, longitud: -116.6000,
+    estatus: 'en_revision', tecnicoId: null,
+    fechaReporte: _dt(0, hora: 10), fechaLimite: _sla(48),
+    esReincidente: false,
+    iaCategoriaSugerida: 'senalizacion', iaPrioridadSugerida: 'bajo', iaConfianza: 0.93,
+    iaCoherenciaNota: 'Imagen confirma señal deteriorada pero legible. Usuario clasifica medio, IA sugiere bajo.',
+  ),
+  Incidencia(
+    id: '15425', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'agua_drenaje', entorno: 'institucional', prioridad: 'alto',
+    descripcion: 'Presión baja en red de agua en escuela secundaria.',
+    imagenPath: null,
+    latitud: 31.8600, longitud: -116.5980,
+    estatus: 'en_revision', tecnicoId: null,
+    fechaReporte: _dt(0, hora: 8), fechaLimite: _sla(12),
+    esReincidente: false,
+    iaCategoriaSugerida: 'agua_drenaje', iaPrioridadSugerida: 'alto', iaConfianza: 0.82,
+    iaCoherenciaNota: 'Sin imagen. Entorno institucional + descripción coherente = alto.',
+  ),
+  Incidencia(
+    id: '15426', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'seguridad', entorno: 'residencial', prioridad: 'medio',
+    descripcion: 'Semáforo de seguridad escolar sin funcionar.',
+    imagenPath: 'assets/images/casos/señalizacion/semaforo_media.webp',
+    latitud: 31.8560, longitud: -116.5930,
+    estatus: 'en_revision', tecnicoId: null,
+    fechaReporte: _dt(0, hora: 7), fechaLimite: _sla(16),
+    esReincidente: false,
+    iaCategoriaSugerida: 'senalizacion', iaPrioridadSugerida: 'medio', iaConfianza: 0.72,
+    iaCoherenciaNota: 'Imagen muestra semáforo. IA re-clasifica a señalización. Revisión humana recomendada.',
+  ),
+
+  // ── RECIBIDOS ──
+  Incidencia(
+    id: '15427', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'basura', entorno: 'residencial', prioridad: 'bajo',
+    descripcion: 'Escombro de construccion privada depositado en banqueta sin permiso.',
+    imagenPath: 'assets/images/casos/basura/basura_baja.jfif',
+    latitud: 31.8760, longitud: -116.5870,
+    estatus: 'recibido', tecnicoId: null,
+    fechaReporte: _dt(0, hora: 18), fechaLimite: _sla(72),
+    esReincidente: false,
+    iaCategoriaSugerida: 'basura', iaPrioridadSugerida: 'bajo', iaConfianza: 0.86,
+    iaCoherenciaNota: null,
+  ),
+  Incidencia(
+    id: '15428', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'alumbrado', entorno: 'residencial', prioridad: 'bajo',
+    descripcion: 'Luminaria parpadeando en calle sin salida.',
+    imagenPath: null,
+    latitud: 31.8590, longitud: -116.5905,
+    estatus: 'recibido', tecnicoId: null,
+    fechaReporte: _dt(0, hora: 19), fechaLimite: _sla(48),
+    esReincidente: false,
+    iaCategoriaSugerida: 'alumbrado', iaPrioridadSugerida: 'bajo', iaConfianza: 0.78,
+    iaCoherenciaNota: null,
+  ),
+  Incidencia(
+    id: '15429', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'bacheo', entorno: 'residencial', prioridad: 'bajo',
+    descripcion: 'Fisura en banqueta cerca de parque.',
+    imagenPath: null,
+    latitud: 31.8720, longitud: -116.5960,
+    estatus: 'recibido', tecnicoId: null,
+    fechaReporte: _dt(0, hora: 20), fechaLimite: _sla(72),
+    esReincidente: false,
+    iaCategoriaSugerida: 'bacheo', iaPrioridadSugerida: 'bajo', iaConfianza: 0.81,
+    iaCoherenciaNota: null,
+  ),
+
+  // ── MEDIOS (en proceso / asignados) ──
+  Incidencia(
+    id: '15370', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'alumbrado', entorno: 'residencial', prioridad: 'medio',
+    descripcion: 'Tres postes sin luz en colonia Chapultepec. Reportado desde hace dos noches.',
+    imagenPath: 'assets/images/casos/alumbrado/alumbrado_media.jpg',
+    latitud: 31.8640, longitud: -116.5890,
+    estatus: 'en_proceso', tecnicoId: 'T08',
+    fechaReporte: _dt(3), fechaLimite: _sla(18),
+    esReincidente: false,
+    iaCategoriaSugerida: 'alumbrado', iaPrioridadSugerida: 'medio', iaConfianza: 0.90,
+    iaCoherenciaNota: null,
+  ),
+  Incidencia(
+    id: '15365', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'basura', entorno: 'comercial', prioridad: 'medio',
+    descripcion: 'Contenedor de reciclaje dañado en zona turística.',
+    imagenPath: 'assets/images/casos/basura/basura3.jpg',
+    latitud: 31.8670, longitud: -116.5960,
+    estatus: 'asignado', tecnicoId: 'T05',
+    fechaReporte: _dt(2), fechaLimite: _sla(24),
+    esReincidente: false,
+    iaCategoriaSugerida: 'basura', iaPrioridadSugerida: 'medio', iaConfianza: 0.85,
+    iaCoherenciaNota: null,
+  ),
+  Incidencia(
+    id: '15360', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'senalizacion', entorno: 'residencial', prioridad: 'medio',
+    descripcion: 'Señal de velocidad máxima torcida después de accidente menor.',
+    imagenPath: 'assets/images/casos/señalizacion/semaforo_muyalta2.webp',
+    latitud: 31.8690, longitud: -116.5905,
+    estatus: 'en_proceso', tecnicoId: 'T09',
+    fechaReporte: _dt(4), fechaLimite: _sla(36),
+    esReincidente: false,
+    iaCategoriaSugerida: 'senalizacion', iaPrioridadSugerida: 'medio', iaConfianza: 0.88,
+    iaCoherenciaNota: null,
+  ),
+  Incidencia(
+    id: '15355', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'agua_drenaje', entorno: 'residencial', prioridad: 'medio',
+    descripcion: 'Agua potable con baja presión en colonia jardines.',
+    imagenPath: null,
+    latitud: 31.8510, longitud: -116.6090,
+    estatus: 'asignado', tecnicoId: 'T07',
+    fechaReporte: _dt(3), fechaLimite: _sla(20),
+    esReincidente: false,
+    iaCategoriaSugerida: 'agua_drenaje', iaPrioridadSugerida: 'medio', iaConfianza: 0.83,
+    iaCoherenciaNota: null,
+  ),
+  Incidencia(
+    id: '15350', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'bacheo', entorno: 'industrial', prioridad: 'medio',
+    descripcion: 'Tramo deteriorado en acceso a parque industrial.',
+    imagenPath: 'assets/images/casos/bacheo/bacheo_media.jpg',
+    latitud: 31.8430, longitud: -116.6280,
+    estatus: 'en_proceso', tecnicoId: 'T03',
+    fechaReporte: _dt(5), fechaLimite: _sla(48),
+    esReincidente: false,
+    iaCategoriaSugerida: 'bacheo', iaPrioridadSugerida: 'medio', iaConfianza: 0.80,
+    iaCoherenciaNota: null,
+  ),
+  Incidencia(
+    id: '15345', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'alumbrado', entorno: 'comercial', prioridad: 'medio',
+    descripcion: 'Caja de control de alumbrado con panel abierto. Riesgo eléctrico.',
+    imagenPath: null,
+    latitud: 31.8685, longitud: -116.5930,
+    estatus: 'aprobado', tecnicoId: null,
+    fechaReporte: _dt(2), fechaLimite: _sla(16),
+    esReincidente: false,
+    iaCategoriaSugerida: 'alumbrado', iaPrioridadSugerida: 'alto', iaConfianza: 0.77,
+    iaCoherenciaNota: 'Sin imagen. IA eleva prioridad por riesgo eléctrico. Revisión humana.',
+  ),
+  Incidencia(
+    id: '15340', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'seguridad', entorno: 'comercial', prioridad: 'medio',
+    descripcion: 'Botón de pánico peatonal dañado en paseo de los héroes.',
+    imagenPath: null,
+    latitud: 31.8705, longitud: -116.5855,
+    estatus: 'asignado', tecnicoId: 'T12',
+    fechaReporte: _dt(2), fechaLimite: _sla(32),
+    esReincidente: false,
+    iaCategoriaSugerida: 'seguridad', iaPrioridadSugerida: 'medio', iaConfianza: 0.81,
+    iaCoherenciaNota: null,
+  ),
+
+  // ── BAJOS ──
+  Incidencia(
+    id: '15320', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'basura', entorno: 'residencial', prioridad: 'bajo',
+    descripcion: 'Bote de basura desbordado en parque. No urgente.',
+    imagenPath: 'assets/images/casos/basura/basura_baja.jfif',
+    latitud: 31.8730, longitud: -116.5905,
+    estatus: 'aprobado', tecnicoId: null,
+    fechaReporte: _dt(6), fechaLimite: _sla(72),
+    esReincidente: false,
+    iaCategoriaSugerida: 'basura', iaPrioridadSugerida: 'bajo', iaConfianza: 0.93,
+    iaCoherenciaNota: null,
+  ),
+  Incidencia(
+    id: '15315', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'bacheo', entorno: 'residencial', prioridad: 'bajo',
+    descripcion: 'Fisura menor en pavimento de calle tranquila.',
+    imagenPath: 'assets/images/casos/bacheo/bacheo_muybaja.jfif',
+    latitud: 31.8545, longitud: -116.5915,
+    estatus: 'en_proceso', tecnicoId: 'T03',
+    fechaReporte: _dt(7), fechaLimite: _sla(96),
+    esReincidente: false,
+    iaCategoriaSugerida: 'bacheo', iaPrioridadSugerida: 'bajo', iaConfianza: 0.94,
+    iaCoherenciaNota: null,
+  ),
+  Incidencia(
+    id: '15310', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'senalizacion', entorno: 'residencial', prioridad: 'bajo',
+    descripcion: 'Señal de tope borrosa en colonia oeste.',
+    imagenPath: 'assets/images/casos/señalizacion/alto_casi_ilegible_baja.jfif',
+    latitud: 31.8760, longitud: -116.5950,
+    estatus: 'asignado', tecnicoId: 'T09',
+    fechaReporte: _dt(5), fechaLimite: _sla(120),
+    esReincidente: false,
+    iaCategoriaSugerida: 'senalizacion', iaPrioridadSugerida: 'bajo', iaConfianza: 0.90,
+    iaCoherenciaNota: null,
+  ),
+
+  // ── RESUELTOS ──
+  Incidencia(
+    id: '15280', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'alumbrado', entorno: 'residencial', prioridad: 'alto',
+    descripcion: 'Poste de luz caído bloqueando la calle.',
+    imagenPath: 'assets/images/casos/alumbrado/alumbrado_alta.jpg',
+    latitud: 31.8610, longitud: -116.5950,
+    estatus: 'resuelto', tecnicoId: 'T01',
+    fechaReporte: _dt(5), fechaLimite: _dt(4),
+    fechaResolucion: _dt(4, hora: 16),
+    esReincidente: false,
+    iaCategoriaSugerida: 'alumbrado', iaPrioridadSugerida: 'alto', iaConfianza: 0.97,
+    iaCoherenciaNota: null,
+  ),
+  Incidencia(
+    id: '15250', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'bacheo', entorno: 'comercial', prioridad: 'medio',
+    descripcion: 'Bache reparado preventivamente en centro comercial.',
+    imagenPath: null,
+    latitud: 31.8675, longitud: -116.5945,
+    estatus: 'cerrado', tecnicoId: 'T04',
+    fechaReporte: _dt(10), fechaLimite: _dt(8),
+    fechaResolucion: _dt(8, hora: 12),
+    esReincidente: false,
+    iaCategoriaSugerida: 'bacheo', iaPrioridadSugerida: 'medio', iaConfianza: 0.88,
+    iaCoherenciaNota: null,
+  ),
+  Incidencia(
+    id: '15200', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'basura', entorno: 'commercial', prioridad: 'alto',
+    descripcion: 'Limpieza de zona turística por evento masivo.',
+    imagenPath: null,
+    latitud: 31.8658, longitud: -116.5970,
+    estatus: 'cerrado', tecnicoId: 'T05',
+    fechaReporte: _dt(15), fechaLimite: _dt(13),
+    fechaResolucion: _dt(13, hora: 9),
+    esReincidente: false,
+    iaCategoriaSugerida: 'basura', iaPrioridadSugerida: 'alto', iaConfianza: 0.91,
+    iaCoherenciaNota: null,
+  ),
+  Incidencia(
+    id: '15180', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'alumbrado', entorno: 'institucional', prioridad: 'critico',
+    descripcion: 'Alumbrado de área de emergencias hospital recuperado.',
+    imagenPath: null,
+    latitud: 31.8630, longitud: -116.5960,
+    estatus: 'cerrado', tecnicoId: 'T01',
+    fechaReporte: _dt(20), fechaLimite: _dt(19, hora: 10),
+    fechaResolucion: _dt(19, hora: 8),
+    esReincidente: false,
+    iaCategoriaSugerida: 'alumbrado', iaPrioridadSugerida: 'critico', iaConfianza: 0.98,
+    iaCoherenciaNota: null,
+  ),
+  Incidencia(
+    id: '15150', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'agua_drenaje', entorno: 'residencial', prioridad: 'alto',
+    descripcion: 'Tubería reparada en colonia norte.',
+    imagenPath: null,
+    latitud: 31.8520, longitud: -116.6060,
+    estatus: 'cerrado', tecnicoId: 'T07',
+    fechaReporte: _dt(18), fechaLimite: _dt(16),
+    fechaResolucion: _dt(16, hora: 14),
+    esReincidente: false,
+    iaCategoriaSugerida: 'agua_drenaje', iaPrioridadSugerida: 'alto', iaConfianza: 0.89,
+    iaCoherenciaNota: null,
+  ),
+
+  // ── RECHAZADOS ──
+  Incidencia(
+    id: '15100', municipio: 'Ensenada', estado: 'Baja California Norte',
+    categoria: 'seguridad', entorno: 'residencial', prioridad: 'bajo',
+    descripcion: 'Queja vecinal por ruido nocturno. No es incidencia de infraestructura.',
+    imagenPath: null,
+    latitud: 31.8665, longitud: -116.5975,
+    estatus: 'rechazado', tecnicoId: null,
+    fechaReporte: _dt(12), fechaLimite: null,
+    esReincidente: false,
+    iaCategoriaSugerida: 'seguridad', iaPrioridadSugerida: 'bajo', iaConfianza: 0.45,
+    iaCoherenciaNota: 'Baja confianza. Descripción no corresponde a incidencia de infraestructura.',
+  ),
+];
+
+// ──────────────── MATERIALES ──────────────────────────────────────────────────
+
+final List<MaterialItem> mockMateriales = [
+  // Eléctrico / Alumbrado
+  const MaterialItem(id: 'M01', clave: 'EL-001', descripcion: 'Foco LED 150W para poste', categoria: 'electrico', unidad: 'PZA', stockActual: 48, stockMinimo: 20, reservado: 12, estatus: 'disponible'),
+  const MaterialItem(id: 'M02', clave: 'EL-002', descripcion: 'Cable eléctrico calibre 12', categoria: 'electrico', unidad: 'MTO', stockActual: 320, stockMinimo: 100, reservado: 80, estatus: 'disponible'),
+  const MaterialItem(id: 'M03', clave: 'EL-003', descripcion: 'Luminaria LED cobra 250W', categoria: 'electrico', unidad: 'PZA', stockActual: 15, stockMinimo: 10, reservado: 8, estatus: 'bajo_stock'),
+  const MaterialItem(id: 'M04', clave: 'EL-004', descripcion: 'Caja de control eléctrico', categoria: 'electrico', unidad: 'PZA', stockActual: 6, stockMinimo: 5, reservado: 2, estatus: 'bajo_stock'),
+  const MaterialItem(id: 'M05', clave: 'EL-005', descripcion: 'Fotocelda para luminaria', categoria: 'electrico', unidad: 'PZA', stockActual: 32, stockMinimo: 15, reservado: 4, estatus: 'disponible'),
+  const MaterialItem(id: 'M06', clave: 'EL-006', descripcion: 'Interruptor térmico 40A', categoria: 'electrico', unidad: 'PZA', stockActual: 0, stockMinimo: 10, reservado: 0, estatus: 'agotado'),
+  const MaterialItem(id: 'M07', clave: 'EL-007', descripcion: 'Poste de alumbrado 9m galvanizado', categoria: 'electrico', unidad: 'PZA', stockActual: 4, stockMinimo: 5, reservado: 2, estatus: 'bajo_stock'),
+
+  // Pavimento / Bacheo
+  const MaterialItem(id: 'M08', clave: 'PA-001', descripcion: 'Mezcla asfáltica en frío (saco 25kg)', categoria: 'pavimento', unidad: 'KG', stockActual: 2400, stockMinimo: 1000, reservado: 600, estatus: 'disponible'),
+  const MaterialItem(id: 'M09', clave: 'PA-002', descripcion: 'Cemento Portland (saco 50kg)', categoria: 'pavimento', unidad: 'KG', stockActual: 3000, stockMinimo: 500, reservado: 400, estatus: 'disponible'),
+  const MaterialItem(id: 'M10', clave: 'PA-003', descripcion: 'Grava triturada 3/4"', categoria: 'pavimento', unidad: 'KG', stockActual: 5000, stockMinimo: 2000, reservado: 1000, estatus: 'disponible'),
+  const MaterialItem(id: 'M11', clave: 'PA-004', descripcion: 'Concreto premezclado (m3)', categoria: 'pavimento', unidad: 'MTO', stockActual: 18, stockMinimo: 10, reservado: 5, estatus: 'disponible'),
+  const MaterialItem(id: 'M12', clave: 'PA-005', descripcion: 'Sellador de grietas bituminoso', categoria: 'pavimento', unidad: 'LT', stockActual: 90, stockMinimo: 50, reservado: 20, estatus: 'disponible'),
+  const MaterialItem(id: 'M13', clave: 'PA-006', descripcion: 'Arena fina lavada', categoria: 'pavimento', unidad: 'KG', stockActual: 800, stockMinimo: 500, reservado: 100, estatus: 'disponible'),
+
+  // Señales
+  const MaterialItem(id: 'M14', clave: 'SN-001', descripcion: 'Señal ALTO reflectante', categoria: 'senales', unidad: 'PZA', stockActual: 14, stockMinimo: 10, reservado: 2, estatus: 'disponible'),
+  const MaterialItem(id: 'M15', clave: 'SN-002', descripcion: 'Señal velocidad máxima 30km', categoria: 'senales', unidad: 'PZA', stockActual: 8, stockMinimo: 5, reservado: 1, estatus: 'disponible'),
+  const MaterialItem(id: 'M16', clave: 'SN-003', descripcion: 'Señal escuela (diamante amarillo)', categoria: 'senales', unidad: 'PZA', stockActual: 3, stockMinimo: 5, reservado: 0, estatus: 'bajo_stock'),
+  const MaterialItem(id: 'M17', clave: 'SN-004', descripcion: 'Poste metálico para señal 3m', categoria: 'senales', unidad: 'PZA', stockActual: 20, stockMinimo: 10, reservado: 3, estatus: 'disponible'),
+  const MaterialItem(id: 'M18', clave: 'SN-005', descripcion: 'Pintura vial blanca (galón)', categoria: 'senales', unidad: 'LT', stockActual: 45, stockMinimo: 20, reservado: 10, estatus: 'disponible'),
+  const MaterialItem(id: 'M19', clave: 'SN-006', descripcion: 'Pintura vial amarilla (galón)', categoria: 'senales', unidad: 'LT', stockActual: 0, stockMinimo: 10, reservado: 0, estatus: 'agotado'),
+  const MaterialItem(id: 'M20', clave: 'SN-007', descripcion: 'Reflectantes viales (caja 100pz)', categoria: 'senales', unidad: 'CJA', stockActual: 7, stockMinimo: 3, reservado: 1, estatus: 'disponible'),
+
+  // Saneamiento / Drenaje
+  const MaterialItem(id: 'M21', clave: 'SA-001', descripcion: 'Tapa de registro concreto 60cm', categoria: 'saneamiento', unidad: 'PZA', stockActual: 12, stockMinimo: 5, reservado: 3, estatus: 'disponible'),
+  const MaterialItem(id: 'M22', clave: 'SA-002', descripcion: 'Coladera pluvial fundición', categoria: 'saneamiento', unidad: 'PZA', stockActual: 8, stockMinimo: 5, reservado: 2, estatus: 'disponible'),
+  const MaterialItem(id: 'M23', clave: 'SA-003', descripcion: 'Tubería PVC 6" (tramo 6m)', categoria: 'saneamiento', unidad: 'MTO', stockActual: 60, stockMinimo: 30, reservado: 12, estatus: 'disponible'),
+  const MaterialItem(id: 'M24', clave: 'SA-004', descripcion: 'Conector PVC 6" 90°', categoria: 'saneamiento', unidad: 'PZA', stockActual: 25, stockMinimo: 15, reservado: 5, estatus: 'disponible'),
+  const MaterialItem(id: 'M25', clave: 'SA-005', descripcion: 'Impermeabilizante multiusos (cuñete)', categoria: 'saneamiento', unidad: 'LT', stockActual: 4, stockMinimo: 10, reservado: 0, estatus: 'bajo_stock'),
+
+  // Herramientas
+  const MaterialItem(id: 'M26', clave: 'HE-001', descripcion: 'Cortador de disco angular 9"', categoria: 'herramientas', unidad: 'PZA', stockActual: 5, stockMinimo: 3, reservado: 2, estatus: 'disponible'),
+  const MaterialItem(id: 'M27', clave: 'HE-002', descripcion: 'Taladro percutor industrial', categoria: 'herramientas', unidad: 'PZA', stockActual: 4, stockMinimo: 2, reservado: 1, estatus: 'disponible'),
+  const MaterialItem(id: 'M28', clave: 'HE-003', descripcion: 'Generador eléctrico 5kW', categoria: 'herramientas', unidad: 'PZA', stockActual: 2, stockMinimo: 2, reservado: 1, estatus: 'bajo_stock'),
+  const MaterialItem(id: 'M29', clave: 'HE-004', descripcion: 'Compresor de aire portátil', categoria: 'herramientas', unidad: 'PZA', stockActual: 3, stockMinimo: 2, reservado: 0, estatus: 'disponible'),
+  const MaterialItem(id: 'M30', clave: 'HE-005', descripcion: 'Equipo de protección personal (kit)', categoria: 'herramientas', unidad: 'JGO', stockActual: 20, stockMinimo: 15, reservado: 8, estatus: 'disponible'),
+
+  // General
+  const MaterialItem(id: 'M31', clave: 'GE-001', descripcion: 'Conos de señalización vial', categoria: 'general', unidad: 'PZA', stockActual: 65, stockMinimo: 30, reservado: 20, estatus: 'disponible'),
+  const MaterialItem(id: 'M32', clave: 'GE-002', descripcion: 'Cinta reflejante amarilla (rollo)', categoria: 'general', unidad: 'MTO', stockActual: 12, stockMinimo: 5, reservado: 3, estatus: 'disponible'),
+  const MaterialItem(id: 'M33', clave: 'GE-003', descripcion: 'Barrera plástica naranja', categoria: 'general', unidad: 'PZA', stockActual: 40, stockMinimo: 20, reservado: 15, estatus: 'disponible'),
+  const MaterialItem(id: 'M34', clave: 'GE-004', descripcion: 'Lona de protección de obra', categoria: 'general', unidad: 'MTO', stockActual: 0, stockMinimo: 50, reservado: 0, estatus: 'agotado'),
+  const MaterialItem(id: 'M35', clave: 'GE-005', descripcion: 'Guantes de trabajo par', categoria: 'general', unidad: 'PZA', stockActual: 80, stockMinimo: 40, reservado: 10, estatus: 'disponible'),
+];
+
+// ──────────────── REGLAS DE PRIORIZACIÓN ─────────────────────────────────────
+
+final List<ReglaPriorizacion> mockReglaPriorizacion = [
+  const ReglaPriorizacion(id: 'R01', categoria: 'alumbrado',    entorno: 'institucional',  nivelPrioridad: 'critico', slaHoras: 4,   autoAprobar: false, esReincidenteEscala: true,  activa: true),
+  const ReglaPriorizacion(id: 'R02', categoria: 'alumbrado',    entorno: 'comercial',      nivelPrioridad: 'alto',    slaHoras: 8,   autoAprobar: false, esReincidenteEscala: true,  activa: true),
+  const ReglaPriorizacion(id: 'R03', categoria: 'alumbrado',    entorno: 'residencial',    nivelPrioridad: 'medio',   slaHoras: 24,  autoAprobar: true,  esReincidenteEscala: false, activa: true),
+  const ReglaPriorizacion(id: 'R04', categoria: 'bacheo',       entorno: 'institucional',  nivelPrioridad: 'critico', slaHoras: 4,   autoAprobar: false, esReincidenteEscala: true,  activa: true),
+  const ReglaPriorizacion(id: 'R05', categoria: 'bacheo',       entorno: 'comercial',      nivelPrioridad: 'alto',    slaHoras: 12,  autoAprobar: false, esReincidenteEscala: true,  activa: true),
+  const ReglaPriorizacion(id: 'R06', categoria: 'bacheo',       entorno: 'residencial',    nivelPrioridad: 'bajo',    slaHoras: 72,  autoAprobar: true,  esReincidenteEscala: false, activa: true),
+  const ReglaPriorizacion(id: 'R07', categoria: 'basura',       entorno: 'comercial',      nivelPrioridad: 'alto',    slaHoras: 8,   autoAprobar: false, esReincidenteEscala: true,  activa: true),
+  const ReglaPriorizacion(id: 'R08', categoria: 'basura',       entorno: 'residencial',    nivelPrioridad: 'medio',   slaHoras: 24,  autoAprobar: true,  esReincidenteEscala: false, activa: true),
+  const ReglaPriorizacion(id: 'R09', categoria: 'agua_drenaje', entorno: 'institucional',  nivelPrioridad: 'critico', slaHoras: 2,   autoAprobar: false, esReincidenteEscala: true,  activa: true),
+  const ReglaPriorizacion(id: 'R10', categoria: 'agua_drenaje', entorno: 'residencial',    nivelPrioridad: 'alto',    slaHoras: 12,  autoAprobar: false, esReincidenteEscala: true,  activa: true),
+  const ReglaPriorizacion(id: 'R11', categoria: 'senalizacion', entorno: 'comercial',      nivelPrioridad: 'alto',    slaHoras: 12,  autoAprobar: false, esReincidenteEscala: false, activa: true),
+  const ReglaPriorizacion(id: 'R12', categoria: 'seguridad',    entorno: 'industrial',     nivelPrioridad: 'alto',    slaHoras: 8,   autoAprobar: false, esReincidenteEscala: true,  activa: true),
+];
+
+// ──────────────── AUDITORÍA ───────────────────────────────────────────────────
+
+final List<EventoAuditoria> mockAuditoria = [
+  EventoAuditoria(id: 'AUD-001', timestamp: _dt(0, hora: 9, min: 12), usuario: 'Admin Terranex', nivel: 'municipal', modulo: 'Bandeja IA', accion: 'APROBAR', descripcion: 'Aprobó incidencia #15421 — Alumbrado residencial', referenciaId: '15421'),
+  EventoAuditoria(id: 'AUD-002', timestamp: _dt(0, hora: 9, min: 20), usuario: 'Admin Terranex', nivel: 'municipal', modulo: 'Técnicos', accion: 'ASIGNAR', descripcion: 'Asignó técnico T08 (Marta Flores) a incidencia #15421', referenciaId: '15421'),
+  EventoAuditoria(id: 'AUD-003', timestamp: _dt(0, hora: 10, min: 5), usuario: 'Admin Terranex', nivel: 'municipal', modulo: 'Bandeja IA', accion: 'RECHAZAR', descripcion: 'Rechazó incidencia #15100 — No es infraestructura', referenciaId: '15100'),
+  EventoAuditoria(id: 'AUD-004', timestamp: _dt(0, hora: 10, min: 30), usuario: 'Admin Terranex', nivel: 'municipal', modulo: 'Órdenes', accion: 'CERRAR', descripcion: 'Cerró orden #15250 — Bacheo completado', referenciaId: '15250'),
+  EventoAuditoria(id: 'AUD-005', timestamp: _dt(0, hora: 11, min: 0), usuario: 'Admin Terranex', nivel: 'estatal', modulo: 'KPIs', accion: 'EXPORTAR', descripcion: 'Exportó reporte de Baja California Norte — Semana 7', referenciaId: null),
+  EventoAuditoria(id: 'AUD-006', timestamp: _dt(0, hora: 11, min: 45), usuario: 'Admin Terranex', nivel: 'municipal', modulo: 'Inventario', accion: 'MOVIMIENTO', descripcion: 'Reservó 5 focos LED (M01) para orden #15420', referenciaId: 'M01'),
+  EventoAuditoria(id: 'AUD-007', timestamp: _dt(0, hora: 12, min: 10), usuario: 'Admin Terranex', nivel: 'municipal', modulo: 'Configuración', accion: 'EDITAR', descripcion: 'Modificó SLA regla R03 — Alumbrado residencial: 24h → 20h', referenciaId: 'R03'),
+  EventoAuditoria(id: 'AUD-008', timestamp: _dt(1, hora: 8, min: 0), usuario: 'Admin Terranex', nivel: 'municipal', modulo: 'Técnicos', accion: 'CREAR', descripcion: 'Creó técnico Sofía Herrera (T13) — Especialidad seguridad', referenciaId: 'T13'),
+  EventoAuditoria(id: 'AUD-009', timestamp: _dt(1, hora: 9, min: 30), usuario: 'Admin Terranex', nivel: 'municipal', modulo: 'Órdenes', accion: 'ESCALAR', descripcion: 'Escaló incidencia #15415 a crítico por SLA vencido', referenciaId: '15415'),
+  EventoAuditoria(id: 'AUD-010', timestamp: _dt(1, hora: 14, min: 20), usuario: 'Admin Terranex', nivel: 'nacional', modulo: 'Supervisión', accion: 'CONSULTAR', descripcion: 'Revisó dashboard nacional — 32 estados', referenciaId: null),
+  EventoAuditoria(id: 'AUD-011', timestamp: _dt(2, hora: 7, min: 50), usuario: 'Admin Terranex', nivel: 'municipal', modulo: 'Órdenes', accion: 'APROBAR', descripcion: 'Aprobó incidencia #15385 — Señalización residencial', referenciaId: '15385'),
+  EventoAuditoria(id: 'AUD-012', timestamp: _dt(2, hora: 8, min: 40), usuario: 'Admin Terranex', nivel: 'municipal', modulo: 'Bandeja IA', accion: 'APROBAR', descripcion: 'Aprobó 3 incidencias de bajo riesgo en bloque', referenciaId: null),
+  EventoAuditoria(id: 'AUD-013', timestamp: _dt(2, hora: 15, min: 0), usuario: 'Admin Terranex', nivel: 'estatal', modulo: 'Catálogos', accion: 'EDITAR', descripcion: 'Actualizó zona norte de Ensenada — Límites geográficos', referenciaId: null),
+  EventoAuditoria(id: 'AUD-014', timestamp: _dt(3, hora: 9, min: 0), usuario: 'Admin Terranex', nivel: 'municipal', modulo: 'SLA', accion: 'ALERTA', descripcion: 'Alerta SLA: #15408 — Bacheo institucional vencido 3h', referenciaId: '15408'),
+  EventoAuditoria(id: 'AUD-015', timestamp: _dt(3, hora: 10, min: 30), usuario: 'Admin Terranex', nivel: 'municipal', modulo: 'Usuarios', accion: 'ACTIVAR', descripcion: 'Activó usuario operador_municipal — Yuna Torres', referenciaId: null),
+  EventoAuditoria(id: 'AUD-016', timestamp: _dt(4, hora: 11, min: 0), usuario: 'Admin Terranex', nivel: 'municipal', modulo: 'Inventario', accion: 'ALERTA', descripcion: 'Stock crítico: Luminaria LED cobra 250W (M03) — 7 unidades', referenciaId: 'M03'),
+  EventoAuditoria(id: 'AUD-017', timestamp: _dt(5, hora: 8, min: 15), usuario: 'Admin Terranex', nivel: 'nacional', modulo: 'Reportes', accion: 'EXPORTAR', descripcion: 'Generó reporte nacional — Incidencias Q1 2025', referenciaId: null),
+  EventoAuditoria(id: 'AUD-018', timestamp: _dt(6, hora: 9, min: 45), usuario: 'Admin Terranex', nivel: 'municipal', modulo: 'Configuración', accion: 'CREAR', descripcion: 'Creó regla R12 — Seguridad industrial: SLA 8h', referenciaId: 'R12'),
+  EventoAuditoria(id: 'AUD-019', timestamp: _dt(7, hora: 16, min: 30), usuario: 'Admin Terranex', nivel: 'municipal', modulo: 'Órdenes', accion: 'CERRAR', descripcion: 'Cierre masivo — 5 órdenes resueltas semana anterior', referenciaId: null),
+  EventoAuditoria(id: 'AUD-020', timestamp: _dt(10, hora: 8, min: 0), usuario: 'Admin Terranex', nivel: 'estatal', modulo: 'Usuarios', accion: 'CREAR', descripcion: 'Creó operador estatal para BC — Laura Vega (T06)', referenciaId: 'T06'),
+];
+
+// ──────────────── KPIs ────────────────────────────────────────────────────────
+
+final KpiNacional mockKpiNacional = KpiNacional(
+  incidenciasActivas: 3287,
+  criticas: 389,
+  cumplimientoSla: 87.4,
+  porVencer: 214,
+  tecnicosActivos: 1482,
+  porEstado: {
+    'Ciudad de México': 528, 'Jalisco': 312, 'Nuevo León': 287,
+    'Veracruz': 261, 'Estado de México': 245, 'Guanajuato': 198,
+    'Baja California Norte': 329, 'Sonora': 176, 'Chihuahua': 154,
+    'Otros': 797,
+  },
+  porCategoria: {
+    'alumbrado': 892, 'bacheo': 748, 'basura': 634,
+    'agua_drenaje': 512, 'senalizacion': 341, 'seguridad': 160,
+  },
+  tendencia7Dias:    [420, 398, 445, 412, 389, 401, 422],
+  tendenciaResueltas:[390, 410, 385, 430, 415, 398, 440],
+  tendenciaCriticas: [52,  48,  61,  45,  49,  43,  51],
 );
 
-class SalesDataPoint {
-  final String month;
-  final double value;
-
-  SalesDataPoint(this.month, this.value);
-}
-
-final List<SalesDataPoint> mockMonthlySales = [
-  SalesDataPoint('Ene', 95000),
-  SalesDataPoint('Feb', 105000),
-  SalesDataPoint('Mar', 98000),
-  SalesDataPoint('Abr', 120000),
-  SalesDataPoint('May', 135000),
-  SalesDataPoint('Jun', 125000),
-];
-
-/// ============================================================================
-/// VIDEO CONTENT DASHBOARD DATA
-/// ============================================================================
-
-class VideoStats {
-  final int totalViews;
-  final int subscribers;
-  final int totalVideos;
-  final double avgWatchTime;
-  final double engagement;
-
-  VideoStats({
-    required this.totalViews,
-    required this.subscribers,
-    required this.totalVideos,
-    required this.avgWatchTime,
-    required this.engagement,
-  });
-}
-
-final mockVideoStats = VideoStats(
-  totalViews: 2500000,
-  subscribers: 45000,
-  totalVideos: 156,
-  avgWatchTime: 8.5,
-  engagement: 6.2,
+final KpiEstatal mockKpiEstatal = KpiEstatal(
+  estadoNombre: 'Baja California Norte',
+  incidenciasActivas: 329,
+  criticas: 43,
+  cumplimientoSla: 91.2,
+  porVencer: 28,
+  tecnicosActivos: 58,
+  enProceso: 164,
+  porMunicipio: {
+    'Tijuana': 142, 'Mexicali': 87, 'Ensenada': 56,
+    'Tecate': 28,   'Rosarito': 16,
+  },
 );
 
-class TopVideo {
-  final String title;
-  final int views;
-  final String duration;
+final KpiMunicipal mockKpiMunicipalEnsenada = const KpiMunicipal(
+  municipioNombre: 'Ensenada',
+  incidenciasActivas: 56,
+  criticas: 10,
+  cumplimientoSla: 89.0,
+  abiertas: 38,
+  porVencer: 7,
+  tecnicosActivos: 13,
+);
 
-  TopVideo(this.title, this.views, this.duration);
-}
+// ──────────────── ALERTAS ESTATALES ──────────────────────────────────────────
 
-final List<TopVideo> mockTopVideos = [
-  TopVideo('Tutorial Flutter Avanzado', 125000, '15:30'),
-  TopVideo('Diseño UI/UX Moderno', 98000, '12:45'),
-  TopVideo('Dashboard con Flutter', 87000, '18:20'),
-  TopVideo('State Management Provider', 76000, '22:15'),
-  TopVideo('Responsive Design Tips', 65000, '10:30'),
+final List<AlertaEstatal> mockAlertasEstatales = [
+  AlertaEstatal(estado: 'Ciudad de México',      categoria: 'alumbrado',    prioridad: 'critico', expira: _sla(2),  descripcion: '12 postes caídos — Tormenta Zona Norte'),
+  AlertaEstatal(estado: 'Jalisco',               categoria: 'agua_drenaje', prioridad: 'critico', expira: _sla(4),  descripcion: 'Inundación masiva — Colonia Independencia'),
+  AlertaEstatal(estado: 'Veracruz',              categoria: 'bacheo',       prioridad: 'alto',    expira: _sla(12), descripcion: 'Tramos dañados post-lluvia — Carretera 190'),
+  AlertaEstatal(estado: 'Nuevo León',            categoria: 'seguridad',    prioridad: 'alto',    expira: _sla(8),  descripcion: 'Cámaras vandalizadas — Centro Histórico'),
+  AlertaEstatal(estado: 'Estado de México',      categoria: 'basura',       prioridad: 'medio',   expira: _sla(24), descripcion: 'Sin recolección 3 días — Zona Industrial'),
+  AlertaEstatal(estado: 'Baja California Norte', categoria: 'alumbrado',    prioridad: 'alto',    expira: _sla(6),  descripcion: 'Zona escolar sin luz — Ensenada Centro'),
 ];
 
-class VideoCategory {
-  final String name;
-  final int videoCount;
-  final int views;
+// ──────────────── USUARIOS DEL SISTEMA ───────────────────────────────────────
 
-  VideoCategory(this.name, this.videoCount, this.views);
-}
-
-final List<VideoCategory> mockVideoCategories = [
-  VideoCategory('Tutoriales', 45, 850000),
-  VideoCategory('Reviews', 32, 620000),
-  VideoCategory('Tips & Tricks', 28, 480000),
-];
-
-/// Client model
-class Client {
-  final String id;
-  final String name;
-  final String company;
-  final String email;
-  final String phone;
-  final String status; // 'Activo', 'Inactivo', 'Prospecto'
-  final String responsible;
-  final DateTime lastContact;
-  final String notes;
-
-  Client({
-    required this.id,
-    required this.name,
-    required this.company,
-    required this.email,
-    required this.phone,
-    required this.status,
-    required this.responsible,
-    required this.lastContact,
-    this.notes = '',
-  });
-
-  Client copyWith({
-    String? id,
-    String? name,
-    String? company,
-    String? email,
-    String? phone,
-    String? status,
-    String? responsible,
-    DateTime? lastContact,
-    String? notes,
-  }) {
-    return Client(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      company: company ?? this.company,
-      email: email ?? this.email,
-      phone: phone ?? this.phone,
-      status: status ?? this.status,
-      responsible: responsible ?? this.responsible,
-      lastContact: lastContact ?? this.lastContact,
-      notes: notes ?? this.notes,
-    );
-  }
-}
-
-/// Employee model
-class Employee {
-  final String id;
-  final String name;
-  final String email;
-  final String role; // 'Admin', 'Vendedor', 'Soporte', 'Marketing'
-  final String area; // 'Ventas', 'Marketing', 'Soporte', 'Administración'
-  final String status; // 'Activo', 'Inactivo'
-  final DateTime hireDate;
-
-  Employee({
-    required this.id,
-    required this.name,
-    required this.email,
-    required this.role,
-    required this.area,
-    required this.status,
-    required this.hireDate,
-  });
-}
-
-/// Activity model
-class Activity {
-  final String id;
-  final String type; // 'Llamada', 'Reunión', 'Email', 'Tarea', 'Nota'
-  final String description;
-  final String clientName;
-  final String responsible;
-  final DateTime timestamp;
-
-  Activity({
-    required this.id,
-    required this.type,
-    required this.description,
-    required this.clientName,
-    required this.responsible,
-    required this.timestamp,
-  });
-}
-
-/// Mock clients data (20-30 records)
-final List<Client> mockClients = [
-  Client(
-    id: 'client-001',
-    name: 'Juan Pérez',
-    company: 'Innovatech Solutions',
-    email: 'juan.perez@innovatech.com',
-    phone: '+52 55 1234 5678',
-    status: 'Activo',
-    responsible: 'Carlos Mendoza',
-    lastContact: DateTime.now().subtract(const Duration(days: 2)),
-    notes: 'Cliente premium, requiere atención personalizada',
-  ),
-  Client(
-    id: 'client-002',
-    name: 'María González',
-    company: 'TechStart México',
-    email: 'maria.gonzalez@techstart.mx',
-    phone: '+52 33 9876 5432',
-    status: 'Activo',
-    responsible: 'Ana Torres',
-    lastContact: DateTime.now().subtract(const Duration(days: 5)),
-    notes: 'Interesada en plan enterprise',
-  ),
-  Client(
-    id: 'client-003',
-    name: 'Roberto Sánchez',
-    company: 'Digital Marketing Pro',
-    email: 'roberto.sanchez@dmpro.com',
-    phone: '+52 81 5555 1234',
-    status: 'Prospecto',
-    responsible: 'Carlos Mendoza',
-    lastContact: DateTime.now().subtract(const Duration(days: 1)),
-    notes: 'Solicitó demo del producto',
-  ),
-  Client(
-    id: 'client-004',
-    name: 'Laura Martínez',
-    company: 'Constructora Moderna',
-    email: 'laura.martinez@constmoderna.com',
-    phone: '+52 55 4444 7890',
-    status: 'Activo',
-    responsible: 'Ana Torres',
-    lastContact: DateTime.now().subtract(const Duration(days: 8)),
-  ),
-  Client(
-    id: 'client-005',
-    name: 'Carlos Ramírez',
-    company: 'Logística Express',
-    email: 'carlos.ramirez@logexpress.com',
-    phone: '+52 33 7777 8888',
-    status: 'Activo',
-    responsible: 'Luis Romero',
-    lastContact: DateTime.now().subtract(const Duration(days: 3)),
-  ),
-  Client(
-    id: 'client-006',
-    name: 'Ana López',
-    company: 'Retail Solutions',
-    email: 'ana.lopez@retailsol.mx',
-    phone: '+52 81 2222 3333',
-    status: 'Inactivo',
-    responsible: 'Carlos Mendoza',
-    lastContact: DateTime.now().subtract(const Duration(days: 45)),
-    notes: 'Pausó contrato temporalmente',
-  ),
-  Client(
-    id: 'client-007',
-    name: 'Fernando Torres',
-    company: 'CloudTech Services',
-    email: 'fernando.torres@cloudtech.com',
-    phone: '+52 55 9999 0000',
-    status: 'Activo',
-    responsible: 'Ana Torres',
-    lastContact: DateTime.now().subtract(const Duration(days: 4)),
-  ),
-  Client(
-    id: 'client-008',
-    name: 'Patricia Hernández',
-    company: 'Finanzas Corporativas',
-    email: 'patricia.hernandez@fincorp.mx',
-    phone: '+52 33 1111 2222',
-    status: 'Prospecto',
-    responsible: 'Luis Romero',
-    lastContact: DateTime.now().subtract(const Duration(hours: 6)),
-  ),
-  Client(
-    id: 'client-009',
-    name: 'Miguel Ángel Cruz',
-    company: 'Desarrollos Inmobiliarios',
-    email: 'miguel.cruz@desinm.com',
-    phone: '+52 81 6666 7777',
-    status: 'Activo',
-    responsible: 'Carlos Mendoza',
-    lastContact: DateTime.now().subtract(const Duration(days: 7)),
-  ),
-  Client(
-    id: 'client-010',
-    name: 'Gabriela Moreno',
-    company: 'E-Commerce Plus',
-    email: 'gabriela.moreno@ecomplus.mx',
-    phone: '+52 55 3333 4444',
-    status: 'Activo',
-    responsible: 'Ana Torres',
-    lastContact: DateTime.now().subtract(const Duration(days: 1)),
-  ),
-  Client(
-    id: 'client-011',
-    name: 'Ricardo Vega',
-    company: 'Consultoría Estratégica',
-    email: 'ricardo.vega@consulest.com',
-    phone: '+52 33 8888 9999',
-    status: 'Activo',
-    responsible: 'Luis Romero',
-    lastContact: DateTime.now().subtract(const Duration(days: 10)),
-  ),
-  Client(
-    id: 'client-012',
-    name: 'Sofía Jiménez',
-    company: 'Marketing Digital 360',
-    email: 'sofia.jimenez@md360.mx',
-    phone: '+52 81 4444 5555',
-    status: 'Prospecto',
-    responsible: 'Carlos Mendoza',
-    lastContact: DateTime.now().subtract(const Duration(days: 2)),
-  ),
-  Client(
-    id: 'client-013',
-    name: 'Diego Castillo',
-    company: 'Soluciones Empresariales',
-    email: 'diego.castillo@solemp.com',
-    phone: '+52 55 7777 8888',
-    status: 'Activo',
-    responsible: 'Ana Torres',
-    lastContact: DateTime.now().subtract(const Duration(days: 6)),
-  ),
-  Client(
-    id: 'client-014',
-    name: 'Valeria Ruiz',
-    company: 'Tech Innovations Lab',
-    email: 'valeria.ruiz@techinnolab.mx',
-    phone: '+52 33 5555 6666',
-    status: 'Activo',
-    responsible: 'Luis Romero',
-    lastContact: DateTime.now().subtract(const Duration(days: 3)),
-  ),
-  Client(
-    id: 'client-015',
-    name: 'Andrés Mendoza',
-    company: 'Servicios Profesionales',
-    email: 'andres.mendoza@servprof.com',
-    phone: '+52 81 1111 2222',
-    status: 'Inactivo',
-    responsible: 'Carlos Mendoza',
-    lastContact: DateTime.now().subtract(const Duration(days: 60)),
-  ),
-  Client(
-    id: 'client-016',
-    name: 'Carolina Silva',
-    company: 'Diseño y Creatividad',
-    email: 'carolina.silva@disenocrea.mx',
-    phone: '+52 55 2222 3333',
-    status: 'Activo',
-    responsible: 'Ana Torres',
-    lastContact: DateTime.now().subtract(const Duration(days: 4)),
-  ),
-  Client(
-    id: 'client-017',
-    name: 'Javier Ortiz',
-    company: 'Automatización Industrial',
-    email: 'javier.ortiz@autind.com',
-    phone: '+52 33 6666 7777',
-    status: 'Activo',
-    responsible: 'Luis Romero',
-    lastContact: DateTime.now().subtract(const Duration(days: 9)),
-  ),
-  Client(
-    id: 'client-018',
-    name: 'Daniela Flores',
-    company: 'Healthcare Solutions',
-    email: 'daniela.flores@healthsol.mx',
-    phone: '+52 81 8888 9999',
-    status: 'Prospecto',
-    responsible: 'Carlos Mendoza',
-    lastContact: DateTime.now().subtract(const Duration(hours: 12)),
-  ),
-  Client(
-    id: 'client-019',
-    name: 'Alejandro Navarro',
-    company: 'Logística Inteligente',
-    email: 'alejandro.navarro@logint.com',
-    phone: '+52 55 4444 5555',
-    status: 'Activo',
-    responsible: 'Ana Torres',
-    lastContact: DateTime.now().subtract(const Duration(days: 5)),
-  ),
-  Client(
-    id: 'client-020',
-    name: 'Isabella Rojas',
-    company: 'StartUp Accelerator',
-    email: 'isabella.rojas@startupaccel.mx',
-    phone: '+52 33 9999 0000',
-    status: 'Activo',
-    responsible: 'Luis Romero',
-    lastContact: DateTime.now().subtract(const Duration(days: 2)),
-  ),
-  Client(
-    id: 'client-021',
-    name: 'Héctor Vargas',
-    company: 'Energías Renovables',
-    email: 'hector.vargas@enrenovables.com',
-    phone: '+52 81 3333 4444',
-    status: 'Activo',
-    responsible: 'Carlos Mendoza',
-    lastContact: DateTime.now().subtract(const Duration(days: 11)),
-  ),
-  Client(
-    id: 'client-022',
-    name: 'Camila Reyes',
-    company: 'Asesoría Legal Pro',
-    email: 'camila.reyes@aselegalpro.mx',
-    phone: '+52 55 6666 7777',
-    status: 'Prospecto',
-    responsible: 'Ana Torres',
-    lastContact: DateTime.now().subtract(const Duration(days: 1)),
-  ),
-  Client(
-    id: 'client-023',
-    name: 'Sebastián Delgado',
-    company: 'Software Factory',
-    email: 'sebastian.delgado@softfactory.com',
-    phone: '+52 33 2222 3333',
-    status: 'Activo',
-    responsible: 'Luis Romero',
-    lastContact: DateTime.now().subtract(const Duration(days: 7)),
-  ),
-  Client(
-    id: 'client-024',
-    name: 'Mariana Castro',
-    company: 'Capacitación Empresarial',
-    email: 'mariana.castro@capaemp.mx',
-    phone: '+52 81 5555 6666',
-    status: 'Activo',
-    responsible: 'Carlos Mendoza',
-    lastContact: DateTime.now().subtract(const Duration(days: 4)),
-  ),
-  Client(
-    id: 'client-025',
-    name: 'Pablo Morales',
-    company: 'Arquitectura Moderna',
-    email: 'pablo.morales@arquimod.com',
-    phone: '+52 55 8888 9999',
-    status: 'Activo',
-    responsible: 'Ana Torres',
-    lastContact: DateTime.now().subtract(const Duration(days: 6)),
-  ),
-];
-
-/// Mock employees data (10-15 records)
-final List<Employee> mockEmployees = [
-  Employee(
-    id: 'emp-001',
-    name: 'Carlos Mendoza',
-    email: 'carlos.mendoza@democorp.com',
-    role: 'Vendedor Senior',
-    area: 'Ventas',
-    status: 'Activo',
-    hireDate: DateTime(2022, 3, 15),
-  ),
-  Employee(
-    id: 'emp-002',
-    name: 'Ana Torres',
-    email: 'ana.torres@democorp.com',
-    role: 'Vendedor',
-    area: 'Ventas',
-    status: 'Activo',
-    hireDate: DateTime(2023, 1, 10),
-  ),
-  Employee(
-    id: 'emp-003',
-    name: 'Luis Romero',
-    email: 'luis.romero@democorp.com',
-    role: 'Vendedor',
-    area: 'Ventas',
-    status: 'Activo',
-    hireDate: DateTime(2023, 6, 20),
-  ),
-  Employee(
-    id: 'emp-004',
-    name: 'María Fernanda López',
-    email: 'mf.lopez@democorp.com',
-    role: 'Gerente de Ventas',
-    area: 'Ventas',
-    status: 'Activo',
-    hireDate: DateTime(2021, 8, 5),
-  ),
-  Employee(
-    id: 'emp-005',
-    name: 'Roberto González',
-    email: 'roberto.gonzalez@democorp.com',
-    role: 'Especialista en Marketing',
-    area: 'Marketing',
-    status: 'Activo',
-    hireDate: DateTime(2022, 11, 12),
-  ),
-  Employee(
-    id: 'emp-006',
-    name: 'Sandra Martínez',
-    email: 'sandra.martinez@democorp.com',
-    role: 'Coordinador de Marketing',
-    area: 'Marketing',
-    status: 'Activo',
-    hireDate: DateTime(2023, 2, 28),
-  ),
-  Employee(
-    id: 'emp-007',
-    name: 'José Luis Ramírez',
-    email: 'joseluis.ramirez@democorp.com',
-    role: 'Soporte Técnico',
-    area: 'Soporte',
-    status: 'Activo',
-    hireDate: DateTime(2023, 4, 15),
-  ),
-  Employee(
-    id: 'emp-008',
-    name: 'Lucía Hernández',
-    email: 'lucia.hernandez@democorp.com',
-    role: 'Soporte Técnico',
-    area: 'Soporte',
-    status: 'Activo',
-    hireDate: DateTime(2023, 7, 1),
-  ),
-  Employee(
-    id: 'emp-009',
-    name: 'Pedro Sánchez',
-    email: 'pedro.sanchez@democorp.com',
-    role: 'Administrador de Sistemas',
-    area: 'Administración',
-    status: 'Activo',
-    hireDate: DateTime(2021, 5, 20),
-  ),
-  Employee(
-    id: 'emp-010',
-    name: 'Admin Demo',
-    email: 'admin@democorp.com',
-    role: 'Administrador',
-    area: 'Administración',
-    status: 'Activo',
-    hireDate: DateTime(2021, 1, 1),
-  ),
-  Employee(
-    id: 'emp-011',
-    name: 'Elena Jiménez',
-    email: 'elena.jimenez@democorp.com',
-    role: 'Recursos Humanos',
-    area: 'Administración',
-    status: 'Activo',
-    hireDate: DateTime(2022, 9, 10),
-  ),
-  Employee(
-    id: 'emp-012',
-    name: 'Miguel Torres',
-    email: 'miguel.torres@democorp.com',
-    role: 'Contador',
-    area: 'Administración',
-    status: 'Activo',
-    hireDate: DateTime(2022, 7, 25),
-  ),
-];
-
-/// Mock activities data
-final List<Activity> mockActivities = [
-  Activity(
-    id: 'act-001',
-    type: 'Llamada',
-    description: 'Seguimiento de propuesta comercial',
-    clientName: 'Juan Pérez - Innovatech Solutions',
-    responsible: 'Carlos Mendoza',
-    timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-  ),
-  Activity(
-    id: 'act-002',
-    type: 'Reunión',
-    description: 'Demo del producto',
-    clientName: 'Roberto Sánchez - Digital Marketing Pro',
-    responsible: 'Carlos Mendoza',
-    timestamp: DateTime.now().subtract(const Duration(hours: 5)),
-  ),
-  Activity(
-    id: 'act-003',
-    type: 'Email',
-    description: 'Envío de cotización',
-    clientName: 'María González - TechStart México',
-    responsible: 'Ana Torres',
-    timestamp: DateTime.now().subtract(const Duration(hours: 8)),
-  ),
-  Activity(
-    id: 'act-004',
-    type: 'Tarea',
-    description: 'Preparar presentación ejecutiva',
-    clientName: 'Patricia Hernández - Finanzas Corporativas',
-    responsible: 'Luis Romero',
-    timestamp: DateTime.now().subtract(const Duration(days: 1)),
-  ),
-  Activity(
-    id: 'act-005',
-    type: 'Llamada',
-    description: 'Check-in mensual',
-    clientName: 'Fernando Torres - CloudTech Services',
-    responsible: 'Ana Torres',
-    timestamp: DateTime.now().subtract(const Duration(days: 1, hours: 3)),
-  ),
-  Activity(
-    id: 'act-006',
-    type: 'Reunión',
-    description: 'Renovación de contrato',
-    clientName: 'Laura Martínez - Constructora Moderna',
-    responsible: 'Ana Torres',
-    timestamp: DateTime.now().subtract(const Duration(days: 2)),
-  ),
-  Activity(
-    id: 'act-007',
-    type: 'Email',
-    description: 'Resolución de dudas técnicas',
-    clientName: 'Carlos Ramírez - Logística Express',
-    responsible: 'Luis Romero',
-    timestamp: DateTime.now().subtract(const Duration(days: 2, hours: 6)),
-  ),
-  Activity(
-    id: 'act-008',
-    type: 'Nota',
-    description: 'Cliente solicitó información adicional',
-    clientName: 'Daniela Flores - Healthcare Solutions',
-    responsible: 'Carlos Mendoza',
-    timestamp: DateTime.now().subtract(const Duration(days: 3)),
-  ),
-];
-
-/// Dashboard KPIs
-class DashboardKPIs {
-  static const int activeClients = 247;
-  static const int openOpportunities = 32;
-  static const int monthlyActivities = 156;
-  static const String estimatedSales = '\$284,500';
-  static const double conversionRate = 68.5;
-  static const int newClientsThisMonth = 8;
-  static const int pendingTasks = 15;
-}
-
-/// Chart data for dashboard
-class ChartData {
-  final String label;
-  final double value;
-
-  ChartData(this.label, this.value);
-}
-
-/// Activity data for last 7 days (for charts)
-final List<ChartData> mockActivityChartData = [
-  ChartData('Lun', 18),
-  ChartData('Mar', 24),
-  ChartData('Mié', 22),
-  ChartData('Jue', 28),
-  ChartData('Vie', 20),
-  ChartData('Sáb', 8),
-  ChartData('Dom', 5),
-];
-
-/// Clients by status (for pie chart)
-final List<ChartData> mockClientsByStatus = [
-  ChartData('Activos', 19),
-  ChartData('Prospectos', 4),
-  ChartData('Inactivos', 2),
+final List<UsuarioSistema> mockUsuarios = [
+  UsuarioSistema(id: 'U01', nombre: 'Admin Terranex', email: 'admin@terranex.mx', rol: 'admin', estatus: 'activo', ultimoAcceso: _dt(0, hora: 9), nivel: 'nacional', avatarPath: null),
+  UsuarioSistema(id: 'U02', nombre: 'Laura Vega', email: 'laura.vega@ensenada.gob.mx', rol: 'supervisor', estatus: 'activo', ultimoAcceso: _dt(0, hora: 10), nivel: 'municipal', avatarPath: 'assets/images/avatares/Laura.png'),
+  UsuarioSistema(id: 'U03', nombre: 'Yuna Torres', email: 'yuna.torres@ensenada.gob.mx', rol: 'operador_municipal', estatus: 'activo', ultimoAcceso: _dt(1, hora: 8), nivel: 'municipal', avatarPath: 'assets/images/avatares/Yuna.png'),
+  UsuarioSistema(id: 'U04', nombre: 'Carlos Mendoza', email: 'carlos.mendoza@ensenada.gob.mx', rol: 'operador_municipal', estatus: 'activo', ultimoAcceso: _dt(0, hora: 11), nivel: 'municipal', avatarPath: 'assets/images/avatares/Carlos.png'),
+  UsuarioSistema(id: 'U05', nombre: 'Jorge Ibarra', email: 'jorge.ibarra@bajacalifornia.gob.mx', rol: 'operador_estatal', estatus: 'activo', ultimoAcceso: _dt(1, hora: 14), nivel: 'estatal', avatarPath: null),
+  UsuarioSistema(id: 'U06', nombre: 'María Ramos', email: 'maria.ramos@ensenada.gob.mx', rol: 'operador_municipal', estatus: 'activo', ultimoAcceso: _dt(2, hora: 9), nivel: 'municipal', avatarPath: 'assets/images/avatares/Maria.png'),
+  UsuarioSistema(id: 'U07', nombre: 'Sofía Herrera', email: 'sofia.herrera@ensenada.gob.mx', rol: 'operador_municipal', estatus: 'inactivo', ultimoAcceso: _dt(30, hora: 17), nivel: 'municipal', avatarPath: null),
 ];
