@@ -1,4 +1,5 @@
 // ignore_for_file: avoid_redundant_argument_values
+import 'package:flutter/material.dart';
 import 'package:nethive_neo/models/models.dart';
 
 /// ─────────────────────────────────────────────────────────────────────────────
@@ -1938,4 +1939,54 @@ final List<UsuarioSistema> mockUsuarios = [
       ultimoAcceso: _dt(30, hora: 17),
       nivel: 'municipal',
       avatarPath: null),
+];
+
+// ──────────────── CATEGORÍAS ─────────────────────────────────────────────────
+
+/// Categorías nativas del sistema.
+/// [esNativa] = true → no se pueden eliminar (existen incidencias históricas).
+/// El operador puede desactivarlas o cambiarles el nombre e ícono.
+final List<CategoriaConfig> mockCategorias = [
+  CategoriaConfig(
+    id: 'alumbrado',
+    label: 'Alumbrado',
+    iconCodePoint: Icons.lightbulb_outline.codePoint,
+    activa: true,
+    esNativa: true,
+  ),
+  CategoriaConfig(
+    id: 'bacheo',
+    label: 'Bacheo',
+    iconCodePoint: Icons.construction.codePoint,
+    activa: true,
+    esNativa: true,
+  ),
+  CategoriaConfig(
+    id: 'basura',
+    label: 'Basura',
+    iconCodePoint: Icons.delete_outline.codePoint,
+    activa: true,
+    esNativa: true,
+  ),
+  CategoriaConfig(
+    id: 'agua_drenaje',
+    label: 'Agua / Drenaje',
+    iconCodePoint: Icons.water_drop_outlined.codePoint,
+    activa: true,
+    esNativa: true,
+  ),
+  CategoriaConfig(
+    id: 'señalizacion',
+    label: 'Señalización',
+    iconCodePoint: Icons.traffic.codePoint,
+    activa: true,
+    esNativa: true,
+  ),
+  CategoriaConfig(
+    id: 'seguridad',
+    label: 'Seguridad',
+    iconCodePoint: Icons.security.codePoint,
+    activa: true,
+    esNativa: true,
+  ),
 ];

@@ -57,7 +57,10 @@ class MainContainerPage extends StatelessWidget {
       drawer: isMobile
           ? Drawer(
               width: sidebarWidth,
-              child: SidebarWidget(currentPath: currentPath, isExpanded: true),
+              child: SidebarWidget(
+                  currentPath: currentPath,
+                  isExpanded: true,
+                  showUserBlock: true),
             )
           : null,
     );

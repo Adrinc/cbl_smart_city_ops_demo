@@ -401,10 +401,11 @@ class _AccesosRapidos extends StatelessWidget {
               : box.maxWidth < 800
                   ? 3
                   : 6;
+          // ratio más bajo = tarjetas más altas → evita overflow en icono + texto
           final ratio = box.maxWidth < 480
-              ? 2.2
+              ? 1.4
               : box.maxWidth < 800
-                  ? 1.8
+                  ? 1.65
                   : 1.2;
           return GridView.count(
             crossAxisCount: cols,

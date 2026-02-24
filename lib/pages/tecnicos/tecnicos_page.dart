@@ -3,6 +3,7 @@ import 'dart:typed_data';
 // ignore: deprecated_member_use_from_same_package
 import 'dart:html' as html;
 import 'package:flutter/material.dart';
+import 'package:nethive_neo/helpers/constants.dart';
 import 'package:nethive_neo/helpers/formatters.dart';
 import 'package:nethive_neo/models/models.dart';
 import 'package:nethive_neo/pages/tecnicos/widgets/asignar_incidencia_dialog.dart';
@@ -56,9 +57,10 @@ class _TecnicosPageState extends State<TecnicosPage> {
     final prov = context.watch<TecnicoProvider>();
     final cnts = prov.conteoEstatus;
     final items = prov.filtrados;
+    final isMobile = MediaQuery.of(context).size.width < mobileSize;
 
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(isMobile ? 16 : 24),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         // ── Header ──────────────────────────────────────────────────────────
         SectionHeader(
@@ -84,7 +86,8 @@ class _TecnicosPageState extends State<TecnicosPage> {
               physics: const NeverScrollableScrollPhysics(),
               crossAxisSpacing: 14,
               mainAxisSpacing: 14,
-              childAspectRatio: 3.2,
+              // ratio más bajo en 2-col para evitar overflow texto+ícono
+              childAspectRatio: box.maxWidth > 700 ? 3.2 : 2.4,
               children: [
                 _StatCard(
                     label: 'Total',
@@ -115,27 +118,39 @@ class _TecnicosPageState extends State<TecnicosPage> {
         const SizedBox(height: 16),
 
         // ── Filtros ──────────────────────────────────────────────────────────
-        SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(children: [
-              for (final opt in [
-                'todos',
-                'activo',
-                'en_campo',
-                'descanso',
-                'inactivo'
-              ])
-                Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                        label: Text(_labelFiltro(opt),
-                            style: const TextStyle(fontSize: 12)),
-                        selected: prov.filtroEstatus == opt,
-                        selectedColor: theme.primaryColor.withOpacity(0.15),
-                        onSelected: (_) => context
-                            .read<TecnicoProvider>()
-                            .setFiltroEstatus(opt))),
-            ])),
+        LayoutBuilder(builder: (_, box) {
+          final isMobileFilter = box.maxWidth < mobileSize;
+          if (isMobileFilter) {
+            return _FiltroTecnicosBtn(
+              filtroActual: prov.filtroEstatus,
+              theme: theme,
+              onSelect: (opt) =>
+                  context.read<TecnicoProvider>().setFiltroEstatus(opt),
+              labelFiltro: _labelFiltro,
+            );
+          }
+          return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(children: [
+                for (final opt in [
+                  'todos',
+                  'activo',
+                  'en_campo',
+                  'descanso',
+                  'inactivo'
+                ])
+                  Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: ChoiceChip(
+                          label: Text(_labelFiltro(opt),
+                              style: const TextStyle(fontSize: 12)),
+                          selected: prov.filtroEstatus == opt,
+                          selectedColor: theme.primaryColor.withOpacity(0.15),
+                          onSelected: (_) => context
+                              .read<TecnicoProvider>()
+                              .setFiltroEstatus(opt))),
+              ]));
+        }),
         const SizedBox(height: 14),
 
         // ── Contenido principal ──────────────────────────────────────────────
@@ -148,21 +163,29 @@ class _TecnicosPageState extends State<TecnicosPage> {
                 onCambiarEstatus: (t) => _cambiarEstatus(context, t),
                 onAsignarIncidencia: (t) => _asignarIncidencia(context, t));
           }
-          return GridView.builder(
-              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: box.maxWidth > 500 ? 320 : 400,
-                  crossAxisSpacing: 14,
-                  mainAxisSpacing: 14,
-                  childAspectRatio: 1.18),
-              itemCount: items.length,
-              itemBuilder: (_, i) => _TecnicoCard(
-                  tecnico: items[i],
-                  avatarBytes: prov.getAvatarBytes(items[i].id),
-                  theme: theme,
-                  onDetalle: () => _verDetalle(context, items[i]),
-                  onCambiarEstatus: () => _cambiarEstatus(context, items[i]),
-                  onAsignarIncidencia: () =>
-                      _asignarIncidencia(context, items[i])));
+          // Mobile: ListView sin altura fija → nunca overflow
+          if (items.isEmpty) {
+            return Center(
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                Icon(Icons.engineering_outlined,
+                    size: 48, color: theme.textDisabled),
+                const SizedBox(height: 12),
+                Text('Sin técnicos con este filtro',
+                    style: TextStyle(fontSize: 14, color: theme.textSecondary)),
+              ]),
+            );
+          }
+          return ListView.builder(
+            itemCount: items.length,
+            itemBuilder: (_, i) => _TecnicoListItem(
+              tecnico: items[i],
+              avatarBytes: prov.getAvatarBytes(items[i].id),
+              theme: theme,
+              onDetalle: () => _verDetalle(context, items[i]),
+              onCambiarEstatus: () => _cambiarEstatus(context, items[i]),
+              onAsignarIncidencia: () => _asignarIncidencia(context, items[i]),
+            ),
+          );
         })),
       ]),
     );
@@ -437,7 +460,170 @@ class _PlutoTecnicosView extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════════════════════════
-// TECNICO CARD (mobile)
+// TECNICO LIST ITEM (mobile — sin altura fija, estilo Usuarios)
+// ════════════════════════════════════════════════════════════════════════════════
+class _TecnicoListItem extends StatelessWidget {
+  const _TecnicoListItem({
+    required this.tecnico,
+    required this.avatarBytes,
+    required this.theme,
+    required this.onDetalle,
+    required this.onCambiarEstatus,
+    required this.onAsignarIncidencia,
+  });
+  final Tecnico tecnico;
+  final Uint8List? avatarBytes;
+  final AppTheme theme;
+  final VoidCallback onDetalle, onCambiarEstatus, onAsignarIncidencia;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _estatusColor(tecnico.estatus, theme);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+          color: theme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: theme.border),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 6,
+                offset: const Offset(0, 2))
+          ]),
+      child: InkWell(
+        onTap: onDetalle,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            // ─ Fila principal ───────────────────────────────────
+            Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+              Stack(children: [
+                CircleAvatar(
+                    radius: 24,
+                    backgroundImage:
+                        avatarBytes != null ? MemoryImage(avatarBytes!) : null,
+                    backgroundColor: color.withOpacity(0.18),
+                    child: avatarBytes == null
+                        ? Text(tecnico.iniciales,
+                            style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: color))
+                        : null),
+                Positioned(
+                    bottom: 1,
+                    right: 1,
+                    child: Container(
+                        width: 11,
+                        height: 11,
+                        decoration: BoxDecoration(
+                            color: color,
+                            shape: BoxShape.circle,
+                            border:
+                                Border.all(color: theme.surface, width: 2)))),
+              ]),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(tecnico.nombre,
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: theme.textPrimary),
+                          overflow: TextOverflow.ellipsis),
+                      const SizedBox(height: 2),
+                      Text(labelRolTecnico(tecnico.rol),
+                          style: TextStyle(
+                              fontSize: 12, color: theme.textSecondary)),
+                    ]),
+              ),
+              const SizedBox(width: 8),
+              // Status badge
+              Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                      color: color.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: color.withOpacity(0.3))),
+                  child: Text(labelEstatusTecnico(tecnico.estatus),
+                      style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: color))),
+              const SizedBox(width: 4),
+              // Menú de acciones
+              PopupMenuButton<String>(
+                icon:
+                    Icon(Icons.more_vert, size: 18, color: theme.textSecondary),
+                padding: EdgeInsets.zero,
+                onSelected: (v) {
+                  if (v == 'estatus') onCambiarEstatus();
+                  if (v == 'asignar') onAsignarIncidencia();
+                },
+                itemBuilder: (_) => [
+                  PopupMenuItem(
+                      value: 'estatus',
+                      child: Row(children: [
+                        Icon(Icons.swap_horiz, size: 16, color: theme.medium),
+                        const SizedBox(width: 8),
+                        const Text('Cambiar estatus'),
+                      ])),
+                  PopupMenuItem(
+                      value: 'asignar',
+                      child: Row(children: [
+                        Icon(Icons.assignment_ind_outlined,
+                            size: 16, color: theme.low),
+                        const SizedBox(width: 8),
+                        const Text('Asignar caso'),
+                      ])),
+                ],
+              ),
+            ]),
+            const SizedBox(height: 8),
+            // ─ Chips especialidad + municipio ──────────────────
+            Wrap(spacing: 6, runSpacing: 4, children: [
+              _Chip(
+                  label: labelCategoria(tecnico.especialidad),
+                  icon: Icons.build_outlined,
+                  theme: theme),
+              if (tecnico.municipioAsignado != null)
+                _Chip(
+                    label: tecnico.municipioAsignado!,
+                    icon: Icons.location_city_outlined,
+                    theme: theme),
+            ]),
+            const SizedBox(height: 8),
+            // ─ Métricas ───────────────────────────────────
+            Row(children: [
+              _MetricaTile(
+                  label: 'Activas',
+                  value: '${tecnico.incidenciasActivas}',
+                  color: tecnico.incidenciasActivas > 3
+                      ? theme.critical
+                      : theme.high,
+                  theme: theme),
+              const SizedBox(width: 16),
+              _MetricaTile(
+                  label: 'Cerradas/mes',
+                  value: '${tecnico.incidenciasCerradasMes}',
+                  color: theme.low,
+                  theme: theme),
+            ]),
+          ]),
+        ),
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════════
+// TECNICO CARD (conservado para referencia — ya no se usa en mobile)
 // ════════════════════════════════════════════════════════════════════════════════
 class _TecnicoCard extends StatelessWidget {
   const _TecnicoCard(
@@ -1237,4 +1423,96 @@ class _InfoRow2 extends StatelessWidget {
             child: Text(value,
                 style: TextStyle(fontSize: 13, color: theme.textPrimary))),
       ]));
+}
+
+// ── Botón de filtros mobile para Técnicos ─────────────────────────────────────
+class _FiltroTecnicosBtn extends StatelessWidget {
+  const _FiltroTecnicosBtn({
+    required this.filtroActual,
+    required this.theme,
+    required this.onSelect,
+    required this.labelFiltro,
+  });
+  final String filtroActual;
+  final AppTheme theme;
+  final ValueChanged<String> onSelect;
+  final String Function(String) labelFiltro;
+
+  bool get _hayFiltro => filtroActual != 'todos';
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _mostrarDialog(context),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color:
+              _hayFiltro ? theme.primaryColor.withOpacity(0.12) : theme.surface,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+              color: _hayFiltro
+                  ? theme.primaryColor.withOpacity(0.5)
+                  : theme.border),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(Icons.tune,
+              size: 16,
+              color: _hayFiltro ? theme.primaryColor : theme.textSecondary),
+          const SizedBox(width: 6),
+          Text(
+            'Filtrar: ${labelFiltro(filtroActual)}',
+            style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: _hayFiltro ? theme.primaryColor : theme.textSecondary),
+          ),
+          const SizedBox(width: 4),
+          Icon(Icons.keyboard_arrow_down,
+              size: 14,
+              color: _hayFiltro ? theme.primaryColor : theme.textSecondary),
+        ]),
+      ),
+    );
+  }
+
+  void _mostrarDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Filtrar Técnicos'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final opt in [
+              'todos',
+              'activo',
+              'en_campo',
+              'descanso',
+              'inactivo'
+            ])
+              RadioListTile<String>(
+                value: opt,
+                groupValue: filtroActual,
+                title: Text(labelFiltro(opt),
+                    style: const TextStyle(fontSize: 13)),
+                activeColor: theme.primaryColor,
+                onChanged: (v) {
+                  if (v != null) onSelect(v);
+                  Navigator.pop(context);
+                },
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+        ],
+      ),
+    );
+  }
 }

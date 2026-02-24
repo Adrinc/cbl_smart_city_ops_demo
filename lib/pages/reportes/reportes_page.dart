@@ -142,20 +142,34 @@ class ReportesPage extends StatelessWidget {
           }),
           const SizedBox(height: 24),
 
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                    flex: 5,
-                    child: _TendenciaChartCard(reporte: reporte, theme: theme)),
-                const SizedBox(width: 16),
-                Expanded(
-                    flex: 5,
-                    child: _CategoriaBarCard(cats: cats, theme: theme)),
-              ],
-            ),
-          ),
+          LayoutBuilder(builder: (ctx2, box2) {
+            final isNarrowCharts = box2.maxWidth < 700;
+            if (isNarrowCharts) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _TendenciaChartCard(reporte: reporte, theme: theme),
+                  const SizedBox(height: 16),
+                  _CategoriaBarCard(cats: cats, theme: theme),
+                ],
+              );
+            }
+            return IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                      flex: 5,
+                      child:
+                          _TendenciaChartCard(reporte: reporte, theme: theme)),
+                  const SizedBox(width: 16),
+                  Expanded(
+                      flex: 5,
+                      child: _CategoriaBarCard(cats: cats, theme: theme)),
+                ],
+              ),
+            );
+          }),
           const SizedBox(height: 24),
 
           // Status distribution

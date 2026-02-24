@@ -43,6 +43,7 @@ dependencies:
   # Mapa interactivo
   flutter_map: ^7.0.2
   latlong2: ^0.9.1
+  flutter_map_cancellable_tile_provider: ^3.0.2
 
   # Paquetes adicionales del pubspec.yaml que te proporcionaron
   animated_toggle_switch: ^0.8.2

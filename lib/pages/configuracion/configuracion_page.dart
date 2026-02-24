@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nethive_neo/helpers/constants.dart';
 import 'package:nethive_neo/models/models.dart';
+import 'package:nethive_neo/pages/configuracion/widgets/categoria_dialog.dart';
 import 'package:nethive_neo/pages/configuracion/widgets/criterios_editor.dart';
 import 'package:nethive_neo/pages/configuracion/widgets/ver_criterios_dialog.dart';
 import 'package:nethive_neo/providers/providers.dart';
@@ -26,18 +27,26 @@ class ConfiguracionPage extends StatelessWidget {
           title: 'Motor de Priorización',
           subtitle:
               'Reglas automáticas para clasificar y escalar incidencias según categoría y entorno',
-          trailing: FilledButton.icon(
-            onPressed: () => _showNuevaReglaDialog(context, prov, theme),
-            icon: const Icon(Icons.add, size: 16),
-            label: const Text('Nueva Regla'),
-            style: FilledButton.styleFrom(backgroundColor: theme.primaryColor),
-          ),
+          trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+            OutlinedButton.icon(
+              onPressed: () => GestionarCategoriasDialog.show(context),
+              icon: const Icon(Icons.category_outlined, size: 16),
+              label: const Text('Categorías'),
+              style: OutlinedButton.styleFrom(
+                  foregroundColor: theme.primaryColor,
+                  side: BorderSide(color: theme.primaryColor)),
+            ),
+            const SizedBox(width: 10),
+            FilledButton.icon(
+              onPressed: () => _showNuevaReglaDialog(context, prov, theme),
+              icon: const Icon(Icons.add, size: 16),
+              label: const Text('Nueva Regla'),
+              style:
+                  FilledButton.styleFrom(backgroundColor: theme.primaryColor),
+            ),
+          ]),
         ),
-        const SizedBox(height: 8),
-
-        // Demo calc panel
-        _CalcPanel(prov: prov, theme: theme),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
 
         // Reglas list — PlutoGrid desktop / cards mobile
         if (reglas.isEmpty)
@@ -56,7 +65,10 @@ class ConfiguracionPage extends StatelessWidget {
           _MobileCategoryGroups(reglas: reglas, prov: prov, theme: theme)
         else
           _ReglaPlutoGrid(
-            key: ValueKey(reglas.map((r) => '${r.id}${r.activa}').join()),
+            key: ValueKey(
+              '${reglas.map((r) => '${r.id}${r.activa}').join()}_'
+              '${prov.categorias.map((c) => c.id).join()}',
+            ),
             reglas: reglas,
             prov: prov,
             theme: theme,
@@ -72,7 +84,6 @@ class ConfiguracionPage extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
 // MOBILE — Agrupación por categoría (expandible)
 // ═══════════════════════════════════════════════════════════════════════════
 class _MobileCategoryGroups extends StatelessWidget {
@@ -81,23 +92,6 @@ class _MobileCategoryGroups extends StatelessWidget {
   final List<ReglaPriorizacion> reglas;
   final ConfiguracionProvider prov;
   final AppTheme theme;
-
-  static const _catM = {
-    'alumbrado': 'Alumbrado',
-    'bacheo': 'Bacheo',
-    'basura': 'Basura',
-    'seguridad': 'Seguridad',
-    'agua_drenaje': 'Agua/Drenaje',
-    'señalizacion': 'Señalización',
-  };
-  static const _catIcons = <String, IconData>{
-    'alumbrado': Icons.lightbulb_outline,
-    'bacheo': Icons.construction,
-    'basura': Icons.delete_outline,
-    'agua_drenaje': Icons.water_drop_outlined,
-    'señalizacion': Icons.traffic,
-    'seguridad': Icons.security,
-  };
 
   @override
   Widget build(BuildContext context) {
@@ -111,8 +105,10 @@ class _MobileCategoryGroups extends StatelessWidget {
       children: grouped.entries.map((entry) {
         final cat = entry.key;
         final catReglas = entry.value;
-        final icon = _catIcons[cat] ?? Icons.category_outlined;
-        final label = _catM[cat] ?? cat;
+        // Lookup dinámico: refleja categorías creadas/editadas en sesión
+        final catConfig = prov.categorias.where((c) => c.id == cat).firstOrNull;
+        final icon = catConfig?.icon ?? Icons.category_outlined;
+        final label = catConfig?.label ?? cat;
         final activaCount = catReglas.where((r) => r.activa).length;
         return Container(
           margin: const EdgeInsets.only(bottom: 8),
@@ -278,14 +274,6 @@ class _ReglaPlutoGrid extends StatelessWidget {
   final AppTheme theme;
   final VoidCallback onNuevaRegla;
 
-  static const _catM = {
-    'alumbrado': 'Alumbrado',
-    'bacheo': 'Bacheo',
-    'basura': 'Basura',
-    'seguridad': 'Seguridad',
-    'agua_drenaje': 'Agua/Drenaje',
-    'señalizacion': 'Señalización',
-  };
   static const _entM = {
     'residencial': 'Residencial',
     'comercial': 'Comercial',
@@ -312,9 +300,12 @@ class _ReglaPlutoGrid extends StatelessWidget {
             if (!r.row.type.isGroup || r.row.parent != null) {
               return const SizedBox.shrink();
             }
-            final label = _catM[cat] ?? cat;
+            final catConfig =
+                prov.categorias.where((c) => c.id == cat).firstOrNull;
+            final label = catConfig?.label ?? cat;
             return Row(children: [
-              Icon(_catIcon(cat), size: 16, color: theme.primaryColor),
+              Icon(catConfig?.icon ?? Icons.category_outlined,
+                  size: 16, color: theme.primaryColor),
               const SizedBox(width: 6),
               Text(label,
                   style: TextStyle(
@@ -602,18 +593,6 @@ class _ReglaPlutoGrid extends StatelessWidget {
           }))
       .toList();
 
-  IconData _catIcon(String c) {
-    const d = <String, IconData>{
-      'alumbrado': Icons.lightbulb_outline,
-      'bacheo': Icons.construction,
-      'basura': Icons.delete_outline,
-      'agua_drenaje': Icons.water_drop_outlined,
-      'señalizacion': Icons.traffic,
-      'seguridad': Icons.security,
-    };
-    return d[c] ?? Icons.category_outlined;
-  }
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -692,14 +671,7 @@ class _NuevaReglaDialogState extends State<_NuevaReglaDialog> {
   bool _activa = true;
   List<String> _criterios = [];
 
-  static const _categorias = [
-    'alumbrado',
-    'bacheo',
-    'basura',
-    'seguridad',
-    'agua_drenaje',
-    'señalizacion'
-  ];
+  // categorias: computadas dinámicamente en build() desde el provider
   static const _entornos = [
     'residencial',
     'comercial',
@@ -709,14 +681,6 @@ class _NuevaReglaDialogState extends State<_NuevaReglaDialog> {
   static const _prioridades = ['bajo', 'medio', 'alto', 'critico'];
   static const _slaOpts = [4, 8, 12, 16, 24, 48, 72, 96];
 
-  static const _catLabels = {
-    'alumbrado': 'Alumbrado',
-    'bacheo': 'Bacheo',
-    'basura': 'Basura',
-    'seguridad': 'Seguridad',
-    'agua_drenaje': 'Agua / Drenaje',
-    'señalizacion': 'Señalización'
-  };
   static const _entLabels = {
     'residencial': 'Residencial',
     'comercial': 'Comercial',
@@ -741,6 +705,16 @@ class _NuevaReglaDialogState extends State<_NuevaReglaDialog> {
     final theme = AppTheme.of(context);
     final isMobile = MediaQuery.of(context).size.width < 600;
     final prioColor = _prioColors[_prioridad] ?? theme.textPrimary;
+
+    // Categorías activas — dinámicas para reflejar creaciones/ediciones
+    final cats = widget.prov.categorias.where((c) => c.activa).toList();
+    final catIds = cats.map((c) => c.id).toList();
+    final catLabels = {for (final c in cats) c.id: c.label};
+    // Si la categoría seleccionada ya no existe, usar la primera disponible
+    if (catIds.isNotEmpty && !catIds.contains(_categoria)) {
+      WidgetsBinding.instance.addPostFrameCallback(
+          (_) => setState(() => _categoria = catIds.first));
+    }
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -792,9 +766,13 @@ class _NuevaReglaDialogState extends State<_NuevaReglaDialog> {
                         children: [
                             _ReglaDroprow(
                                 'Categoría',
-                                _categorias,
-                                _categoria,
-                                _catLabels,
+                                catIds,
+                                catIds.contains(_categoria)
+                                    ? _categoria
+                                    : (catIds.isEmpty
+                                        ? _categoria
+                                        : catIds.first),
+                                catLabels,
                                 theme,
                                 Icons.category_outlined,
                                 (v) => setState(() => _categoria = v!)),
@@ -812,9 +790,13 @@ class _NuevaReglaDialogState extends State<_NuevaReglaDialog> {
                         Expanded(
                             child: _ReglaDroprow(
                                 'Categoría',
-                                _categorias,
-                                _categoria,
-                                _catLabels,
+                                catIds,
+                                catIds.contains(_categoria)
+                                    ? _categoria
+                                    : (catIds.isEmpty
+                                        ? _categoria
+                                        : catIds.first),
+                                catLabels,
                                 theme,
                                 Icons.category_outlined,
                                 (v) => setState(() => _categoria = v!))),
@@ -937,7 +919,7 @@ class _NuevaReglaDialogState extends State<_NuevaReglaDialog> {
                     const SizedBox(width: 10),
                     Expanded(
                         child: Text(
-                      '${_catLabels[_categoria]} en zona ${_entLabels[_entorno]?.toLowerCase()} → prioridad ${_prioLabels[_prioridad]?.toUpperCase()} · SLA ${_slaHoras}h',
+                      '${catLabels[_categoria] ?? _categoria} en zona ${_entLabels[_entorno]?.toLowerCase()} → prioridad ${_prioLabels[_prioridad]?.toUpperCase()} · SLA ${_slaHoras}h',
                       style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -1129,148 +1111,6 @@ class _ReglaRow extends StatelessWidget {
   }
 }
 
-class _CalcPanel extends StatefulWidget {
-  const _CalcPanel({required this.prov, required this.theme});
-  final ConfiguracionProvider prov;
-  final AppTheme theme;
-  @override
-  State<_CalcPanel> createState() => _CalcPanelState();
-}
-
-class _CalcPanelState extends State<_CalcPanel> {
-  String _cat = 'bacheo';
-  String _ent = 'residencial';
-  bool _reinc = false;
-  static const _cats = [
-    'alumbrado',
-    'bacheo',
-    'basura',
-    'seguridad',
-    'agua_drenaje',
-    'señalizacion'
-  ];
-  static const _ents = [
-    'residencial',
-    'comercial',
-    'industrial',
-    'institucional'
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = widget.theme;
-    final result = widget.prov.calcPrioridad(_cat, _ent, _reinc);
-    const prioColors = {
-      'critico': Color(0xFFB91C1C),
-      'alto': Color(0xFFD97706),
-      'medio': Color(0xFF1D4ED8),
-      'bajo': Color(0xFF2D7A4F)
-    };
-    final prioColor = prioColors[result] ?? theme.neutral;
-    final isMobile = MediaQuery.of(context).size.width < mobileSize;
-
-    Widget resultBadge = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-      decoration: BoxDecoration(
-          color: prioColor.withOpacity(0.15),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: prioColor.withOpacity(0.4))),
-      child: Text(result.toUpperCase(),
-          style: TextStyle(
-              fontSize: 13, fontWeight: FontWeight.w800, color: prioColor)),
-    );
-
-    Widget catDrop = DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-      value: _cat,
-      isDense: true,
-      items: _cats
-          .map((c) => DropdownMenuItem(
-              value: c, child: Text(c, style: const TextStyle(fontSize: 12))))
-          .toList(),
-      onChanged: (v) {
-        if (v != null) setState(() => _cat = v);
-      },
-      borderRadius: BorderRadius.circular(8),
-    ));
-
-    Widget entDrop = DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-      value: _ent,
-      isDense: true,
-      items: _ents
-          .map((e) => DropdownMenuItem(
-              value: e, child: Text(e, style: const TextStyle(fontSize: 12))))
-          .toList(),
-      onChanged: (v) {
-        if (v != null) setState(() => _ent = v);
-      },
-      borderRadius: BorderRadius.circular(8),
-    ));
-
-    Widget reincRow = Row(mainAxisSize: MainAxisSize.min, children: [
-      Checkbox(
-          value: _reinc,
-          onChanged: (v) => setState(() => _reinc = v ?? false),
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap),
-      Text('Reincidente',
-          style: TextStyle(fontSize: 12, color: theme.textSecondary)),
-    ]);
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-          color: theme.primarySoft,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: theme.primaryColor.withOpacity(0.2))),
-      child: isMobile
-          ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(children: [
-                Icon(Icons.science_outlined,
-                    color: theme.primaryColor, size: 18),
-                const SizedBox(width: 8),
-                Text('Simulador de prioridad',
-                    style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: theme.primaryColor)),
-                const Spacer(),
-                resultBadge,
-              ]),
-              const SizedBox(height: 10),
-              Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    catDrop,
-                    entDrop,
-                    reincRow,
-                  ]),
-            ])
-          : Row(children: [
-              Icon(Icons.science_outlined, color: theme.primaryColor, size: 18),
-              const SizedBox(width: 10),
-              Text('Simulador:',
-                  style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: theme.primaryColor)),
-              const SizedBox(width: 8),
-              catDrop,
-              const SizedBox(width: 8),
-              entDrop,
-              const SizedBox(width: 8),
-              reincRow,
-              const SizedBox(width: 12),
-              Text('→', style: TextStyle(color: theme.textSecondary)),
-              const SizedBox(width: 8),
-              resultBadge,
-            ]),
-    );
-  }
-}
-
 // ══════════════════════════════════════════════════════════════════════════════
 // Card mobile de regla
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1286,14 +1126,6 @@ class _ReglaCard extends StatelessWidget {
   final ConfiguracionProvider prov;
   final AppTheme theme;
 
-  static const _catM = {
-    'alumbrado': 'Alumbrado',
-    'bacheo': 'Bacheo',
-    'basura': 'Basura',
-    'seguridad': 'Seguridad',
-    'agua_drenaje': 'Agua/Drenaje',
-    'señalizacion': 'Señalización'
-  };
   static const _entM = {
     'residencial': 'Residencial',
     'comercial': 'Comercial',
@@ -1310,6 +1142,12 @@ class _ReglaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final prioColor = _prioColors[regla.nivelPrioridad] ?? theme.neutral;
+    // Lookup dinámico de categoría
+    final catLabel = prov.categorias
+            .where((c) => c.id == regla.categoria)
+            .firstOrNull
+            ?.label ??
+        regla.categoria;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -1332,7 +1170,7 @@ class _ReglaCard extends StatelessWidget {
               decoration: BoxDecoration(
                   color: theme.border.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(6)),
-              child: Text(_catM[regla.categoria] ?? regla.categoria,
+              child: Text(catLabel,
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -1387,7 +1225,7 @@ class _ReglaCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: prioColor.withOpacity(0.15))),
             child: Text(
-              '${_catM[regla.categoria] ?? regla.categoria} en zona '
+              '$catLabel en zona '
               '${(_entM[regla.entorno] ?? regla.entorno).toLowerCase()} → '
               'prioridad ${regla.nivelPrioridad.toUpperCase()} · SLA ${regla.slaHoras}h',
               style: TextStyle(

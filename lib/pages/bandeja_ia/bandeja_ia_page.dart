@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nethive_neo/helpers/constants.dart';
 import 'package:nethive_neo/models/models.dart';
 import 'package:nethive_neo/providers/providers.dart';
 import 'package:nethive_neo/theme/theme.dart';
@@ -102,12 +103,17 @@ class _BandejaIAPageState extends State<BandejaIAPage> {
       descripcion:
           'Aprobó en lote ${recomendados.length} incidencias recomendadas por IA',
     );
-    ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
-      content: Text(
-          '${recomendados.length} incidencias aprobadas — enviadas a Órdenes'),
-      backgroundColor: const Color(0xFF2D7A4F),
-      duration: const Duration(seconds: 3),
-    ));
+    // Mostrar SnackBar en el siguiente frame para evitar conflictos
+    // con la reconstrucción del widget tras el bulk update
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!ctx.mounted) return;
+      ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+        content: Text(
+            '${recomendados.length} incidencias aprobadas — enviadas a Órdenes'),
+        backgroundColor: const Color(0xFF2D7A4F),
+        duration: const Duration(seconds: 3),
+      ));
+    });
   }
 
   @override
@@ -117,6 +123,7 @@ class _BandejaIAPageState extends State<BandejaIAPage> {
     final all = bandeja.pendientes;
     final pending = _filter(all);
     final cats = all.map((i) => i.categoria).toSet().toList()..sort();
+    final isMobile = MediaQuery.of(context).size.width < mobileSize;
 
     // Stats
     final nAprobar = all.where((i) => !esRechazoIA(i)).length;
@@ -124,7 +131,7 @@ class _BandejaIAPageState extends State<BandejaIAPage> {
     final recomendados = all.where((i) => !esRechazoIA(i)).toList();
 
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(isMobile ? 16 : 24),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         // Header
         SectionHeader(
@@ -161,68 +168,139 @@ class _BandejaIAPageState extends State<BandejaIAPage> {
                   BoxShadow(
                       color: Colors.black.withOpacity(0.03), blurRadius: 6)
                 ]),
-            child: Row(children: [
-              // Stat: recomienda aprobar
-              _StatPill(
-                icon: Icons.thumb_up_outlined,
-                label: 'Recomienda aprobar',
-                count: nAprobar,
-                color: theme.low,
-                theme: theme,
-              ),
-              Container(
-                  width: 1,
-                  height: 28,
-                  color: theme.border,
-                  margin: const EdgeInsets.symmetric(horizontal: 12)),
-              // Stat: recomienda rechazar
-              _StatPill(
-                icon: Icons.thumb_down_outlined,
-                label: 'Recomienda rechazar',
-                count: nRechazar,
-                color: theme.critical,
-                theme: theme,
-              ),
-              const Spacer(),
-              // Bulk approve
-              if (nAprobar > 0)
-                FilledButton.icon(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (_) => AlertDialog(
-                        title: const Text('Aprobar todos los recomendados'),
-                        content: Text(
-                            'Se aprobarán $nAprobar incidencias que la IA recomienda aprobar.\n'
-                            '¿Deseas continuar?'),
-                        actions: [
-                          TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('Cancelar')),
-                          FilledButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              _bulkAprobar(context, recomendados);
-                            },
-                            style: FilledButton.styleFrom(
-                                backgroundColor: theme.low),
-                            child: Text('Aprobar $nAprobar'),
+            child: isMobile
+                // ── Mobile: stats arriba, botón abajo ──────────────────
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                        Row(children: [
+                          _StatPill(
+                            icon: Icons.thumb_up_outlined,
+                            label: 'Recomienda aprobar',
+                            count: nAprobar,
+                            color: theme.low,
+                            theme: theme,
+                          ),
+                          Container(
+                              width: 1,
+                              height: 28,
+                              color: theme.border,
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 12)),
+                          _StatPill(
+                            icon: Icons.thumb_down_outlined,
+                            label: 'Recomienda rechazar',
+                            count: nRechazar,
+                            color: theme.critical,
+                            theme: theme,
+                          ),
+                        ]),
+                        if (nAprobar > 0) ...[
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (_) => AlertDialog(
+                                    title: const Text(
+                                        'Aprobar todos los recomendados'),
+                                    content: Text(
+                                        'Se aprobarán $nAprobar incidencias que la IA recomienda aprobar.\n'
+                                        '¿Deseas continuar?'),
+                                    actions: [
+                                      TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: const Text('Cancelar')),
+                                      FilledButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          _bulkAprobar(context, recomendados);
+                                        },
+                                        style: FilledButton.styleFrom(
+                                            backgroundColor: theme.low),
+                                        child: Text('Aprobar $nAprobar'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.done_all, size: 16),
+                              label: Text('Aprobar todos ($nAprobar)'),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: theme.low,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 14, vertical: 10),
+                                textStyle: const TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.w700),
+                              ),
+                            ),
                           ),
                         ],
+                      ])
+                // ── Desktop: todo en una fila ──────────────────────────
+                : Row(children: [
+                    _StatPill(
+                      icon: Icons.thumb_up_outlined,
+                      label: 'Recomienda aprobar',
+                      count: nAprobar,
+                      color: theme.low,
+                      theme: theme,
+                    ),
+                    Container(
+                        width: 1,
+                        height: 28,
+                        color: theme.border,
+                        margin: const EdgeInsets.symmetric(horizontal: 12)),
+                    _StatPill(
+                      icon: Icons.thumb_down_outlined,
+                      label: 'Recomienda rechazar',
+                      count: nRechazar,
+                      color: theme.critical,
+                      theme: theme,
+                    ),
+                    const Spacer(),
+                    if (nAprobar > 0)
+                      FilledButton.icon(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              title:
+                                  const Text('Aprobar todos los recomendados'),
+                              content: Text(
+                                  'Se aprobarán $nAprobar incidencias que la IA recomienda aprobar.\n'
+                                  '¿Deseas continuar?'),
+                              actions: [
+                                TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Cancelar')),
+                                FilledButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    _bulkAprobar(context, recomendados);
+                                  },
+                                  style: FilledButton.styleFrom(
+                                      backgroundColor: theme.low),
+                                  child: Text('Aprobar $nAprobar'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.done_all, size: 16),
+                        label: Text('Aprobar todos ($nAprobar)'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: theme.low,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 10),
+                          textStyle: const TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w700),
+                        ),
                       ),
-                    );
-                  },
-                  icon: const Icon(Icons.done_all, size: 16),
-                  label: Text('Aprobar todos ($nAprobar)'),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: theme.low,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 10),
-                    textStyle: const TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.w700),
-                  ),
-                ),
-            ]),
+                  ]),
           ),
         ],
 
@@ -246,17 +324,54 @@ class _BandejaIAPageState extends State<BandejaIAPage> {
           ]),
         ),
 
-        // Filtros
-        FilterBarBandeja(
-          search: _search,
-          filterCategoria: _filterCategoria,
-          filterVeredicto: _filterVeredicto,
-          cats: cats,
-          theme: theme,
-          onSearch: (v) => setState(() => _search = v),
-          onCategoria: (v) => setState(() => _filterCategoria = v),
-          onVeredicto: (v) => setState(() => _filterVeredicto = v ?? 'todos'),
-        ),
+        // Filtros — desktop: inline / mobile: botón que abre dialog
+        if (isMobile) ...[
+          Row(children: [
+            Expanded(
+              child: TextField(
+                onChanged: (v) => setState(() => _search = v),
+                decoration: InputDecoration(
+                  hintText: 'Buscar ID o descripción…',
+                  hintStyle:
+                      TextStyle(fontSize: 12, color: theme.textSecondary),
+                  prefixIcon:
+                      Icon(Icons.search, size: 16, color: theme.textSecondary),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: theme.border)),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: theme.border)),
+                  filled: true,
+                  fillColor: theme.surface,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            _FiltroBandejaBtn(
+              filterCategoria: _filterCategoria,
+              filterVeredicto: _filterVeredicto,
+              cats: cats,
+              theme: theme,
+              onCategoria: (v) => setState(() => _filterCategoria = v),
+              onVeredicto: (v) =>
+                  setState(() => _filterVeredicto = v ?? 'todos'),
+            ),
+          ]),
+        ] else ...[
+          FilterBarBandeja(
+            search: _search,
+            filterCategoria: _filterCategoria,
+            filterVeredicto: _filterVeredicto,
+            cats: cats,
+            theme: theme,
+            onSearch: (v) => setState(() => _search = v),
+            onCategoria: (v) => setState(() => _filterCategoria = v),
+            onVeredicto: (v) => setState(() => _filterVeredicto = v ?? 'todos'),
+          ),
+        ],
         const SizedBox(height: 10),
 
         if (pending.length != all.length)
@@ -285,6 +400,7 @@ class _BandejaIAPageState extends State<BandejaIAPage> {
           Expanded(child: LayoutBuilder(builder: (ctx, box) {
             if (box.maxWidth >= 800) {
               return PlutoBandejaView(
+                key: ValueKey(pending.map((i) => i.id).join()),
                 items: pending,
                 theme: theme,
                 onConfirmAccion: (tipo, inc) =>
@@ -346,5 +462,164 @@ class _StatPill extends StatelessWidget {
                 style: TextStyle(fontSize: 10, color: theme.textSecondary)),
           ]),
     ]);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Botón de filtros mobile para Bandeja IA
+// ---------------------------------------------------------------------------
+class _FiltroBandejaBtn extends StatelessWidget {
+  const _FiltroBandejaBtn({
+    required this.filterCategoria,
+    required this.filterVeredicto,
+    required this.cats,
+    required this.theme,
+    required this.onCategoria,
+    required this.onVeredicto,
+  });
+  final String? filterCategoria;
+  final String filterVeredicto;
+  final List<String> cats;
+  final AppTheme theme;
+  final ValueChanged<String?> onCategoria, onVeredicto;
+
+  bool get _hayFiltros => filterCategoria != null || filterVeredicto != 'todos';
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _mostrarDialog(context),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+        decoration: BoxDecoration(
+          color: _hayFiltros
+              ? theme.primaryColor.withOpacity(0.12)
+              : theme.surface,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+              color: _hayFiltros
+                  ? theme.primaryColor.withOpacity(0.5)
+                  : theme.border),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(Icons.tune,
+              size: 16,
+              color: _hayFiltros ? theme.primaryColor : theme.textSecondary),
+          const SizedBox(width: 4),
+          Text('Filtros',
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color:
+                      _hayFiltros ? theme.primaryColor : theme.textSecondary)),
+          if (_hayFiltros) ...[
+            const SizedBox(width: 4),
+            Container(
+              width: 7,
+              height: 7,
+              decoration: BoxDecoration(
+                  color: theme.primaryColor, shape: BoxShape.circle),
+            ),
+          ],
+        ]),
+      ),
+    );
+  }
+
+  void _mostrarDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx2, setDialogState) {
+          String? localCategoria = filterCategoria;
+          String localVeredicto = filterVeredicto;
+          return AlertDialog(
+            title: const Text('Filtrar Bandeja IA'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Veredicto IA',
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: theme.textSecondary)),
+                const SizedBox(height: 8),
+                Wrap(spacing: 8, runSpacing: 8, children: [
+                  for (final opt in [
+                    ('todos', 'Todos'),
+                    ('recomienda_aprobar', 'Recomienda aprobar'),
+                    ('recomienda_rechazar', 'Recomienda rechazar'),
+                  ])
+                    ChoiceChip(
+                      label: Text(opt.$2, style: const TextStyle(fontSize: 12)),
+                      selected: localVeredicto == opt.$1,
+                      onSelected: (_) =>
+                          setDialogState(() => localVeredicto = opt.$1),
+                      selectedColor: theme.primaryColor,
+                      labelStyle: TextStyle(
+                          color:
+                              localVeredicto == opt.$1 ? Colors.white : null),
+                      side: BorderSide.none,
+                    ),
+                ]),
+                const SizedBox(height: 16),
+                Text('Categoría',
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: theme.textSecondary)),
+                const SizedBox(height: 8),
+                Wrap(spacing: 8, runSpacing: 8, children: [
+                  ChoiceChip(
+                    label: const Text('Todas', style: TextStyle(fontSize: 12)),
+                    selected: localCategoria == null,
+                    onSelected: (_) =>
+                        setDialogState(() => localCategoria = null),
+                    selectedColor: theme.primaryColor,
+                    labelStyle: TextStyle(
+                        color: localCategoria == null ? Colors.white : null),
+                    side: BorderSide.none,
+                  ),
+                  for (final c in cats)
+                    ChoiceChip(
+                      label: Text(labelCategoria(c),
+                          style: const TextStyle(fontSize: 12)),
+                      selected: localCategoria == c,
+                      onSelected: (_) =>
+                          setDialogState(() => localCategoria = c),
+                      selectedColor: theme.primaryColor,
+                      labelStyle: TextStyle(
+                          color: localCategoria == c ? Colors.white : null),
+                      side: BorderSide.none,
+                    ),
+                ]),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  onCategoria(null);
+                  onVeredicto('todos');
+                  Navigator.pop(ctx);
+                },
+                child: Text('Limpiar',
+                    style: TextStyle(color: theme.textSecondary)),
+              ),
+              FilledButton(
+                onPressed: () {
+                  onCategoria(localCategoria);
+                  onVeredicto(localVeredicto);
+                  Navigator.pop(ctx);
+                },
+                style:
+                    FilledButton.styleFrom(backgroundColor: theme.primaryColor),
+                child: const Text('Aplicar'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 }

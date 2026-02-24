@@ -185,8 +185,8 @@ class _OrdenesPageState extends State<OrdenesPage> {
             title: 'Órdenes / Incidencias',
             subtitle:
                 '${source.length} registros · ${prov.criticas.length} críticas · ${prov.vencidas.length} vencidas',
-            trailing: Text('Ensenada',
-                style: TextStyle(fontSize: 12, color: theme.textSecondary)),
+            /*  trailing: Text('Ensenada',
+                style: TextStyle(fontSize: 12, color: theme.textSecondary)), */
           ),
           const SizedBox(height: 12),
 

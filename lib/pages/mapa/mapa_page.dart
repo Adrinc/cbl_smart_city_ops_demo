@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:nethive_neo/helpers/constants.dart';
 import 'package:nethive_neo/helpers/formatters.dart';
 import 'package:nethive_neo/models/models.dart';
 import 'package:nethive_neo/providers/providers.dart';
@@ -112,6 +114,154 @@ class _MapaPageState extends State<MapaPage> {
         .toList();
   }
 
+  void _mostrarFiltrosMobile(BuildContext context, AppTheme theme) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => StatefulBuilder(
+        builder: (ctx, setLocalState) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(20, 14, 20, 28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Handle
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: theme.border,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Text('Filtros del Mapa',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: theme.textPrimary)),
+                const SizedBox(height: 16),
+                // Prioridad
+                Text('Prioridad',
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: theme.textSecondary)),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [null, 'critico', 'alto', 'medio', 'bajo']
+                      .map((p) => ChoiceChip(
+                            label: Text(p == null ? 'Todas' : labelPrioridad(p),
+                                style: const TextStyle(fontSize: 12)),
+                            selected: _filterPrioridad == p,
+                            onSelected: (_) {
+                              setLocalState(() {});
+                              setState(() => _filterPrioridad = p);
+                            },
+                            selectedColor:
+                                p == null ? theme.primaryColor : _prioColor(p),
+                            labelStyle: TextStyle(
+                                color: _filterPrioridad == p
+                                    ? Colors.white
+                                    : null),
+                            side: BorderSide.none,
+                          ))
+                      .toList(),
+                ),
+                const SizedBox(height: 16),
+                // Categoría
+                Text('Categoría',
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: theme.textSecondary)),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    null,
+                    'alumbrado',
+                    'bacheo',
+                    'basura',
+                    'agua_drenaje',
+                    'señalizacion',
+                    'seguridad'
+                  ]
+                      .map((cat) => ChoiceChip(
+                            avatar: cat != null
+                                ? Icon(_catIcon[cat] ?? Icons.report_problem,
+                                    size: 14,
+                                    color: _filterCategoria == cat
+                                        ? Colors.white
+                                        : theme.textSecondary)
+                                : null,
+                            label: Text(
+                                cat == null ? 'Todas' : labelCategoria(cat),
+                                style: const TextStyle(fontSize: 12)),
+                            selected: _filterCategoria == cat,
+                            onSelected: (_) {
+                              setLocalState(() {});
+                              setState(() => _filterCategoria = cat);
+                            },
+                            selectedColor: theme.primaryColor,
+                            labelStyle: TextStyle(
+                                color: _filterCategoria == cat
+                                    ? Colors.white
+                                    : null),
+                            side: BorderSide.none,
+                          ))
+                      .toList(),
+                ),
+                const SizedBox(height: 16),
+                // Técnicos toggle
+                Row(children: [
+                  Text('Mostrar técnicos',
+                      style: TextStyle(fontSize: 13, color: theme.textPrimary)),
+                  const Spacer(),
+                  Switch(
+                    value: _showTecnicos,
+                    onChanged: (v) {
+                      setLocalState(() {});
+                      setState(() => _showTecnicos = v);
+                    },
+                    activeColor: theme.primaryColor,
+                  ),
+                ]),
+                const SizedBox(height: 8),
+                // Limpiar
+                OutlinedButton.icon(
+                  onPressed: () {
+                    setLocalState(() {});
+                    setState(() {
+                      _filterPrioridad = null;
+                      _filterCategoria = null;
+                    });
+                    Navigator.of(context).pop();
+                  },
+                  icon: const Icon(Icons.clear_all, size: 16),
+                  label: const Text('Limpiar filtros'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: theme.textSecondary,
+                    minimumSize: const Size(double.infinity, 40),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = AppTheme.of(context);
@@ -119,6 +269,10 @@ class _MapaPageState extends State<MapaPage> {
     final tecProv = context.watch<TecnicoProvider>();
     final incs = incProv.activas;
     final tecs = tecProv.activos;
+    final isMobile = MediaQuery.of(context).size.width < mobileSize;
+
+    final filtrosActivos =
+        _filterPrioridad != null || _filterCategoria != null || _showTecnicos;
 
     return Stack(
       children: [
@@ -133,110 +287,165 @@ class _MapaPageState extends State<MapaPage> {
             TileLayer(
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               userAgentPackageName: 'com.cbluna.terranex',
+              tileProvider: CancellableNetworkTileProvider(),
             ),
             MarkerLayer(markers: _buildIncidenciaMarkers(incs)),
             MarkerLayer(markers: _buildTecnicoMarkers(tecs)),
           ],
         ),
 
-        // Barra superior de controles
-        Positioned(
-          top: 16,
-          left: 16,
-          right: 16,
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            // Fila 1: Prioridad + Técnicos toggle
-            Row(children: [
-              _MapControl(
+        // ── Controles ─────────────────────────────────────────────────────
+        if (isMobile)
+          // MOBILE: botón flotante de filtros en la esquina superior derecha
+          Positioned(
+            top: 16,
+            right: 16,
+            child: GestureDetector(
+              onTap: () => _mostrarFiltrosMobile(context, theme),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.95),
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black.withOpacity(0.15), blurRadius: 8)
+                  ],
+                  border: filtrosActivos
+                      ? Border.all(
+                          color: theme.primaryColor.withOpacity(0.6),
+                          width: 1.5)
+                      : null,
+                ),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text('Prioridad: ', style: TextStyle(fontSize: 12)),
-                  ...[
-                    null,
-                    'critico',
-                    'alto',
-                    'medio',
-                    'bajo'
-                  ].map((p) => Padding(
+                  Icon(Icons.tune,
+                      size: 18,
+                      color:
+                          filtrosActivos ? theme.primaryColor : Colors.black87),
+                  const SizedBox(width: 6),
+                  Text('Filtros',
+                      style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: filtrosActivos
+                              ? theme.primaryColor
+                              : Colors.black87)),
+                  if (filtrosActivos) ...[
+                    const SizedBox(width: 4),
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                          color: theme.primaryColor, shape: BoxShape.circle),
+                    ),
+                  ],
+                ]),
+              ),
+            ),
+          )
+        else
+          // DESKTOP: barras de filtros originales
+          Positioned(
+            top: 16,
+            left: 16,
+            right: 16,
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              // Fila 1: Prioridad + Técnicos toggle
+              Row(children: [
+                _MapControl(
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    const Text('Prioridad: ', style: TextStyle(fontSize: 12)),
+                    ...[
+                      null,
+                      'critico',
+                      'alto',
+                      'medio',
+                      'bajo'
+                    ].map((p) => Padding(
+                          padding: const EdgeInsets.only(left: 4),
+                          child: ChoiceChip(
+                            label: Text(p == null ? 'Todas' : labelPrioridad(p),
+                                style: const TextStyle(fontSize: 11)),
+                            selected: _filterPrioridad == p,
+                            onSelected: (_) =>
+                                setState(() => _filterPrioridad = p),
+                            selectedColor:
+                                p == null ? theme.primaryColor : _prioColor(p),
+                            labelStyle: TextStyle(
+                              color:
+                                  _filterPrioridad == p ? Colors.white : null,
+                              fontSize: 11,
+                            ),
+                            side: BorderSide.none,
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        )),
+                  ]),
+                ),
+                const SizedBox(width: 8),
+                _MapControl(
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    Switch(
+                      value: _showTecnicos,
+                      onChanged: (v) => setState(() => _showTecnicos = v),
+                      activeColor: theme.primaryColor,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    const SizedBox(width: 4),
+                    const Text('Técnicos', style: TextStyle(fontSize: 12)),
+                  ]),
+                ),
+              ]),
+              const SizedBox(height: 8),
+              // Fila 2: Categoría
+              Row(children: [
+                _MapControl(
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    const Text('Categoría: ', style: TextStyle(fontSize: 12)),
+                    ...[
+                      null,
+                      'alumbrado',
+                      'bacheo',
+                      'basura',
+                      'agua_drenaje',
+                      'señalizacion',
+                      'seguridad',
+                    ].map((cat) {
+                      final sel = _filterCategoria == cat;
+                      return Padding(
                         padding: const EdgeInsets.only(left: 4),
                         child: ChoiceChip(
-                          label: Text(p == null ? 'Todas' : labelPrioridad(p),
-                              style: const TextStyle(fontSize: 11)),
-                          selected: _filterPrioridad == p,
-                          onSelected: (_) =>
-                              setState(() => _filterPrioridad = p),
-                          selectedColor:
-                              p == null ? theme.primaryColor : _prioColor(p),
-                          labelStyle: TextStyle(
-                            color: _filterPrioridad == p ? Colors.white : null,
-                            fontSize: 11,
+                          label: Text(
+                            cat == null ? 'Todas' : labelCategoria(cat),
+                            style: const TextStyle(fontSize: 11),
                           ),
+                          selected: sel,
+                          onSelected: (_) =>
+                              setState(() => _filterCategoria = cat),
+                          selectedColor: theme.primaryColor,
+                          labelStyle: TextStyle(
+                              color: sel ? Colors.white : null, fontSize: 11),
+                          avatar: cat != null
+                              ? Icon(
+                                  _catIcon[cat] ??
+                                      Icons.report_problem_outlined,
+                                  size: 12,
+                                  color:
+                                      sel ? Colors.white : theme.textSecondary)
+                              : null,
                           side: BorderSide.none,
                           padding: const EdgeInsets.symmetric(horizontal: 6),
                           visualDensity: VisualDensity.compact,
                         ),
-                      )),
-                ]),
-              ),
-              const SizedBox(width: 8),
-              _MapControl(
-                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  Switch(
-                    value: _showTecnicos,
-                    onChanged: (v) => setState(() => _showTecnicos = v),
-                    activeColor: theme.primaryColor,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  const SizedBox(width: 4),
-                  const Text('Técnicos', style: TextStyle(fontSize: 12)),
-                ]),
-              ),
+                      );
+                    }),
+                  ]),
+                ),
+              ]),
             ]),
-            const SizedBox(height: 8),
-            // Fila 2: Categoría
-            Row(children: [
-              _MapControl(
-                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text('Categoría: ', style: TextStyle(fontSize: 12)),
-                  ...[
-                    null,
-                    'alumbrado',
-                    'bacheo',
-                    'basura',
-                    'agua_drenaje',
-                    'señalizacion',
-                    'seguridad',
-                  ].map((cat) {
-                    final sel = _filterCategoria == cat;
-                    return Padding(
-                      padding: const EdgeInsets.only(left: 4),
-                      child: ChoiceChip(
-                        label: Text(
-                          cat == null ? 'Todas' : labelCategoria(cat),
-                          style: const TextStyle(fontSize: 11),
-                        ),
-                        selected: sel,
-                        onSelected: (_) =>
-                            setState(() => _filterCategoria = cat),
-                        selectedColor: theme.primaryColor,
-                        labelStyle: TextStyle(
-                            color: sel ? Colors.white : null, fontSize: 11),
-                        avatar: cat != null
-                            ? Icon(
-                                _catIcon[cat] ?? Icons.report_problem_outlined,
-                                size: 12,
-                                color: sel ? Colors.white : theme.textSecondary)
-                            : null,
-                        side: BorderSide.none,
-                        padding: const EdgeInsets.symmetric(horizontal: 6),
-                        visualDensity: VisualDensity.compact,
-                      ),
-                    );
-                  }),
-                ]),
-              ),
-            ]),
-          ]),
-        ),
+          ),
 
         // Leyenda
         Positioned(
@@ -307,22 +516,49 @@ class _MapaPageState extends State<MapaPage> {
           ),
         ),
 
-        // Panel lateral derecho
-        AnimatedPositioned(
-          duration: const Duration(milliseconds: 280),
-          curve: Curves.easeOutCubic,
-          top: 0,
-          bottom: 0,
-          right: _selected != null ? 0 : -370,
-          width: 360,
-          child: _selected != null
-              ? _MapaSidePanel(
-                  inc: _selected!,
-                  theme: theme,
-                  tecProv: tecProv,
-                  onClose: () => setState(() => _selected = null))
-              : const SizedBox.shrink(),
-        ),
+        // Panel lateral derecho (desktop) / modal inferior (mobile)
+        if (!isMobile)
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 280),
+            curve: Curves.easeOutCubic,
+            top: 0,
+            bottom: 0,
+            right: _selected != null ? 0 : -370,
+            width: 360,
+            child: _selected != null
+                ? _MapaSidePanel(
+                    inc: _selected!,
+                    theme: theme,
+                    tecProv: tecProv,
+                    onClose: () => setState(() => _selected = null))
+                : const SizedBox.shrink(),
+          ),
+        if (isMobile && _selected != null) ...[
+          // Fondo semitransparente
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () => setState(() => _selected = null),
+              child: Container(color: Colors.black.withOpacity(0.35)),
+            ),
+          ),
+          // Panel inferior
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: MediaQuery.of(context).size.height * 0.68,
+            child: ClipRRect(
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(18)),
+              child: _MapaSidePanel(
+                inc: _selected!,
+                theme: theme,
+                tecProv: tecProv,
+                onClose: () => setState(() => _selected = null),
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }

@@ -21,6 +21,55 @@ class TopbarWidget extends StatelessWidget {
     final critCount = incProv.criticas.length;
     final bandejaCount = bProv.totalPendientes;
 
+    // ── MOBILE: solo hamburguesa + título centrado ────────────────────────
+    if (isMobile) {
+      final pageTitle =
+          appLevel.breadcrumb.isNotEmpty ? appLevel.breadcrumb.last : appName;
+      return Container(
+        height: topbarHeight,
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        decoration: BoxDecoration(
+          color: theme.surface,
+          border: Border(bottom: BorderSide(color: theme.border)),
+        ),
+        child: Row(children: [
+          Builder(
+            builder: (ctx) => IconButton(
+              icon: Icon(Icons.menu, size: 22, color: theme.textSecondary),
+              onPressed: () => Scaffold.of(ctx).openDrawer(),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              pageTitle,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: theme.textPrimary,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          // Sólo toggle de tema — compacto
+          IconButton(
+            icon: Icon(
+              isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+              size: 20,
+              color: isDark ? const Color(0xFFD97706) : theme.textSecondary,
+            ),
+            onPressed: () {
+              final next = isDark ? ThemeMode.light : ThemeMode.dark;
+              setDarkModeSetting(context, next);
+            },
+            tooltip: isDark ? 'Modo claro' : 'Modo oscuro',
+          ),
+        ]),
+      );
+    }
+
+    // ── DESKTOP ───────────────────────────────────────────────────────────
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
@@ -28,24 +77,16 @@ class TopbarWidget extends StatelessWidget {
         border: Border(bottom: BorderSide(color: theme.border)),
       ),
       child: Row(children: [
-        // Hamburger / Toggle sidebar
-        if (isMobile)
-          Builder(
-              builder: (ctx) => IconButton(
-                    icon:
-                        Icon(Icons.menu, size: 20, color: theme.textSecondary),
-                    onPressed: () => Scaffold.of(ctx).openDrawer(),
-                  ))
-        else
-          IconButton(
-            icon: Icon(
-              appLevel.sidebarExpanded ? Icons.menu_open : Icons.menu,
-              size: 20,
-              color: theme.textSecondary,
-            ),
-            onPressed: () => appLevel.toggleSidebar(),
-            tooltip: 'Contraer sidebar',
+        // Toggle sidebar
+        IconButton(
+          icon: Icon(
+            appLevel.sidebarExpanded ? Icons.menu_open : Icons.menu,
+            size: 20,
+            color: theme.textSecondary,
           ),
+          onPressed: () => appLevel.toggleSidebar(),
+          tooltip: 'Contraer sidebar',
+        ),
 
         const SizedBox(width: 2),
 
