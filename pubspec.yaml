@@ -94,6 +94,8 @@ flutter:
     - assets/images/casos/bacheo/
     - assets/images/casos/basura/
     - assets/images/casos/señalizacion/
+    - assets/images/casos/seguridad/
+    - assets/images/casos/drenaje_agua/
     - assets/fonts/
     - assets/referencia/
 

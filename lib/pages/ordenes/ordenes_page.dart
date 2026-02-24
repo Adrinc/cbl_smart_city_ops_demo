@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:nethive_neo/helpers/constants.dart';
 import 'package:nethive_neo/helpers/formatters.dart';
 import 'package:nethive_neo/models/models.dart';
+import 'package:nethive_neo/pages/ordenes/widgets/asignar_tecnico_dialog.dart';
 import 'package:nethive_neo/providers/providers.dart';
 import 'package:nethive_neo/theme/theme.dart';
 import 'package:nethive_neo/widgets/shared/estatus_badge.dart';
@@ -148,11 +150,10 @@ class _OrdenesPageState extends State<OrdenesPage> {
     final theme = AppTheme.of(context);
     final prov = context.watch<IncidenciaProvider>();
     final source = _applyFilters(prov.todas);
-    final cols = _buildColumns(theme);
-    final rows = _buildRows(source, prov);
+    final isMobile = MediaQuery.of(context).size.width < mobileSize;
 
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(isMobile ? 16 : 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -199,9 +200,9 @@ class _OrdenesPageState extends State<OrdenesPage> {
           ),
           const SizedBox(height: 12),
 
-          // PlutoGrid
+          // Grid desktop / Cards mobile
           Expanded(
-            child: rows.isEmpty
+            child: source.isEmpty
                 ? Center(
                     child: Column(mainAxisSize: MainAxisSize.min, children: [
                     Icon(Icons.inbox_outlined,
@@ -211,67 +212,78 @@ class _OrdenesPageState extends State<OrdenesPage> {
                         style: TextStyle(
                             color: theme.textSecondary, fontSize: 14)),
                   ]))
-                : Container(
-                    decoration: BoxDecoration(
-                      color: theme.surface,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: theme.border, width: 1),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4))
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: PlutoGrid(
-                        columns: cols +
-                            [
-                              PlutoColumn(
-                                  title: '',
-                                  field: '_obj',
-                                  hide: true,
-                                  width: 0,
-                                  type: PlutoColumnType.text())
-                            ],
-                        rows: rows,
-                        onLoaded: (e) {
-                          _stateManager = e.stateManager;
-                          e.stateManager.setPageSize(25, notify: false);
-                        },
-                        onRowDoubleTap: (e) {
-                          final id = e.row.cells['_obj']?.value as String?;
-                          if (id != null) {
-                            final inc = prov.byId(id);
-                            if (inc != null)
-                              _showDetail(context, inc, prov, theme);
-                          }
-                        },
-                        createFooter: (s) => PlutoPagination(s),
-                        configuration: PlutoGridConfiguration(
-                          columnSize: const PlutoGridColumnSizeConfig(
-                            autoSizeMode: PlutoAutoSizeMode.scale,
-                          ),
-                          style: PlutoGridStyleConfig(
-                            gridBorderColor: theme.border,
-                            gridBackgroundColor: theme.surface,
-                            rowColor: theme.surface,
-                            activatedColor:
-                                theme.primaryColor.withOpacity(0.08),
-                            activatedBorderColor: theme.primaryColor,
-                            cellColorInEditState: theme.surface,
-                            columnTextStyle: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: theme.textSecondary),
-                            columnHeight: 40,
-                            rowHeight: 44,
+                : isMobile
+                    ? ListView.builder(
+                        padding: const EdgeInsets.only(top: 4, bottom: 16),
+                        itemCount: source.length,
+                        itemBuilder: (_, i) => _IncidenciaCard(
+                          inc: source[i],
+                          theme: theme,
+                          onTap: () =>
+                              _showDetail(context, source[i], prov, theme),
+                        ),
+                      )
+                    : Container(
+                        decoration: BoxDecoration(
+                          color: theme.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: theme.border, width: 1),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4))
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: PlutoGrid(
+                            columns: _buildColumns(theme) +
+                                [
+                                  PlutoColumn(
+                                      title: '',
+                                      field: '_obj',
+                                      hide: true,
+                                      width: 0,
+                                      type: PlutoColumnType.text())
+                                ],
+                            rows: _buildRows(source, prov),
+                            onLoaded: (e) {
+                              _stateManager = e.stateManager;
+                              e.stateManager.setPageSize(25, notify: false);
+                            },
+                            onRowDoubleTap: (e) {
+                              final id = e.row.cells['_obj']?.value as String?;
+                              if (id != null) {
+                                final inc = prov.byId(id);
+                                if (inc != null)
+                                  _showDetail(context, inc, prov, theme);
+                              }
+                            },
+                            createFooter: (s) => PlutoPagination(s),
+                            configuration: PlutoGridConfiguration(
+                              columnSize: const PlutoGridColumnSizeConfig(
+                                autoSizeMode: PlutoAutoSizeMode.scale,
+                              ),
+                              style: PlutoGridStyleConfig(
+                                gridBorderColor: theme.border,
+                                gridBackgroundColor: theme.surface,
+                                rowColor: theme.surface,
+                                activatedColor:
+                                    theme.primaryColor.withOpacity(0.08),
+                                activatedBorderColor: theme.primaryColor,
+                                cellColorInEditState: theme.surface,
+                                columnTextStyle: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: theme.textSecondary),
+                                columnHeight: 40,
+                                rowHeight: 44,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
           ),
         ],
       ),
@@ -280,135 +292,225 @@ class _OrdenesPageState extends State<OrdenesPage> {
 
   void _showDetail(BuildContext context, Incidencia inc,
       IncidenciaProvider prov, AppTheme theme) {
+    final tecProv = context.read<TecnicoProvider>();
+    final audProv = context.read<AuditoriaProvider>();
+    final tec = inc.tecnicoId != null ? tecProv.byId(inc.tecnicoId!) : null;
+
     showDialog(
       context: context,
-      builder: (_) => Dialog(
+      builder: (ctx) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Container(
-          width: 540,
-          padding: const EdgeInsets.all(28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(children: [
-                Text(formatIdIncidencia(inc.id),
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: theme.primaryColor)),
-                const Spacer(),
-                IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close)),
-              ]),
-              const SizedBox(height: 4),
-              Text(inc.descripcion,
-                  style: TextStyle(fontSize: 15, color: theme.textPrimary)),
-              const SizedBox(height: 16),
-              Wrap(spacing: 8, runSpacing: 8, children: [
-                PriorityBadge(prioridad: inc.prioridad),
-                EstatusBadge(estatus: inc.estatus),
-                _DetailChip(
-                    label: labelCategoria(inc.categoria),
-                    icon: Icons.category_outlined,
-                    theme: theme),
-                _DetailChip(
-                    label: labelEntorno(inc.entorno),
-                    icon: Icons.location_on_outlined,
-                    theme: theme),
-              ]),
-              const SizedBox(height: 16),
-              _DetailRow(
-                  label: 'SLA',
-                  value: formatSla(inc.fechaLimite),
-                  valueColor: inc.estaVencida ? theme.critical : null,
-                  theme: theme),
-              _DetailRow(
-                  label: 'Reportado',
-                  value: formatFechaHora(inc.fechaReporte),
-                  theme: theme),
-              if (inc.tecnicoId != null)
-                _DetailRow(
-                    label: 'Técnico asignado',
-                    value: inc.tecnicoId!,
-                    theme: theme),
-              if (inc.esReincidente)
-                Container(
-                  margin: const EdgeInsets.only(top: 8),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                      color: theme.high.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(6)),
-                  child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Icon(Icons.repeat, size: 14, color: theme.high),
-                    const SizedBox(width: 6),
-                    Text('Incidencia reincidente',
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: theme.high,
-                            fontWeight: FontWeight.w600)),
-                  ]),
-                ),
-              const SizedBox(height: 20),
-              // Acciones rápidas
-              if (inc.estatus == 'aprobado' || inc.estatus == 'recibido')
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
                 Row(children: [
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      prov.actualizarEstatus(inc.id, 'en_proceso');
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(
-                              '${formatIdIncidencia(inc.id)} marcada En Proceso'),
-                          backgroundColor: theme.medium));
-                    },
-                    icon: const Icon(Icons.play_arrow_outlined, size: 16),
-                    label: const Text('Iniciar'),
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.medium,
-                        foregroundColor: Colors.white),
+                  Text(formatIdIncidencia(inc.id),
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: theme.primaryColor)),
+                  const Spacer(),
+                  IconButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      icon: const Icon(Icons.close)),
+                ]),
+                const SizedBox(height: 4),
+                Text(inc.descripcion,
+                    style: TextStyle(fontSize: 15, color: theme.textPrimary)),
+                const SizedBox(height: 16),
+                Wrap(spacing: 8, runSpacing: 8, children: [
+                  PriorityBadge(prioridad: inc.prioridad),
+                  EstatusBadge(estatus: inc.estatus),
+                  _DetailChip(
+                      label: labelCategoria(inc.categoria),
+                      icon: Icons.category_outlined,
+                      theme: theme),
+                  _DetailChip(
+                      label: labelEntorno(inc.entorno),
+                      icon: Icons.location_on_outlined,
+                      theme: theme),
+                ]),
+                const SizedBox(height: 16),
+                _DetailRow(
+                    label: 'SLA',
+                    value: formatSla(inc.fechaLimite),
+                    valueColor: inc.estaVencida ? theme.critical : null,
+                    theme: theme),
+                _DetailRow(
+                    label: 'Reportado',
+                    value: formatFechaHora(inc.fechaReporte),
+                    theme: theme),
+                _DetailRow(
+                    label: 'Municipio', value: inc.municipio, theme: theme),
+                // Técnico asignado
+                if (tec != null)
+                  _TecnicoInfoRow(tec: tec, theme: theme, tecProv: tecProv)
+                else if (inc.tecnicoId != null)
+                  _DetailRow(
+                      label: 'Técnico', value: inc.tecnicoId!, theme: theme),
+                // Reincidente
+                if (inc.esReincidente) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                        color: theme.high.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(6)),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Icon(Icons.repeat, size: 14, color: theme.high),
+                      const SizedBox(width: 6),
+                      Text('Incidencia reincidente',
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: theme.high,
+                              fontWeight: FontWeight.w600)),
+                    ]),
                   ),
-                  const SizedBox(width: 8),
+                ],
+                const SizedBox(height: 20),
+                Divider(color: theme.border),
+                const SizedBox(height: 14),
+                // Acciones
+                Wrap(spacing: 8, runSpacing: 8, children: [
+                  // Sin técnico asignado: mostrar botón asignar
+                  if (inc.tecnicoId == null &&
+                      (inc.estatus == 'aprobado' ||
+                          inc.estatus == 'recibido' ||
+                          inc.estatus == 'en_revision'))
+                    FilledButton.icon(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        AsignarTecnicoDialog.show(context, inc);
+                      },
+                      icon: const Icon(Icons.person_add_outlined, size: 16),
+                      label: const Text('Asignar Técnico'),
+                      style: FilledButton.styleFrom(
+                          backgroundColor: theme.primaryColor),
+                    ),
+                  if (inc.estatus == 'aprobado' || inc.estatus == 'asignado')
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        prov.actualizarEstatus(inc.id, 'en_proceso');
+                        audProv.registrar(
+                          modulo: 'Órdenes',
+                          accion: 'INICIAR',
+                          descripcion:
+                              'Inició orden ${formatIdIncidencia(inc.id)} — ${labelCategoria(inc.categoria)}',
+                          referenciaId: inc.id,
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(
+                                '${formatIdIncidencia(inc.id)} marcada En Proceso'),
+                            backgroundColor: theme.medium));
+                      },
+                      icon: const Icon(Icons.play_arrow_outlined, size: 16),
+                      label: const Text('Iniciar'),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: theme.medium,
+                          foregroundColor: Colors.white),
+                    ),
+                  if (inc.estatus == 'en_proceso')
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        prov.actualizarEstatus(inc.id, 'resuelto');
+                        if (inc.tecnicoId != null)
+                          tecProv.decrementarActivas(inc.tecnicoId!);
+                        audProv.registrar(
+                          modulo: 'Órdenes',
+                          accion: 'RESOLVER',
+                          descripcion:
+                              'Marcó como resuelta la orden ${formatIdIncidencia(inc.id)} — ${labelCategoria(inc.categoria)}',
+                          referenciaId: inc.id,
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(
+                                '${formatIdIncidencia(inc.id)} marcada como Resuelta'),
+                            backgroundColor: theme.low));
+                      },
+                      icon: const Icon(Icons.check_circle_outline, size: 16),
+                      label: const Text('Marcar Resuelta'),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: theme.low,
+                          foregroundColor: Colors.white),
+                    ),
                   OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.pop(ctx),
                     child: const Text('Cerrar'),
                   ),
-                ])
-              else if (inc.estatus == 'en_proceso')
-                Row(children: [
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      prov.actualizarEstatus(inc.id, 'resuelto');
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(
-                              '${formatIdIncidencia(inc.id)} marcada como Resuelta'),
-                          backgroundColor: theme.low));
-                    },
-                    icon: const Icon(Icons.check_circle_outline, size: 16),
-                    label: const Text('Marcar Resuelta'),
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.low,
-                        foregroundColor: Colors.white),
-                  ),
-                  const SizedBox(width: 8),
-                  OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Cerrar')),
-                ])
-              else
-                Align(
-                    alignment: Alignment.centerRight,
-                    child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Cerrar'))),
-            ],
+                ]),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+}
+
+// Widget interno: fila de técnico asignado
+class _TecnicoInfoRow extends StatelessWidget {
+  const _TecnicoInfoRow(
+      {required this.tec, required this.theme, required this.tecProv});
+  final Tecnico tec;
+  final AppTheme theme;
+  final TecnicoProvider tecProv;
+
+  @override
+  Widget build(BuildContext context) {
+    final bytes = tecProv.getAvatarBytes(tec.id);
+    final hasPath = tec.avatarPath?.isNotEmpty ?? false;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(children: [
+        SizedBox(
+            width: 120,
+            child: Text('Técnico asignado',
+                style: TextStyle(fontSize: 12, color: theme.textSecondary))),
+        CircleAvatar(
+            radius: 14,
+            backgroundColor: const Color(0xFF7A1E3A),
+            backgroundImage: bytes != null
+                ? MemoryImage(bytes) as ImageProvider
+                : hasPath
+                    ? AssetImage(tec.avatarPath!)
+                    : null,
+            child: (bytes == null && !hasPath)
+                ? Text(_initials(tec.nombre),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700))
+                : null),
+        const SizedBox(width: 8),
+        Expanded(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(tec.nombre,
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: theme.textPrimary)),
+          Text(labelEspecialidad(tec.especialidad),
+              style: TextStyle(fontSize: 11, color: theme.textSecondary)),
+        ])),
+      ]),
+    );
+  }
+
+  String _initials(String n) {
+    final p = n.trim().split(' ');
+    return p.length >= 2
+        ? '${p[0][0]}${p[1][0]}'.toUpperCase()
+        : n.substring(0, n.length.clamp(0, 2)).toUpperCase();
   }
 }
 
@@ -580,6 +682,142 @@ class _DetailChip extends StatelessWidget {
         const SizedBox(width: 4),
         Text(label, style: TextStyle(fontSize: 12, color: theme.textPrimary)),
       ]),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Card mobile — Incidencia
+// ══════════════════════════════════════════════════════════════════════════════
+class _IncidenciaCard extends StatelessWidget {
+  const _IncidenciaCard({
+    required this.inc,
+    required this.theme,
+    required this.onTap,
+  });
+  final Incidencia inc;
+  final AppTheme theme;
+  final VoidCallback onTap;
+
+  static const _catIcons = <String, IconData>{
+    'alumbrado': Icons.lightbulb_outline,
+    'bacheo': Icons.construction,
+    'basura': Icons.delete_outline,
+    'seguridad': Icons.security,
+    'agua_drenaje': Icons.water_drop_outlined,
+    'señalizacion': Icons.signpost_outlined,
+    'senalizacion': Icons.signpost_outlined,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final isVencida = inc.estaVencida;
+    final catIcon = _catIcons[inc.categoria] ?? Icons.report_outlined;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        decoration: BoxDecoration(
+          color: theme.surface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+              color:
+                  isVencida ? theme.critical.withOpacity(0.35) : theme.border),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6)
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            // ── Fila 1: ID + prioridad + estatus ──────────────────────
+            Row(children: [
+              Text(
+                formatIdIncidencia(inc.id),
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: theme.primaryColor),
+              ),
+              const Spacer(),
+              PriorityBadge(prioridad: inc.prioridad),
+              const SizedBox(width: 6),
+              EstatusBadge(estatus: inc.estatus),
+            ]),
+            const SizedBox(height: 8),
+
+            // ── Fila 2: categoría + entorno ────────────────────────────
+            Row(children: [
+              Icon(catIcon, size: 14, color: theme.textSecondary),
+              const SizedBox(width: 4),
+              Text(labelCategoria(inc.categoria),
+                  style: TextStyle(fontSize: 12, color: theme.textSecondary)),
+              const SizedBox(width: 8),
+              Text('·',
+                  style: TextStyle(color: theme.textDisabled, fontSize: 12)),
+              const SizedBox(width: 8),
+              Text(labelEntorno(inc.entorno),
+                  style: TextStyle(fontSize: 12, color: theme.textSecondary)),
+            ]),
+            const SizedBox(height: 6),
+
+            // ── Descripción ────────────────────────────────────────────
+            Text(
+              inc.descripcion,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 13, color: theme.textPrimary),
+            ),
+            const SizedBox(height: 8),
+
+            // ── SLA + fecha ────────────────────────────────────────────
+            Row(children: [
+              Icon(Icons.timer_outlined,
+                  size: 13,
+                  color: isVencida ? theme.critical : theme.textSecondary),
+              const SizedBox(width: 4),
+              Text(
+                formatSla(inc.fechaLimite),
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: isVencida ? theme.critical : theme.textSecondary),
+              ),
+              const Spacer(),
+              Text(formatFechaCorta(inc.fechaReporte),
+                  style: TextStyle(fontSize: 11, color: theme.textDisabled)),
+            ]),
+
+            // ── Técnico (si hay) ───────────────────────────────────────
+            if (inc.tecnicoId != null) ...[
+              const SizedBox(height: 6),
+              Row(mainAxisSize: MainAxisSize.min, children: [
+                Icon(Icons.person_outline,
+                    size: 13, color: theme.textSecondary),
+                const SizedBox(width: 4),
+                Text(inc.tecnicoId!,
+                    style: TextStyle(fontSize: 11, color: theme.textSecondary)),
+              ]),
+            ],
+
+            // ── Reincidente ────────────────────────────────────────────
+            if (inc.esReincidente) ...[
+              const SizedBox(height: 6),
+              Row(mainAxisSize: MainAxisSize.min, children: [
+                Icon(Icons.repeat, size: 12, color: theme.high),
+                const SizedBox(width: 4),
+                Text('Reincidente',
+                    style: TextStyle(
+                        fontSize: 11,
+                        color: theme.high,
+                        fontWeight: FontWeight.w600)),
+              ]),
+            ],
+          ]),
+        ),
+      ),
     );
   }
 }

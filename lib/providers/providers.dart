@@ -1,4 +1,5 @@
 export 'package:nethive_neo/providers/app_level_provider.dart';
+export 'package:nethive_neo/providers/auditoria_provider.dart';
 export 'package:nethive_neo/providers/incidencia_provider.dart';
 export 'package:nethive_neo/providers/bandeja_ia_provider.dart';
 export 'package:nethive_neo/providers/tecnico_provider.dart';

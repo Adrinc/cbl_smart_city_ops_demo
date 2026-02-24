@@ -583,7 +583,7 @@ final List<Incidencia> mockIncidenciasEnsenada = [
     entorno: 'residencial',
     prioridad: 'bajo',
     descripcion: 'Hay una persona sospechosa en mi calle que no conozco.',
-    imagenPath: 'assets/images/casos/rechazar/happyface.png',
+    imagenPath: 'assets/images/casos/seguridad/seguridad_happyface_rechazar.png',
     latitud: 31.8540,
     longitud: -116.5945,
     estatus: 'en_revision',
@@ -606,7 +606,7 @@ final List<Incidencia> mockIncidenciasEnsenada = [
     prioridad: 'bajo',
     descripcion:
         'Encontré un papel tirado en la acera frente a mi casa, me parece sucio.',
-    imagenPath: 'assets/images/casos/rechazar/papelito.jpg',
+    imagenPath: 'assets/images/casos/basura/basura_papelito_rechazar.jpg',
     latitud: 31.8520,
     longitud: -116.5920,
     estatus: 'en_revision',

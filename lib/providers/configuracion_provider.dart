@@ -31,15 +31,22 @@ class ConfiguracionProvider extends ChangeNotifier {
   ReglaPriorizacion? byId(String id) =>
       _reglas.where((r) => r.id == id).firstOrNull;
 
-
   void addRegla(ReglaPriorizacion r) {
     _reglas.insert(0, r);
     notifyListeners();
   }
+
+  void reorderRegla(int oldIndex, int newIndex) {
+    if (newIndex > oldIndex) newIndex -= 1;
+    final item = _reglas.removeAt(oldIndex);
+    _reglas.insert(newIndex, item);
+    notifyListeners();
+  }
+
   String calcPrioridad(String categoria, String entorno, bool esReincidente) {
     try {
-      final regla = _reglas.firstWhere((r) =>
-          r.activa && r.categoria == categoria && r.entorno == entorno);
+      final regla = _reglas.firstWhere(
+          (r) => r.activa && r.categoria == categoria && r.entorno == entorno);
       if (esReincidente && regla.esReincidenteEscala) {
         const escalas = ['bajo', 'medio', 'alto', 'critico'];
         final idx = escalas.indexOf(regla.nivelPrioridad);

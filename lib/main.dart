@@ -29,6 +29,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => SlaProvider()),
         ChangeNotifierProvider(create: (_) => ReporteProvider()),
         ChangeNotifierProvider(create: (_) => ConfiguracionProvider()),
+        ChangeNotifierProvider(create: (_) => AuditoriaProvider()),
       ],
       child: const MyApp(),
     ),

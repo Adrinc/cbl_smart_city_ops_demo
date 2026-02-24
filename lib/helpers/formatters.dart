@@ -142,3 +142,15 @@ String labelEstatusTecnico(String s) {
   };
   return labels[s] ?? s;
 }
+
+/// Nombre legible de especialidad de técnico
+String labelEspecialidad(String esp) {
+  const Map<String, String> labels = {
+    'alumbrado': 'Alumbrado',
+    'bacheo': 'Bacheo',
+    'basura': 'Basura',
+    'agua_drenaje': 'Agua/Drenaje',
+    'general': 'General',
+  };
+  return labels[esp] ?? esp;
+}
