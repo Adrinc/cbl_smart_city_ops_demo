@@ -53,21 +53,7 @@ class ConfiguracionPage extends StatelessWidget {
             ),
           )
         else if (isMobile)
-          ReorderableListView(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            onReorder: (oldIdx, newIdx) => prov.reorderRegla(oldIdx, newIdx),
-            children: reglas
-                .asMap()
-                .entries
-                .map((e) => _ReglaCard(
-                    key: ValueKey(e.value.id),
-                    regla: e.value,
-                    idx: e.key,
-                    prov: prov,
-                    theme: theme))
-                .toList(),
-          )
+          _MobileCategoryGroups(reglas: reglas, prov: prov, theme: theme)
         else
           _ReglaPlutoGrid(
             key: ValueKey(reglas.map((r) => '${r.id}${r.activa}').join()),
@@ -87,7 +73,197 @@ class ConfiguracionPage extends StatelessWidget {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// PLUTOGRID DESKTOP — Reglas de priorización
+// MOBILE — Agrupación por categoría (expandible)
+// ═══════════════════════════════════════════════════════════════════════════
+class _MobileCategoryGroups extends StatelessWidget {
+  const _MobileCategoryGroups(
+      {required this.reglas, required this.prov, required this.theme});
+  final List<ReglaPriorizacion> reglas;
+  final ConfiguracionProvider prov;
+  final AppTheme theme;
+
+  static const _catM = {
+    'alumbrado': 'Alumbrado',
+    'bacheo': 'Bacheo',
+    'basura': 'Basura',
+    'seguridad': 'Seguridad',
+    'agua_drenaje': 'Agua/Drenaje',
+    'señalizacion': 'Señalización',
+  };
+  static const _catIcons = <String, IconData>{
+    'alumbrado': Icons.lightbulb_outline,
+    'bacheo': Icons.construction,
+    'basura': Icons.delete_outline,
+    'agua_drenaje': Icons.water_drop_outlined,
+    'señalizacion': Icons.traffic,
+    'seguridad': Icons.security,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    // Agrupar por categoría manteniendo el orden de aparición
+    final grouped = <String, List<ReglaPriorizacion>>{};
+    for (final r in reglas) {
+      (grouped[r.categoria] ??= []).add(r);
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: grouped.entries.map((entry) {
+        final cat = entry.key;
+        final catReglas = entry.value;
+        final icon = _catIcons[cat] ?? Icons.category_outlined;
+        final label = _catM[cat] ?? cat;
+        final activaCount = catReglas.where((r) => r.activa).length;
+        return Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          decoration: BoxDecoration(
+              color: theme.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: theme.border),
+              boxShadow: [
+                BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6)
+              ]),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Theme(
+              // quitar el borde divisor interno del ExpansionTile
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                      color: theme.primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8)),
+                  child: Icon(icon, size: 18, color: theme.primaryColor),
+                ),
+                title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(label,
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: theme.textPrimary)),
+                      Row(mainAxisSize: MainAxisSize.min, children: [
+                        // badge total
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                              color: theme.primaryColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10)),
+                          child: Text(
+                              '${catReglas.length} regla${catReglas.length == 1 ? '' : 's'}',
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: theme.primaryColor)),
+                        ),
+                        if (activaCount < catReglas.length) ...[
+                          const SizedBox(width: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 7, vertical: 3),
+                            decoration: BoxDecoration(
+                                color: theme.textDisabled.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Text(
+                                '${catReglas.length - activaCount} inactiva${catReglas.length - activaCount == 1 ? '' : 's'}',
+                                style: TextStyle(
+                                    fontSize: 10, color: theme.textDisabled)),
+                          ),
+                        ],
+                      ]),
+                    ]),
+                subtitle: Text(
+                  catReglas.map((r) => _entM(r.entorno)).join(' · '),
+                  style: TextStyle(fontSize: 11, color: theme.textSecondary),
+                ),
+                initiallyExpanded: false,
+                collapsedBackgroundColor: theme.surface,
+                backgroundColor: theme.background,
+                iconColor: theme.primaryColor,
+                collapsedIconColor: theme.textSecondary,
+                tilePadding: const EdgeInsets.fromLTRB(14, 6, 14, 6),
+                childrenPadding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                children: catReglas.asMap().entries.map((e) {
+                  // Cabecera de entorno dentro del grupo
+                  final entorno = e.value.entorno;
+                  const entIcons = <String, IconData>{
+                    'residencial': Icons.home_outlined,
+                    'comercial': Icons.storefront_outlined,
+                    'industrial': Icons.factory_outlined,
+                    'institucional': Icons.account_balance_outlined,
+                  };
+                  const entColors = <String, Color>{
+                    'residencial': Color(0xFF2D7A4F),
+                    'comercial': Color(0xFF1D4ED8),
+                    'industrial': Color(0xFFD97706),
+                    'institucional': Color(0xFF7A1E3A),
+                  };
+                  final entColor =
+                      entColors[entorno] ?? const Color(0xFF64748B);
+                  final entIcon =
+                      entIcons[entorno] ?? Icons.location_city_outlined;
+                  return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(left: 4, bottom: 6, top: 2),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 9, vertical: 4),
+                            decoration: BoxDecoration(
+                                color: entColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                    color: entColor.withOpacity(0.35))),
+                            child:
+                                Row(mainAxisSize: MainAxisSize.min, children: [
+                              Icon(entIcon, size: 13, color: entColor),
+                              const SizedBox(width: 5),
+                              Text(_entM(entorno),
+                                  style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: entColor)),
+                            ]),
+                          ),
+                        ),
+                        _ReglaCard(
+                          key: ValueKey(e.value.id),
+                          regla: e.value,
+                          idx: reglas.indexOf(e.value),
+                          prov: prov,
+                          theme: theme,
+                        ),
+                        if (e.key < catReglas.length - 1)
+                          const SizedBox(height: 10),
+                      ]);
+                }).toList(),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  static String _entM(String e) {
+    const m = {
+      'residencial': 'Residencial',
+      'comercial': 'Comercial',
+      'industrial': 'Industrial',
+      'institucional': 'Institucional',
+    };
+    return m[e] ?? e;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PLUTOGRID DESKTOP — Reglas de priorización (agrupadas por Categoría → Entorno)
 // ═══════════════════════════════════════════════════════════════════════════
 class _ReglaPlutoGrid extends StatelessWidget {
   const _ReglaPlutoGrid({
@@ -130,7 +306,12 @@ class _ReglaPlutoGrid extends StatelessWidget {
           width: 140,
           type: PlutoColumnType.text(),
           renderer: (r) {
-            final cat = r.cell.value as String;
+            final cat = (r.cell.value as String? ?? '');
+            if (cat.isEmpty) return const SizedBox.shrink();
+            // Sub-grupo nivel-2 o filas hoja: no repetir la categoría
+            if (!r.row.type.isGroup || r.row.parent != null) {
+              return const SizedBox.shrink();
+            }
             final label = _catM[cat] ?? cat;
             return Row(children: [
               Icon(_catIcon(cat), size: 16, color: theme.primaryColor),
@@ -146,16 +327,56 @@ class _ReglaPlutoGrid extends StatelessWidget {
         PlutoColumn(
           title: 'Entorno',
           field: 'entorno',
-          width: 130,
+          width: 150,
           type: PlutoColumnType.text(),
-          renderer: (r) => Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-                color: theme.border.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(6)),
-            child: Text(_entM[r.cell.value] ?? r.cell.value,
-                style: TextStyle(fontSize: 11, color: theme.textSecondary)),
-          ),
+          renderer: (r) {
+            // Solo mostrar entorno en filas de sub-grupo nivel-2
+            if (!r.row.type.isGroup || r.row.parent == null) {
+              return const SizedBox.shrink();
+            }
+            final val = r.cell.value as String? ?? '';
+            if (val.isEmpty) return const SizedBox.shrink();
+
+            const icons = <String, IconData>{
+              'residencial': Icons.home_outlined,
+              'comercial': Icons.storefront_outlined,
+              'industrial': Icons.factory_outlined,
+              'institucional': Icons.account_balance_outlined,
+            };
+            const colors = <String, Color>{
+              'residencial': Color(0xFF2D7A4F), // verde
+              'comercial': Color(0xFF1D4ED8), // azul
+              'industrial': Color(0xFFD97706), // ámbar
+              'institucional': Color(0xFF7A1E3A), // vino
+            };
+            const labels = <String, String>{
+              'residencial': 'Residencial',
+              'comercial': 'Comercial',
+              'industrial': 'Industrial',
+              'institucional': 'Institucional',
+            };
+
+            final color = colors[val] ?? const Color(0xFF64748B);
+            final icon = icons[val] ?? Icons.location_city_outlined;
+            final label = labels[val] ?? val;
+
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+              decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: color.withOpacity(0.35))),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                Icon(icon, size: 13, color: color),
+                const SizedBox(width: 5),
+                Text(label,
+                    style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: color)),
+              ]),
+            );
+          },
         ),
         PlutoColumn(
           title: 'Prioridad',
@@ -163,7 +384,9 @@ class _ReglaPlutoGrid extends StatelessWidget {
           width: 120,
           type: PlutoColumnType.text(),
           renderer: (r) {
-            final prio = r.cell.value as String;
+            if (r.row.type.isGroup) return const SizedBox.shrink();
+            final prio = (r.cell.value as String? ?? '');
+            if (prio.isEmpty) return const SizedBox.shrink();
             final color = _prioColors[prio] ?? const Color(0xFF64748B);
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
@@ -182,11 +405,14 @@ class _ReglaPlutoGrid extends StatelessWidget {
           field: 'sla',
           width: 80,
           type: PlutoColumnType.text(),
-          renderer: (r) => Text('${r.cell.value}h',
-              style: TextStyle(
-                  fontSize: 12,
-                  color: theme.textPrimary,
-                  fontWeight: FontWeight.w500)),
+          renderer: (r) {
+            if (r.row.type.isGroup) return const SizedBox.shrink();
+            return Text('${r.cell.value}h',
+                style: TextStyle(
+                    fontSize: 12,
+                    color: theme.textPrimary,
+                    fontWeight: FontWeight.w500));
+          },
         ),
         PlutoColumn(
           title: 'Auto-Aprobar',
@@ -194,6 +420,7 @@ class _ReglaPlutoGrid extends StatelessWidget {
           width: 120,
           type: PlutoColumnType.text(),
           renderer: (r) {
+            if (r.row.type.isGroup) return const SizedBox.shrink();
             final v = r.cell.value == 'true';
             return Row(children: [
               Icon(v ? Icons.check_circle : Icons.radio_button_unchecked,
@@ -211,6 +438,7 @@ class _ReglaPlutoGrid extends StatelessWidget {
           width: 120,
           type: PlutoColumnType.text(),
           renderer: (r) {
+            if (r.row.type.isGroup) return const SizedBox.shrink();
             final v = r.cell.value == 'true';
             return Row(children: [
               Icon(v ? Icons.trending_up : Icons.trending_flat,
@@ -229,6 +457,7 @@ class _ReglaPlutoGrid extends StatelessWidget {
           width: 100,
           type: PlutoColumnType.text(),
           renderer: (r) {
+            if (r.row.type.isGroup) return const SizedBox.shrink();
             final id = r.row.cells['_id']?.value as String? ?? '';
             final v = r.cell.value == 'true';
             return Transform.scale(
@@ -250,6 +479,7 @@ class _ReglaPlutoGrid extends StatelessWidget {
           enableSorting: false,
           enableFilterMenuItem: false,
           renderer: (r) {
+            if (r.row.type.isGroup) return const SizedBox.shrink();
             final id = r.row.cells['_id']?.value as String? ?? '';
             final regla = prov.byId(id);
             final n = regla?.criterios.length ?? 0;
@@ -285,6 +515,7 @@ class _ReglaPlutoGrid extends StatelessWidget {
           enableSorting: false,
           enableFilterMenuItem: false,
           renderer: (r) {
+            if (r.row.type.isGroup) return const SizedBox.shrink();
             final id = r.row.cells['_id']?.value as String? ?? '';
             final regla = prov.byId(id);
             if (regla == null) return const SizedBox();
@@ -386,7 +617,8 @@ class _ReglaPlutoGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: reglas.length * 56 + 60, // rows + header
+      height:
+          600, // altura fija; PlutoGrid scrollea internamente si se expanden todos los grupos
       child: Container(
         decoration: BoxDecoration(
             color: theme.surface,
@@ -400,7 +632,22 @@ class _ReglaPlutoGrid extends StatelessWidget {
           child: PlutoGrid(
             columns: _cols(context),
             rows: _rows(),
-            onLoaded: (e) => e.stateManager.setPageSize(50, notify: false),
+            onLoaded: (e) {
+              e.stateManager.setPageSize(50, notify: false);
+              // ─ Row grouping: Categoría → Entorno ────────────────────────────────────
+              final catCol = e.stateManager.columns
+                  .firstWhere((c) => c.field == 'categoria');
+              final entCol = e.stateManager.columns
+                  .firstWhere((c) => c.field == 'entorno');
+              e.stateManager.setRowGroup(
+                PlutoRowGroupByColumnDelegate(
+                  columns: [catCol, entCol],
+                  showFirstExpandableIcon: false,
+                  showCount: true,
+                  enableCompactCount: false,
+                ),
+              );
+            },
             configuration: PlutoGridConfiguration(
               columnSize: const PlutoGridColumnSizeConfig(
                 autoSizeMode: PlutoAutoSizeMode.scale,
