@@ -3,6 +3,7 @@ import 'package:nethive_neo/helpers/constants.dart';
 import 'package:nethive_neo/helpers/formatters.dart';
 import 'package:nethive_neo/models/models.dart';
 import 'package:nethive_neo/pages/ordenes/widgets/asignar_tecnico_dialog.dart';
+import 'package:nethive_neo/pages/ordenes/widgets/tecnico_chip_detalle.dart';
 import 'package:nethive_neo/providers/providers.dart';
 import 'package:nethive_neo/theme/theme.dart';
 import 'package:nethive_neo/widgets/shared/estatus_badge.dart';
@@ -43,6 +44,19 @@ class _OrdenesPageState extends State<OrdenesPage> {
     'seguridad'
   ];
 
+  static const _catIcons = <String, IconData>{
+    'alumbrado': Icons.lightbulb_outline,
+    'bacheo': Icons.construction,
+    'basura': Icons.delete_outline,
+    'seguridad': Icons.security,
+    'agua_drenaje': Icons.water_drop_outlined,
+    'señalizacion': Icons.signpost_outlined,
+    'senalizacion': Icons.signpost_outlined,
+  };
+
+  static IconData _catIcon(String cat) =>
+      _catIcons[cat] ?? Icons.report_outlined;
+
   List<Incidencia> _applyFilters(List<Incidencia> source) {
     return source.where((i) {
       if (_filterPrioridad != null && i.prioridad != _filterPrioridad)
@@ -68,10 +82,20 @@ class _OrdenesPageState extends State<OrdenesPage> {
         PlutoColumn(
             title: 'Categoría',
             field: 'categoria',
-            width: 110,
+            width: 130,
             type: PlutoColumnType.text(),
-            renderer: (r) => Text(labelCategoria(r.cell.value),
-                style: TextStyle(fontSize: 12, color: theme.textPrimary))),
+            renderer: (r) {
+              final cat = r.cell.value as String;
+              return Row(mainAxisSize: MainAxisSize.min, children: [
+                Icon(_catIcon(cat), size: 14, color: theme.primaryColor),
+                const SizedBox(width: 5),
+                Flexible(
+                    child: Text(labelCategoria(cat),
+                        style:
+                            TextStyle(fontSize: 12, color: theme.textPrimary),
+                        overflow: TextOverflow.ellipsis)),
+              ]);
+            }),
         PlutoColumn(
             title: 'Descripción',
             field: 'descripcion',
@@ -109,14 +133,12 @@ class _OrdenesPageState extends State<OrdenesPage> {
         PlutoColumn(
             title: 'Técnico',
             field: 'tecnico',
-            width: 130,
+            width: 160,
             type: PlutoColumnType.text(),
-            renderer: (r) => Text(r.cell.value.isEmpty ? '—' : r.cell.value,
-                style: TextStyle(
-                    fontSize: 12,
-                    color: r.cell.value.isEmpty
-                        ? theme.textSecondary
-                        : theme.textPrimary))),
+            renderer: (r) {
+              final incId = r.row.cells['_obj']?.value as String? ?? '';
+              return TecnicoChipDetalle(incId: incId, theme: theme);
+            }),
         PlutoColumn(
             title: 'Reportado',
             field: 'fecha',
@@ -126,11 +148,12 @@ class _OrdenesPageState extends State<OrdenesPage> {
                 style: TextStyle(fontSize: 11, color: theme.textSecondary))),
       ];
 
-  List<PlutoRow> _buildRows(List<Incidencia> incs, IncidenciaProvider prov) {
+  List<PlutoRow> _buildRows(
+      List<Incidencia> incs, IncidenciaProvider prov, TecnicoProvider tecProv) {
     return incs.map((i) {
-      final tecnico = i.tecnicoId != null
-          ? prov.todas.map((_) => null).firstOrNull // simplified lookup
-          : null;
+      final tecNombre = i.tecnicoId != null
+          ? (tecProv.byId(i.tecnicoId!)?.nombre ?? i.tecnicoId!)
+          : '';
       return PlutoRow(cells: {
         'id': PlutoCell(value: formatIdIncidencia(i.id)),
         'categoria': PlutoCell(value: i.categoria),
@@ -138,7 +161,7 @@ class _OrdenesPageState extends State<OrdenesPage> {
         'prioridad': PlutoCell(value: i.prioridad),
         'estatus': PlutoCell(value: i.estatus),
         'sla': PlutoCell(value: formatSla(i.fechaLimite)),
-        'tecnico': PlutoCell(value: i.tecnicoId ?? ''),
+        'tecnico': PlutoCell(value: tecNombre),
         'fecha': PlutoCell(value: formatFechaCorta(i.fechaReporte)),
         '_obj': PlutoCell(value: i.id),
       });
@@ -149,6 +172,7 @@ class _OrdenesPageState extends State<OrdenesPage> {
   Widget build(BuildContext context) {
     final theme = AppTheme.of(context);
     final prov = context.watch<IncidenciaProvider>();
+    final tecProv = context.watch<TecnicoProvider>();
     final source = _applyFilters(prov.todas);
     final isMobile = MediaQuery.of(context).size.width < mobileSize;
 
@@ -247,7 +271,7 @@ class _OrdenesPageState extends State<OrdenesPage> {
                                       width: 0,
                                       type: PlutoColumnType.text())
                                 ],
-                            rows: _buildRows(source, prov),
+                            rows: _buildRows(source, prov, tecProv),
                             onLoaded: (e) {
                               _stateManager = e.stateManager;
                               e.stateManager.setPageSize(25, notify: false);
@@ -790,16 +814,47 @@ class _IncidenciaCard extends StatelessWidget {
                   style: TextStyle(fontSize: 11, color: theme.textDisabled)),
             ]),
 
-            // ── Técnico (si hay) ───────────────────────────────────────
+            // ── Técnico asignado o botón Asignar ──────────────────────
             if (inc.tecnicoId != null) ...[
               const SizedBox(height: 6),
-              Row(mainAxisSize: MainAxisSize.min, children: [
-                Icon(Icons.person_outline,
-                    size: 13, color: theme.textSecondary),
-                const SizedBox(width: 4),
-                Text(inc.tecnicoId!,
-                    style: TextStyle(fontSize: 11, color: theme.textSecondary)),
-              ]),
+              Consumer<TecnicoProvider>(builder: (ctx, tecProv, _) {
+                final nombre =
+                    tecProv.byId(inc.tecnicoId!)?.nombre ?? inc.tecnicoId!;
+                return Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(Icons.person_outline,
+                      size: 13, color: theme.textSecondary),
+                  const SizedBox(width: 4),
+                  Text(nombre,
+                      style:
+                          TextStyle(fontSize: 11, color: theme.textSecondary)),
+                ]);
+              }),
+            ] else if (const {'aprobado', 'asignado', 'recibido', 'en_revision'}
+                .contains(inc.estatus)) ...[
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: () => AsignarTecnicoDialog.show(context, inc),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: theme.primaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border:
+                        Border.all(color: theme.primaryColor.withOpacity(0.35)),
+                  ),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(Icons.person_add_outlined,
+                        size: 14, color: theme.primaryColor),
+                    const SizedBox(width: 6),
+                    Text('Asignar técnico',
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: theme.primaryColor)),
+                  ]),
+                ),
+              ),
             ],
 
             // ── Reincidente ────────────────────────────────────────────

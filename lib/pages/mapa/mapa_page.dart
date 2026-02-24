@@ -48,12 +48,13 @@ class _MapaPageState extends State<MapaPage> {
   }
 
   List<Marker> _buildIncidenciaMarkers(List<Incidencia> incs) {
+    const _estadosOperativos = {'aprobado', 'asignado', 'en_proceso'};
     return incs
+        .where((i) => _estadosOperativos.contains(i.estatus))
         .where(
             (i) => _filterPrioridad == null || i.prioridad == _filterPrioridad)
         .where(
             (i) => _filterCategoria == null || i.categoria == _filterCategoria)
-        .where((i) => i.estaActiva)
         .map((i) {
       final color = _prioColor(i.prioridad);
       final isHovered = _hoveredIds.contains(i.id);
@@ -291,12 +292,17 @@ class _MapaPageState extends State<MapaPage> {
           right: 16,
           child: _MapControl(
             child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Text('${incs.length}',
+              Text(
+                  '${incs.where((i) => const {
+                        'aprobado',
+                        'asignado',
+                        'en_proceso'
+                      }.contains(i.estatus)).length}',
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
                       color: theme.primaryColor)),
-              const Text('activas', style: TextStyle(fontSize: 11)),
+              const Text('en operación', style: TextStyle(fontSize: 11)),
             ]),
           ),
         ),

@@ -583,7 +583,8 @@ final List<Incidencia> mockIncidenciasEnsenada = [
     entorno: 'residencial',
     prioridad: 'bajo',
     descripcion: 'Hay una persona sospechosa en mi calle que no conozco.',
-    imagenPath: 'assets/images/casos/seguridad/seguridad_happyface_rechazar.png',
+    imagenPath:
+        'assets/images/casos/seguridad/seguridad_happyface_rechazar.png',
     latitud: 31.8540,
     longitud: -116.5945,
     estatus: 'en_revision',
@@ -1420,7 +1421,13 @@ final List<ReglaPriorizacion> mockReglaPriorizacion = [
       slaHoras: 4,
       autoAprobar: false,
       esReincidenteEscala: true,
-      activa: true),
+      activa: true,
+      criterios: [
+        'Cable eléctrico de poste caído o colgando en la vía pública',
+        'Varios postes apagados en acceso a hospital, escuela o dependencia',
+        'Corte de luz que afecta semáforos y señales viales simultáneamente',
+        'Riesgo de electrocución reportado por vecinos o autoridad',
+      ]),
   const ReglaPriorizacion(
       id: 'R02',
       categoria: 'alumbrado',
@@ -1429,7 +1436,12 @@ final List<ReglaPriorizacion> mockReglaPriorizacion = [
       slaHoras: 8,
       autoAprobar: false,
       esReincidenteEscala: true,
-      activa: true),
+      activa: true,
+      criterios: [
+        'Zona comercial sin iluminación en horario nocturno',
+        'Más de 3 postes consecutivos sin funcionar en avenida principal',
+        'Incidencia reincidente no resuelta en menos de 72 h',
+      ]),
   const ReglaPriorizacion(
       id: 'R03',
       categoria: 'alumbrado',
@@ -1438,7 +1450,12 @@ final List<ReglaPriorizacion> mockReglaPriorizacion = [
       slaHoras: 24,
       autoAprobar: true,
       esReincidenteEscala: false,
-      activa: true),
+      activa: true,
+      criterios: [
+        'Un poste apagado en calle interior de colonia',
+        'Foco fundido o parpadeo intermitente sin riesgo inmediato',
+        'Reporte ciudadano aislado sin historial previo de reincidencia',
+      ]),
   const ReglaPriorizacion(
       id: 'R04',
       categoria: 'bacheo',
@@ -1447,7 +1464,12 @@ final List<ReglaPriorizacion> mockReglaPriorizacion = [
       slaHoras: 4,
       autoAprobar: false,
       esReincidenteEscala: true,
-      activa: true),
+      activa: true,
+      criterios: [
+        'Bache profundo en entrada a hospital o clínica de urgencias',
+        'Socavón que compromete circulación de vehículos de emergencia',
+        'Daño estructural con riesgo de hundimiento en calzada principal',
+      ]),
   const ReglaPriorizacion(
       id: 'R05',
       categoria: 'bacheo',
@@ -1456,7 +1478,12 @@ final List<ReglaPriorizacion> mockReglaPriorizacion = [
       slaHoras: 12,
       autoAprobar: false,
       esReincidenteEscala: true,
-      activa: true),
+      activa: true,
+      criterios: [
+        'Bache en zona de alto tráfico vehicular o peatonal',
+        'Daño en vialidad que obstruye carril completo',
+        'Reporte con imagen de vehículo dañado por el bache',
+      ]),
   const ReglaPriorizacion(
       id: 'R06',
       categoria: 'bacheo',
@@ -1465,7 +1492,11 @@ final List<ReglaPriorizacion> mockReglaPriorizacion = [
       slaHoras: 72,
       autoAprobar: true,
       esReincidenteEscala: false,
-      activa: true),
+      activa: true,
+      criterios: [
+        'Grieta superficial o irregularidad menor en calle interior',
+        'Pequeño bache en banqueta sin obstrucción de paso vehicular',
+      ]),
   const ReglaPriorizacion(
       id: 'R07',
       categoria: 'basura',
@@ -1474,7 +1505,12 @@ final List<ReglaPriorizacion> mockReglaPriorizacion = [
       slaHoras: 8,
       autoAprobar: false,
       esReincidenteEscala: true,
-      activa: true),
+      activa: true,
+      criterios: [
+        'Acumulación masiva de basura frente a local comercial con riesgo sanitario',
+        'Basura mezclada con residuos peligrosos o animales muertos',
+        'Reporte reincidente en menos de 5 días sin resolución',
+      ]),
   const ReglaPriorizacion(
       id: 'R08',
       categoria: 'basura',
@@ -1483,7 +1519,15 @@ final List<ReglaPriorizacion> mockReglaPriorizacion = [
       slaHoras: 24,
       autoAprobar: true,
       esReincidenteEscala: false,
-      activa: true),
+      activa: true,
+      criterios: [
+        'Varias bolsas de basura acumuladas fuera de contenedor en banqueta',
+        'Apilamiento afuera de domicilio que impide paso peatonal',
+        'Bolsas rotas con residuos dispersos en la vía pública',
+        // Descartar (rechazar):
+        'Un tambo de basura lleno dentro del predio — no aplica recolección',
+        'Cantidad insignificante: una envoltura o un chicle en la acera',
+      ]),
   const ReglaPriorizacion(
       id: 'R09',
       categoria: 'agua_drenaje',
@@ -1492,7 +1536,12 @@ final List<ReglaPriorizacion> mockReglaPriorizacion = [
       slaHoras: 2,
       autoAprobar: false,
       esReincidenteEscala: true,
-      activa: true),
+      activa: true,
+      criterios: [
+        'Inundación activa en instalación de salud, educativa o de gobierno',
+        'Coladera reventada con aguas negras en zona hospitalaria',
+        'Fuga de agua potable de alta presión que interrumpe suministro en el sector',
+      ]),
   const ReglaPriorizacion(
       id: 'R10',
       categoria: 'agua_drenaje',
@@ -1501,16 +1550,26 @@ final List<ReglaPriorizacion> mockReglaPriorizacion = [
       slaHoras: 12,
       autoAprobar: false,
       esReincidenteEscala: true,
-      activa: true),
+      activa: true,
+      criterios: [
+        'Desbordamiento de drenaje que llega a viviendas',
+        'Fuga de agua potable visible en la vía pública por más de 2 horas',
+        'Encharcamiento mayor de 20 cm que impide paso peatonal',
+      ]),
   const ReglaPriorizacion(
       id: 'R11',
-      categoria: 'senalizacion',
+      categoria: 'señalizacion',
       entorno: 'comercial',
       nivelPrioridad: 'alto',
       slaHoras: 12,
       autoAprobar: false,
       esReincidenteEscala: false,
-      activa: true),
+      activa: true,
+      criterios: [
+        'Semáforo apagado o en falla total en crucero con alto flujo',
+        'Señal de tránsito caída o desaparecida en avenida principal',
+        'Señalización horizontal (rayas peatonales) completamente borrada',
+      ]),
   const ReglaPriorizacion(
       id: 'R12',
       categoria: 'seguridad',
@@ -1519,7 +1578,12 @@ final List<ReglaPriorizacion> mockReglaPriorizacion = [
       slaHoras: 8,
       autoAprobar: false,
       esReincidenteEscala: true,
-      activa: true),
+      activa: true,
+      criterios: [
+        'Cámara de videovigilancia vandalizadas o desactivadas en zona crítica',
+        'Barrera o cerco perimetral dañado en instalación industrial',
+        'Reporte de actividad sospechosa recurrente sin respuesta previa',
+      ]),
 ];
 
 // ──────────────── AUDITORÍA ───────────────────────────────────────────────────

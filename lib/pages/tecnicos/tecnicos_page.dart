@@ -5,6 +5,7 @@ import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:nethive_neo/helpers/formatters.dart';
 import 'package:nethive_neo/models/models.dart';
+import 'package:nethive_neo/pages/tecnicos/widgets/asignar_incidencia_dialog.dart';
 import 'package:nethive_neo/providers/providers.dart';
 import 'package:nethive_neo/theme/theme.dart';
 import 'package:nethive_neo/widgets/shared/section_header.dart';
@@ -42,6 +43,11 @@ class _TecnicosPageState extends State<TecnicosPage> {
   void _nuevoTecnico(BuildContext ctx) {
     final theme = AppTheme.of(ctx);
     showDialog(context: ctx, builder: (_) => _NuevoTecnicoDialog(theme: theme));
+  }
+
+  // ── Asignar incidencia a técnico ──────────────────────────────────────────
+  void _asignarIncidencia(BuildContext ctx, Tecnico tec) {
+    AsignarIncidenciaDialog.show(ctx, tec);
   }
 
   @override
@@ -139,7 +145,8 @@ class _TecnicosPageState extends State<TecnicosPage> {
                 items: items,
                 theme: theme,
                 onDetalle: (t) => _verDetalle(context, t),
-                onCambiarEstatus: (t) => _cambiarEstatus(context, t));
+                onCambiarEstatus: (t) => _cambiarEstatus(context, t),
+                onAsignarIncidencia: (t) => _asignarIncidencia(context, t));
           }
           return GridView.builder(
               gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
@@ -153,7 +160,9 @@ class _TecnicosPageState extends State<TecnicosPage> {
                   avatarBytes: prov.getAvatarBytes(items[i].id),
                   theme: theme,
                   onDetalle: () => _verDetalle(context, items[i]),
-                  onCambiarEstatus: () => _cambiarEstatus(context, items[i])));
+                  onCambiarEstatus: () => _cambiarEstatus(context, items[i]),
+                  onAsignarIncidencia: () =>
+                      _asignarIncidencia(context, items[i])));
         })),
       ]),
     );
@@ -179,10 +188,11 @@ class _PlutoTecnicosView extends StatelessWidget {
       {required this.items,
       required this.theme,
       required this.onDetalle,
-      required this.onCambiarEstatus});
+      required this.onCambiarEstatus,
+      required this.onAsignarIncidencia});
   final List<Tecnico> items;
   final AppTheme theme;
-  final ValueChanged<Tecnico> onDetalle, onCambiarEstatus;
+  final ValueChanged<Tecnico> onDetalle, onCambiarEstatus, onAsignarIncidencia;
 
   Tecnico? _tec(PlutoColumnRendererContext r) {
     final id = r.row.cells['id']?.value as String? ?? '';
@@ -323,7 +333,7 @@ class _PlutoTecnicosView extends StatelessWidget {
             title: 'Acciones',
             field: 'acc',
             type: PlutoColumnType.text(),
-            width: 140,
+            width: 180,
             enableSorting: false,
             enableFilterMenuItem: false,
             renderer: (r) {
@@ -341,6 +351,33 @@ class _PlutoTecnicosView extends StatelessWidget {
                     tooltip: 'Cambiar estatus',
                     color: theme.medium,
                     onTap: () => onCambiarEstatus(tec)),
+                const SizedBox(width: 6),
+                Tooltip(
+                  message: 'Asignar caso a este técnico',
+                  child: InkWell(
+                    onTap: () => onAsignarIncidencia(tec),
+                    borderRadius: BorderRadius.circular(6),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 7, vertical: 4),
+                      decoration: BoxDecoration(
+                          color: theme.low.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(6),
+                          border:
+                              Border.all(color: theme.low.withOpacity(0.3))),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Icon(Icons.assignment_ind_outlined,
+                            size: 13, color: theme.low),
+                        const SizedBox(width: 4),
+                        Text('Asignar',
+                            style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: theme.low)),
+                      ]),
+                    ),
+                  ),
+                ),
               ]);
             }),
       ];
@@ -408,11 +445,12 @@ class _TecnicoCard extends StatelessWidget {
       required this.avatarBytes,
       required this.theme,
       required this.onDetalle,
-      required this.onCambiarEstatus});
+      required this.onCambiarEstatus,
+      required this.onAsignarIncidencia});
   final Tecnico tecnico;
   final Uint8List? avatarBytes;
   final AppTheme theme;
-  final VoidCallback onDetalle, onCambiarEstatus;
+  final VoidCallback onDetalle, onCambiarEstatus, onAsignarIncidencia;
 
   @override
   Widget build(BuildContext context) {
@@ -506,29 +544,43 @@ class _TecnicoCard extends StatelessWidget {
           const Spacer(),
 
           // Acciones
-          Row(children: [
-            Expanded(
-                child: OutlinedButton.icon(
-                    onPressed: onDetalle,
-                    icon: Icon(Icons.person_outline,
-                        size: 13, color: theme.primaryColor),
-                    label: Text('Detalle',
-                        style:
-                            TextStyle(fontSize: 12, color: theme.primaryColor)),
-                    style: OutlinedButton.styleFrom(
-                        side: BorderSide(
-                            color: theme.primaryColor.withOpacity(0.4)),
-                        padding: const EdgeInsets.symmetric(vertical: 8)))),
-            const SizedBox(width: 8),
-            Expanded(
-                child: OutlinedButton.icon(
-                    onPressed: onCambiarEstatus,
-                    icon: Icon(Icons.swap_horiz, size: 13, color: theme.medium),
-                    label: Text('Estatus',
-                        style: TextStyle(fontSize: 12, color: theme.medium)),
-                    style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: theme.medium.withOpacity(0.4)),
-                        padding: const EdgeInsets.symmetric(vertical: 8)))),
+          Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Row(children: [
+              Expanded(
+                  child: OutlinedButton.icon(
+                      onPressed: onDetalle,
+                      icon: Icon(Icons.person_outline,
+                          size: 13, color: theme.primaryColor),
+                      label: Text('Detalle',
+                          style: TextStyle(
+                              fontSize: 12, color: theme.primaryColor)),
+                      style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                              color: theme.primaryColor.withOpacity(0.4)),
+                          padding: const EdgeInsets.symmetric(vertical: 8)))),
+              const SizedBox(width: 8),
+              Expanded(
+                  child: OutlinedButton.icon(
+                      onPressed: onCambiarEstatus,
+                      icon:
+                          Icon(Icons.swap_horiz, size: 13, color: theme.medium),
+                      label: Text('Estatus',
+                          style: TextStyle(fontSize: 12, color: theme.medium)),
+                      style: OutlinedButton.styleFrom(
+                          side:
+                              BorderSide(color: theme.medium.withOpacity(0.4)),
+                          padding: const EdgeInsets.symmetric(vertical: 8)))),
+            ]),
+            const SizedBox(height: 6),
+            OutlinedButton.icon(
+                onPressed: onAsignarIncidencia,
+                icon: Icon(Icons.assignment_ind_outlined,
+                    size: 13, color: theme.low),
+                label: Text('Asignar caso',
+                    style: TextStyle(fontSize: 12, color: theme.low)),
+                style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: theme.low.withOpacity(0.4)),
+                    padding: const EdgeInsets.symmetric(vertical: 8))),
           ]),
         ]),
       ),

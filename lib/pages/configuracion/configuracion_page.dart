@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:nethive_neo/helpers/constants.dart';
 import 'package:nethive_neo/models/models.dart';
+import 'package:nethive_neo/pages/configuracion/widgets/criterios_editor.dart';
+import 'package:nethive_neo/pages/configuracion/widgets/ver_criterios_dialog.dart';
 import 'package:nethive_neo/providers/providers.dart';
 import 'package:nethive_neo/theme/theme.dart';
 import 'package:nethive_neo/widgets/shared/section_header.dart';
+import 'package:pluto_grid/pluto_grid.dart';
 import 'package:provider/provider.dart';
 
 class ConfiguracionPage extends StatelessWidget {
@@ -36,7 +39,7 @@ class ConfiguracionPage extends StatelessWidget {
         _CalcPanel(prov: prov, theme: theme),
         const SizedBox(height: 20),
 
-        // Reglas list — tabla desktop / cards mobile
+        // Reglas list — PlutoGrid desktop / cards mobile
         if (reglas.isEmpty)
           Center(
             child: Padding(
@@ -66,45 +69,12 @@ class ConfiguracionPage extends StatelessWidget {
                 .toList(),
           )
         else
-          Container(
-            decoration: BoxDecoration(
-                color: theme.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: theme.border),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.black.withOpacity(0.04), blurRadius: 8)
-                ]),
-            child: Column(children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                    color: theme.border.withOpacity(0.3),
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(12))),
-                child: Row(children: [
-                  _ColH('Categoría', flex: 2),
-                  _ColH('Entorno', flex: 2),
-                  _ColH('Prioridad', flex: 2),
-                  _ColH('SLA (h)', flex: 1),
-                  _ColH('Auto-Aprobar', flex: 2),
-                  _ColH('Escala Reinc.', flex: 2),
-                  _ColH('Estado', flex: 1),
-                ]),
-              ),
-              ...reglas.asMap().entries.map((e) {
-                final idx = e.key;
-                final r = e.value;
-                return Container(
-                  decoration: BoxDecoration(
-                      border: Border(
-                          top: BorderSide(color: theme.border, width: 0.5))),
-                  child:
-                      _ReglaRow(regla: r, idx: idx, prov: prov, theme: theme),
-                );
-              }),
-            ]),
+          _ReglaPlutoGrid(
+            key: ValueKey(reglas.map((r) => '${r.id}${r.activa}').join()),
+            reglas: reglas,
+            prov: prov,
+            theme: theme,
+            onNuevaRegla: () => _showNuevaReglaDialog(context, prov, theme),
           ),
       ]),
     );
@@ -113,6 +83,347 @@ class ConfiguracionPage extends StatelessWidget {
   static void _showNuevaReglaDialog(
       BuildContext ctx, ConfiguracionProvider prov, AppTheme theme) {
     showDialog(context: ctx, builder: (_) => _NuevaReglaDialog(prov: prov));
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PLUTOGRID DESKTOP — Reglas de priorización
+// ═══════════════════════════════════════════════════════════════════════════
+class _ReglaPlutoGrid extends StatelessWidget {
+  const _ReglaPlutoGrid({
+    super.key,
+    required this.reglas,
+    required this.prov,
+    required this.theme,
+    required this.onNuevaRegla,
+  });
+  final List<ReglaPriorizacion> reglas;
+  final ConfiguracionProvider prov;
+  final AppTheme theme;
+  final VoidCallback onNuevaRegla;
+
+  static const _catM = {
+    'alumbrado': 'Alumbrado',
+    'bacheo': 'Bacheo',
+    'basura': 'Basura',
+    'seguridad': 'Seguridad',
+    'agua_drenaje': 'Agua/Drenaje',
+    'señalizacion': 'Señalización',
+  };
+  static const _entM = {
+    'residencial': 'Residencial',
+    'comercial': 'Comercial',
+    'industrial': 'Industrial',
+    'institucional': 'Institucional',
+  };
+  static const _prioColors = {
+    'critico': Color(0xFFB91C1C),
+    'alto': Color(0xFFD97706),
+    'medio': Color(0xFF1D4ED8),
+    'bajo': Color(0xFF2D7A4F),
+  };
+
+  List<PlutoColumn> _cols(BuildContext context) => [
+        PlutoColumn(
+          title: 'Categoría',
+          field: 'categoria',
+          width: 140,
+          type: PlutoColumnType.text(),
+          renderer: (r) {
+            final cat = r.cell.value as String;
+            final label = _catM[cat] ?? cat;
+            return Row(children: [
+              Icon(_catIcon(cat), size: 16, color: theme.primaryColor),
+              const SizedBox(width: 6),
+              Text(label,
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: theme.textPrimary)),
+            ]);
+          },
+        ),
+        PlutoColumn(
+          title: 'Entorno',
+          field: 'entorno',
+          width: 130,
+          type: PlutoColumnType.text(),
+          renderer: (r) => Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+                color: theme.border.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(6)),
+            child: Text(_entM[r.cell.value] ?? r.cell.value,
+                style: TextStyle(fontSize: 11, color: theme.textSecondary)),
+          ),
+        ),
+        PlutoColumn(
+          title: 'Prioridad',
+          field: 'prioridad',
+          width: 120,
+          type: PlutoColumnType.text(),
+          renderer: (r) {
+            final prio = r.cell.value as String;
+            final color = _prioColors[prio] ?? const Color(0xFF64748B);
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+              decoration: BoxDecoration(
+                  color: color.withOpacity(0.13),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: color.withOpacity(0.35))),
+              child: Text(prio.toUpperCase(),
+                  style: TextStyle(
+                      fontSize: 10, fontWeight: FontWeight.w800, color: color)),
+            );
+          },
+        ),
+        PlutoColumn(
+          title: 'SLA (h)',
+          field: 'sla',
+          width: 80,
+          type: PlutoColumnType.text(),
+          renderer: (r) => Text('${r.cell.value}h',
+              style: TextStyle(
+                  fontSize: 12,
+                  color: theme.textPrimary,
+                  fontWeight: FontWeight.w500)),
+        ),
+        PlutoColumn(
+          title: 'Auto-Aprobar',
+          field: 'autoAprobar',
+          width: 120,
+          type: PlutoColumnType.text(),
+          renderer: (r) {
+            final v = r.cell.value == 'true';
+            return Row(children: [
+              Icon(v ? Icons.check_circle : Icons.radio_button_unchecked,
+                  size: 18, color: v ? theme.low : theme.textDisabled),
+              const SizedBox(width: 6),
+              Text(v ? 'Sí' : 'No',
+                  style: TextStyle(
+                      fontSize: 12, color: v ? theme.low : theme.textDisabled)),
+            ]);
+          },
+        ),
+        PlutoColumn(
+          title: 'Escala Reinc.',
+          field: 'escalaReinc',
+          width: 120,
+          type: PlutoColumnType.text(),
+          renderer: (r) {
+            final v = r.cell.value == 'true';
+            return Row(children: [
+              Icon(v ? Icons.trending_up : Icons.trending_flat,
+                  size: 18, color: v ? theme.high : theme.textDisabled),
+              const SizedBox(width: 6),
+              Text(v ? 'Sí' : 'No',
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: v ? theme.high : theme.textDisabled)),
+            ]);
+          },
+        ),
+        PlutoColumn(
+          title: 'Estado',
+          field: 'activa',
+          width: 100,
+          type: PlutoColumnType.text(),
+          renderer: (r) {
+            final id = r.row.cells['_id']?.value as String? ?? '';
+            final v = r.cell.value == 'true';
+            return Transform.scale(
+              scale: 0.85,
+              child: Switch(
+                value: v,
+                onChanged: (_) => prov.toggleActiva(id),
+                activeColor: theme.primaryColor,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            );
+          },
+        ),
+        PlutoColumn(
+          title: 'Criterios',
+          field: 'criterios',
+          width: 90,
+          type: PlutoColumnType.text(),
+          enableSorting: false,
+          enableFilterMenuItem: false,
+          renderer: (r) {
+            final id = r.row.cells['_id']?.value as String? ?? '';
+            final regla = prov.byId(id);
+            final n = regla?.criterios.length ?? 0;
+            return GestureDetector(
+              onTap: () {
+                if (regla == null) return;
+                VerCriteriosDialog.show(context, regla);
+              },
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                Icon(Icons.list_alt_outlined,
+                    size: 14,
+                    color: n > 0 ? theme.primaryColor : theme.textDisabled),
+                const SizedBox(width: 4),
+                Text(
+                  n > 0 ? '$n' : '—',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: n > 0 ? theme.primaryColor : theme.textDisabled,
+                      decoration: n > 0
+                          ? TextDecoration.underline
+                          : TextDecoration.none),
+                ),
+              ]),
+            );
+          },
+        ),
+        PlutoColumn(
+          title: 'Acciones',
+          field: 'acc',
+          width: 100,
+          type: PlutoColumnType.text(),
+          enableSorting: false,
+          enableFilterMenuItem: false,
+          renderer: (r) {
+            final id = r.row.cells['_id']?.value as String? ?? '';
+            final regla = prov.byId(id);
+            if (regla == null) return const SizedBox();
+            return Row(mainAxisSize: MainAxisSize.min, children: [
+              Tooltip(
+                message: 'Ver / Editar Criterios',
+                child: InkWell(
+                  onTap: () => VerCriteriosDialog.show(context, regla),
+                  borderRadius: BorderRadius.circular(6),
+                  child: Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: Icon(Icons.list_alt_outlined,
+                        size: 16, color: theme.primaryColor),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 2),
+              Tooltip(
+                message: 'Eliminar regla',
+                child: InkWell(
+                  onTap: () => _confirmDelete(context, regla),
+                  borderRadius: BorderRadius.circular(6),
+                  child: Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: Icon(Icons.delete_outline,
+                        size: 16, color: theme.critical),
+                  ),
+                ),
+              ),
+            ]);
+          },
+        ),
+        PlutoColumn(
+          title: '',
+          field: '_id',
+          width: 0,
+          hide: true,
+          type: PlutoColumnType.text(),
+        ),
+      ];
+
+  void _confirmDelete(BuildContext ctx, ReglaPriorizacion regla) {
+    showDialog(
+      context: ctx,
+      builder: (_) => AlertDialog(
+        title: const Text('Eliminar regla'),
+        content: Text(
+            '¿Eliminar la regla ${regla.categoria} / ${regla.entorno} (${regla.nivelPrioridad.toUpperCase()})?\n'
+            'Esta acción es temporal y se revertirá al recargar.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancelar')),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              prov.deleteRegla(regla.id);
+              ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+                content: const Text(
+                    'Regla eliminada (temporal — solo en esta sesión)'),
+                backgroundColor: theme.neutral,
+              ));
+            },
+            style: FilledButton.styleFrom(backgroundColor: theme.critical),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<PlutoRow> _rows() => reglas
+      .map((r) => PlutoRow(cells: {
+            'categoria': PlutoCell(value: r.categoria),
+            'entorno': PlutoCell(value: r.entorno),
+            'prioridad': PlutoCell(value: r.nivelPrioridad),
+            'sla': PlutoCell(value: '${r.slaHoras}'),
+            'autoAprobar': PlutoCell(value: '${r.autoAprobar}'),
+            'escalaReinc': PlutoCell(value: '${r.esReincidenteEscala}'),
+            'activa': PlutoCell(value: '${r.activa}'),
+            'criterios': PlutoCell(value: '${r.criterios.length}'),
+            'acc': PlutoCell(value: ''),
+            '_id': PlutoCell(value: r.id),
+          }))
+      .toList();
+
+  IconData _catIcon(String c) {
+    const d = <String, IconData>{
+      'alumbrado': Icons.lightbulb_outline,
+      'bacheo': Icons.construction,
+      'basura': Icons.delete_outline,
+      'agua_drenaje': Icons.water_drop_outlined,
+      'señalizacion': Icons.traffic,
+      'seguridad': Icons.security,
+    };
+    return d[c] ?? Icons.category_outlined;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: reglas.length * 56 + 60, // rows + header
+      child: Container(
+        decoration: BoxDecoration(
+            color: theme.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: theme.border),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)
+            ]),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: PlutoGrid(
+            columns: _cols(context),
+            rows: _rows(),
+            onLoaded: (e) => e.stateManager.setPageSize(50, notify: false),
+            configuration: PlutoGridConfiguration(
+              columnSize: const PlutoGridColumnSizeConfig(
+                autoSizeMode: PlutoAutoSizeMode.scale,
+              ),
+              style: PlutoGridStyleConfig(
+                gridBorderColor: theme.border,
+                gridBackgroundColor: theme.surface,
+                rowColor: theme.surface,
+                activatedColor: theme.primaryColor.withOpacity(0.07),
+                activatedBorderColor: theme.primaryColor,
+                cellColorInEditState: theme.surface,
+                columnTextStyle: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: theme.textSecondary),
+                columnHeight: 44,
+                rowHeight: 56,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -132,6 +443,7 @@ class _NuevaReglaDialogState extends State<_NuevaReglaDialog> {
   bool _autoAprobar = false;
   bool _escalaReinc = false;
   bool _activa = true;
+  List<String> _criterios = [];
 
   static const _categorias = [
     'alumbrado',
@@ -356,6 +668,16 @@ class _NuevaReglaDialogState extends State<_NuevaReglaDialog> {
                     (v) => setState(() => _activa = v)),
                 const SizedBox(height: 20),
 
+                // Criterios de clasificación
+                Divider(color: theme.border),
+                const SizedBox(height: 14),
+                CriteriosEditor(
+                  criterios: _criterios,
+                  onChanged: (v) => setState(() => _criterios = v),
+                  theme: theme,
+                ),
+                const SizedBox(height: 16),
+
                 // Preview chip
                 Container(
                   padding: const EdgeInsets.all(14),
@@ -399,6 +721,7 @@ class _NuevaReglaDialogState extends State<_NuevaReglaDialog> {
                           autoAprobar: _autoAprobar,
                           esReincidenteEscala: _escalaReinc,
                           activa: _activa,
+                          criterios: List.from(_criterios),
                         ));
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -472,25 +795,6 @@ Widget _SwitchRow(String label, bool val, Color color, AppTheme theme,
         activeColor: color,
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap),
   ]);
-}
-
-// Keep the existing classes below this point
-
-class _ColH extends StatelessWidget {
-  const _ColH(this.label, {required this.flex});
-  final String label;
-  final int flex;
-  @override
-  Widget build(BuildContext context) {
-    final theme = AppTheme.of(context);
-    return Expanded(
-        flex: flex,
-        child: Text(label,
-            style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: theme.textSecondary)));
-  }
 }
 
 class _ReglaRow extends StatelessWidget {

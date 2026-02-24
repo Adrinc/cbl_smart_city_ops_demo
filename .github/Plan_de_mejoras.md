@@ -1,36 +1,166 @@
 # Plan de Mejoras — Terranex Smart City Operations
 
-**Fecha:** Junio 2025 · **Versión:** 2.5 · **Plataforma:** Flutter Web
+**Última actualización:** Febrero 2026 · **Versión actual:** 3.1 · **Plataforma:** Flutter Web
 
 ---
 
-## Estado Actual (v2.2 — baseline)
+## Estado Actual (v3.1 — Febrero 2026)
 
 | Módulo | Estado | Notas |
 |--------|--------|-------|
 | Dashboard Nacional | ✅ Completo | KPIs, mapa calor, alertas |
 | Dashboard Estatal | ✅ Completo | BC Norte, municipios |
 | Dashboard Municipal | ✅ Completo | Ensenada, gráficas fl_chart |
-| Bandeja IA | ✅ Completo v2 | Modularizado en widgets/ |
-| Órdenes / Incidencias | ✅ Completo | PlutoGrid + cards |
-| Mapa Operativo | ✅ Completo | flutter_map, marcadores |
-| Técnicos | ✅ Mejorado v2 | PlutoGrid + NuevoTécnico + avatar upload |
+| Bandeja IA | ✅ Completo v2 | Modularizada en widgets/, bulk approve, stats |
+| Órdenes / Incidencias | ✅ Completo v3 | Íconos por categoría, columna técnico interactiva |
+| Mapa Operativo | ✅ Completo | Marcadores ad hoc por categoría, panel lateral, filtro categoría |
+| Técnicos | ✅ Completo v3 | PlutoGrid + NuevoTécnico + "Asignar caso" |
 | Inventario | ✅ Completo | PlutoGrid + alertas stock |
 | Aprobaciones | ✅ Completo | Flujo pendientes |
 | SLA Monitor | ✅ Completo | Alertas por vencer |
-| Reportes | ✅ Completo | fl_chart analítica |
-| Configuración | ✅ Completo | Motor de priorización |
+| Reportes | ✅ Completo | fl_chart analítica + export PDF simulado |
+| Configuración | ✅ Completo v3 | Motor priorización + **criterios/bullets por regla** |
 | Usuarios | ✅ Completo | PlutoGrid + NuevoUsuario |
-| Auditoría | ✅ Completo | Log de eventos |
+| Auditoría | ✅ Completo | Log real via AuditoriaProvider, export CSV |
 | Catálogos | ✅ Completo | Categorías, zonas |
 
 ---
 
-## Mejoras Implementadas en v2.3
+## Implementado en v3.1 (esta sesión)
 
-### BandejaIA (Modularización completa)
-- **Widgets extraídos** a `lib/pages/bandeja_ia/widgets/`:
-  - `helpers_bandeja.dart` — constantes `kCatIcons`, helpers `esRechazoIA`, `approxDireccion`
+### Configuración — Sistema de Criterios por Regla ⭐
+
+**Modelo `ReglaPriorizacion`** actualizado:
+- Nuevo campo `criterios: List<String>` (default `[]`)
+- `copyWith` incluye criterios; JSON-serializable
+
+**Datos mock** (`lib/data/mock_data.dart`):
+- Todas las 12 reglas tienen criterios reales en español (3–5 bullets)
+- Ejemplos: "Cable de poste caído accesible al público", "Accidente reportado activo en la zona", "Tambo de basura lleno dentro del predio — no aplica recolección"
+
+**Provider** (`ConfiguracionProvider`):
+- `deleteRegla(String id)` — elimina regla de la lista + `notifyListeners()`
+- `updateCriterios(String id, List<String> nuevos)` — reemplaza criterios + `notifyListeners()`
+
+**Widgets nuevos** en `lib/pages/configuracion/widgets/`:
+- `criterios_editor.dart` — editor con `ReorderableListView` + drag handles + campo "Añadir criterio" inline; `onChanged` notifica cambios al padre
+- `ver_criterios_dialog.dart` — dialog con modo lectura (bullets con punto de color semántico) y modo edición (muestra `CriteriosEditor`); botones Editar / Guardar / Cerrar
+
+**PlutoGrid en `configuracion_page.dart`**:
+- Nueva columna **Criterios**: badge contador (azul si ≥1, gris si ninguno), clic → abre `VerCriteriosDialog`
+- Nueva columna **Acciones**: icono lápiz (editar criterios) + icono basura (eliminar con `AlertDialog` de confirmación)
+- Dialog "Nueva Regla": ahora incluye el `CriteriosEditor` para definir criterios al crear
+
+---
+
+### Órdenes — Columna Técnico interactiva ⭐
+
+**Widget `TecnicoChipDetalle`** (`lib/pages/ordenes/widgets/tecnico_chip_detalle.dart`):
+- Técnico asignado → avatar circular + nombre tachado/subrayado, clic abre `_TecnicoDetalleDialog`
+- Sin técnico + estado operable → chip verde **"+ Asignar"** que abre `AsignarTecnicoDialog`
+- `_TecnicoDetalleDialog`: avatar grande, rol, estatus badge, métricas, botón **"Reasignar"**
+
+**Columna Categoría** en PlutoGrid:
+- Icono semántico por tipo de incidencia (bombilla, construcción, basura, agua, señal, escudo)
+- `_catIcons` mapa estático + `_catIcon()` helper en `ordenes_page.dart`
+
+---
+
+### Técnicos — Acción "Asignar caso" ⭐
+
+**Dialog `AsignarIncidenciaDialog`** (`lib/pages/tecnicos/widgets/asignar_incidencia_dialog.dart`):
+- Filtra incidencias disponibles (`estatus ∈ {aprobado, recibido}` AND `tecnicoId == null`)
+- Las incidencias de la misma especialidad del técnico aparecen primero con badge **"Recomendado"**
+- Filter chips de prioridad (todos / crítico / alto / medio / bajo)
+- `AnimatedContainer` cards con radio button de selección
+- Al confirmar: `asignarTecnico()` + `incrementarActivas()` + registro en auditoría con módulo 'Técnicos'
+- Factory estática `AsignarIncidenciaDialog.show(context, tecnico)`
+
+**Integración en `tecnicos_page.dart`**:
+- Método `_asignarIncidencia(BuildContext, Tecnico)` en `_TecnicosPageState`
+- `_PlutoTecnicosView`: nuevo parámetro `onAsignarIncidencia`, columna Acciones expandida a `width: 180`, tercer botón etiquetado **"Asignar"** (verde, borde + fondo suave `theme.low`)
+- `_TecnicoCard` (mobile): nuevo botón `OutlinedButton.icon` "Asignar caso" en fila propia debajo de Detalle + Estatus
+
+---
+
+## Implementado en versiones anteriores
+
+### v2.5
+- `AuditoriaProvider` con `registrar()`, filtros por módulo/nivel/acción, export CSV
+- Auditoría: págica real con ChoiceChips + dropdown módulo
+- BandejaIA: stats row, bulk approve, registro auditoría
+- Órdenes: `AsignarTecnicoDialog` (filter por especialidad), auditoría en asignar/iniciar/resolver
+- Mapa: filtro por categoría en controles
+- Configuración: drag-and-drop `ReorderableListView` en mobile
+
+### v2.4
+- Mapa: panel lateral deslizante con imagen hero, técnico asignado, materiales estimados, SLA
+- Topbar: dropdown de administrador con `MenuAnchor`, avatar real `Maria.png`
+
+### v2.3
+- BandejaIA: modularizada completa en `widgets/`; PlutoGrid con thumbnail, 4 acciones icono; `VerCriteriosDialog`
+- Técnicos: reescritura completa con PlutoGrid, avatar upload, detalle dialog
+
+---
+
+## Roadmap pendiente
+
+### Alta prioridad
+- [ ] Mapa: técnicos en campo como marcadores diferenciados (pin azul oscuro con inicial)
+- [ ] Mapa: panel lateral → lista de incidencias visibles en pantalla (modo exploración)
+- [ ] Órdenes: link "Ver técnico" en TecnicoDetalleDialog → navega a `/tecnicos` con técnico resaltado
+
+### Media prioridad
+- [ ] Reportes: gráfica de tendencia 30 días (time-series simulada con fl_chart)
+- [ ] Reportes: comparativa municipios (BarChart) con `KpiEstatal`
+- [ ] Auditoría: timeline view alternativa (`VerticalTimeline`)
+- [ ] Técnicos: modularizar `tecnicos_page.dart` → `widgets/` (pluto_tecnicos_view, tecnico_card, dialogs)
+
+### Baja prioridad
+- [ ] Modo oscuro: toggle topbar, `ThemeMode` en `AppLevelProvider`
+- [ ] Mobile drawer: reemplazar sidebar fijo en `< 768 px`
+- [ ] Mapa: clustering de marcadores en zoom < 12
+- [ ] Mapa: polígonos de zonas (GeoJSON hardcodeado)
+
+---
+
+## Convenciones de Desarrollo
+
+### Archivos
+- `snake_case.dart` para archivos · `PascalCase` para clases · `_` prefijo para widgets privados
+
+### PlutoGrid — Reglas de oro
+1. **NUNCA** `PlutoLazyPagination` con datos hardcodeados
+2. `setPageSize(N, notify: false)` en `onLoaded`
+3. `autoSizeMode: PlutoAutoSizeMode.scale` para auto-fill (preferido)
+4. Objeto oculto en celda `_objeto` para lookup rápido sin ID join
+
+### Estado
+- `copyWith` + nueva lista + `notifyListeners()`. Nunca mutar directamente.
+- Snackbar para toda acción operativa visible al usuario.
+
+### Colores semánticos
+```
+Crítico:  #B91C1C   high:  #D97706   medio: #1D4ED8   bajo: #2D7A4F
+Neutral:  #64748B   Primario (vino): #7A1E3A
+```
+
+---
+
+## Checklist de Quality Gate (demo)
+
+- [ ] `flutter build web --no-tree-shake-icons` sin errores ni warnings relevantes
+- [ ] Todas las rutas navegan sin `null` errors
+- [ ] Sidebar adaptativo funciona en los 3 niveles (nacional/estatal/municipal)
+- [ ] PlutoGrid paginado en: Órdenes, BandejaIA, Inventario, Usuarios, Técnicos, Config
+- [ ] Columna Criterios en Configuración muestra badge y abre dialog correctamente
+- [ ] Columna Técnico en Órdenes muestra chip interactivo o "Asignar" según estado
+- [ ] Botón "Asignar caso" en Técnicos abre dialog con incidencias disponibles
+- [ ] Mapa carga tiles OSM sin API key
+- [ ] Botón "Salir de la Demo" → https://cbluna.com/ en misma ventana (`_self`)
+- [ ] Favicon cargado
+- [ ] Sin strings en inglés expuestos al usuario final
+
   - `filter_bar_bandeja.dart` — barra de filtros (search + dropdowns)
   - `imagen_viewer_dialog.dart` — visor pantalla completa
   - `mapa_ubicacion_dialog.dart` — mapa FlutterMap con icono de categoría en marcador

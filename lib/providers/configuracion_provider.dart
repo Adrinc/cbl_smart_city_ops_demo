@@ -36,6 +36,18 @@ class ConfiguracionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void deleteRegla(String id) {
+    _reglas.removeWhere((r) => r.id == id);
+    notifyListeners();
+  }
+
+  void updateCriterios(String id, List<String> nuevos) {
+    final idx = _reglas.indexWhere((r) => r.id == id);
+    if (idx == -1) return;
+    _reglas[idx] = _reglas[idx].copyWith(criterios: List.from(nuevos));
+    notifyListeners();
+  }
+
   void reorderRegla(int oldIndex, int newIndex) {
     if (newIndex > oldIndex) newIndex -= 1;
     final item = _reglas.removeAt(oldIndex);
