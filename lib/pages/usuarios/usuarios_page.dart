@@ -254,7 +254,7 @@ class _NuevoUsuarioDialogState extends State<_NuevoUsuarioDialog> {
               // Email
               _Label('Correo electrónico', theme),
               const SizedBox(height: 6),
-              _Field(controller: _email, hint: 'Ej. m.garcia@ensenada.gob.mx',
+              _Field(controller: _email, hint: 'Ej. m.garcia@Tijuana.gob.mx',
                 icon: Icons.email_outlined, theme: theme,
                 keyboardType: TextInputType.emailAddress,
                 validator: (v) {

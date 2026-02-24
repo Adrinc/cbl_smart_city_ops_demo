@@ -22,6 +22,8 @@ class _MapaPageState extends State<MapaPage> {
   String? _filterCategoria;
   bool _showTecnicos = false;
   final Set<String> _hoveredIds = {};
+  late final MapController _mapController;
+  NivelTerritorial? _prevNivel;
 
   static const Map<String, IconData> _catIcon = {
     'alumbrado': Icons.lightbulb_outline,
@@ -33,8 +35,131 @@ class _MapaPageState extends State<MapaPage> {
     'seguridad': Icons.security,
   };
 
-  // Ensenada center
-  static const _center = LatLng(31.8667, -116.5963);
+  // ── Centros por nivel ───────────────────────────────────────────────────
+  static const _centerNacional  = LatLng(23.6, -102.5);
+  static const _centerEstatal   = LatLng(30.7, -115.8);
+  static const _centerMunicipal = LatLng(32.5027, -117.0037);
+
+  // ── Clusters Estatal (municipios de BC) ─────────────────────────────────
+  static const _municipiosClusters = [
+    (name: 'Tijuana',  lat: 32.5027, lng: -117.0037, count: 142, sev: 'critico'),
+    (name: 'Mexicali', lat: 32.6245, lng: -115.4523, count: 87,  sev: 'alto'),
+    (name: 'Ensenada', lat: 31.8667, lng: -116.5963, count: 56,  sev: 'alto'),
+    (name: 'Tecate',   lat: 32.5732, lng: -116.6279, count: 28,  sev: 'medio'),
+    (name: 'Rosarito', lat: 32.3710, lng: -117.0640, count: 16,  sev: 'bajo'),
+  ];
+
+  // ── Clusters Nacional (estados) ──────────────────────────────────────────
+  static const _estadosClusters = [
+    (name: 'CDMX',          lat: 19.432, lng: -99.133,  count: 312, sev: 'critico'),
+    (name: 'Jalisco',       lat: 20.660, lng: -103.350, count: 187, sev: 'critico'),
+    (name: 'Baja California', lat: 30.730, lng: -115.800, count: 143, sev: 'alto'),
+    (name: 'Nuevo León',    lat: 25.592, lng: -99.996,  count: 201, sev: 'critico'),
+    (name: 'Veracruz',      lat: 19.173, lng: -96.134,  count: 98,  sev: 'alto'),
+    (name: 'Puebla',        lat: 19.043, lng: -98.198,  count: 134, sev: 'alto'),
+    (name: 'Guanajuato',    lat: 21.019, lng: -101.258, count: 112, sev: 'medio'),
+    (name: 'Chihuahua',     lat: 28.635, lng: -106.089, count: 76,  sev: 'medio'),
+    (name: 'Oaxaca',        lat: 17.060, lng: -96.722,  count: 45,  sev: 'bajo'),
+    (name: 'Yucatán',       lat: 20.968, lng: -89.623,  count: 58,  sev: 'medio'),
+    (name: 'Sonora',        lat: 29.073, lng: -110.955, count: 67,  sev: 'medio'),
+    (name: 'Tamaulipas',    lat: 24.266, lng: -98.836,  count: 89,  sev: 'alto'),
+    (name: 'Michoacán',     lat: 19.566, lng: -101.707, count: 54,  sev: 'medio'),
+    (name: 'Querétaro',     lat: 20.593, lng: -100.389, count: 41,  sev: 'bajo'),
+    (name: 'Quintana Roo',  lat: 19.181, lng: -88.479,  count: 30,  sev: 'bajo'),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _mapController = MapController();
+  }
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final nivel = context.read<AppLevelProvider>().nivel;
+    if (_prevNivel != null && _prevNivel != nivel) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _animateToNivel(nivel),
+      );
+    }
+    _prevNivel = nivel;
+  }
+
+  void _animateToNivel(NivelTerritorial nivel) {
+    final target = switch (nivel) {
+      NivelTerritorial.nacional  => _centerNacional,
+      NivelTerritorial.estatal   => _centerEstatal,
+      NivelTerritorial.municipal => _centerMunicipal,
+    };
+    final zoom = switch (nivel) {
+      NivelTerritorial.nacional  => 5.2,
+      NivelTerritorial.estatal   => 7.6,
+      NivelTerritorial.municipal => 11.5,
+    };
+    _mapController.move(target, zoom);
+  }
+
+  List<Marker> _buildClusterMarkers(
+    List<({String name, double lat, double lng, int count, String sev})> items,
+  ) {
+    return items.map((item) {
+      final color = _prioColor(item.sev);
+      return Marker(
+        point: LatLng(item.lat, item.lng),
+        width: 64,
+        height: 64,
+        child: Tooltip(
+          message: '${item.name}: ${item.count} incidencias',
+          child: Container(
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.88),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 2.5),
+              boxShadow: [
+                BoxShadow(
+                    color: color.withOpacity(0.45),
+                    blurRadius: 12,
+                    spreadRadius: 2),
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '${item.count}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 15,
+                    height: 1,
+                  ),
+                ),
+                const SizedBox(height: 1),
+                Text(
+                  item.name.length > 9
+                      ? '${item.name.substring(0, 8)}.'
+                      : item.name,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 7,
+                    height: 1.1,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }).toList();
+  }
 
   Color _prioColor(String p) {
     switch (p) {
@@ -265,22 +390,37 @@ class _MapaPageState extends State<MapaPage> {
   @override
   Widget build(BuildContext context) {
     final theme = AppTheme.of(context);
+    final nivel = context.watch<AppLevelProvider>().nivel;
     final incProv = context.watch<IncidenciaProvider>();
     final tecProv = context.watch<TecnicoProvider>();
     final incs = incProv.activas;
     final tecs = tecProv.activos;
     final isMobile = MediaQuery.of(context).size.width < mobileSize;
+    final esMunicipal = nivel == NivelTerritorial.municipal;
 
     final filtrosActivos =
         _filterPrioridad != null || _filterCategoria != null || _showTecnicos;
+
+    // Centro e zoom iniciales según nivel
+    final initialCenter = switch (nivel) {
+      NivelTerritorial.nacional  => _centerNacional,
+      NivelTerritorial.estatal   => _centerEstatal,
+      NivelTerritorial.municipal => _centerMunicipal,
+    };
+    final initialZoom = switch (nivel) {
+      NivelTerritorial.nacional  => 5.2,
+      NivelTerritorial.estatal   => 7.6,
+      NivelTerritorial.municipal => 11.5,
+    };
 
     return Stack(
       children: [
         // Mapa principal
         FlutterMap(
+          mapController: _mapController,
           options: MapOptions(
-            initialCenter: _center,
-            initialZoom: 11,
+            initialCenter: initialCenter,
+            initialZoom: initialZoom,
             onTap: (_, __) => setState(() => _selected = null),
           ),
           children: [
@@ -289,14 +429,62 @@ class _MapaPageState extends State<MapaPage> {
               userAgentPackageName: 'com.cbluna.terranex',
               tileProvider: CancellableNetworkTileProvider(),
             ),
-            MarkerLayer(markers: _buildIncidenciaMarkers(incs)),
-            MarkerLayer(markers: _buildTecnicoMarkers(tecs)),
+            // Markers según nivel
+            if (nivel == NivelTerritorial.nacional)
+              MarkerLayer(markers: _buildClusterMarkers(_estadosClusters.toList()))
+            else if (nivel == NivelTerritorial.estatal)
+              MarkerLayer(markers: _buildClusterMarkers(_municipiosClusters.toList()))
+            else ...[
+              MarkerLayer(markers: _buildIncidenciaMarkers(incs)),
+              MarkerLayer(markers: _buildTecnicoMarkers(tecs)),
+            ],
           ],
         ),
 
-        // ── Controles ─────────────────────────────────────────────────────
-        if (isMobile)
-          // MOBILE: botón flotante de filtros en la esquina superior derecha
+        // ── Banner de contexto para Nacional/Estatal ──────────────────────
+        if (!esMunicipal)
+          Positioned(
+            bottom: 16,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.93),
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black.withOpacity(0.12), blurRadius: 10),
+                  ],
+                ),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(
+                    nivel == NivelTerritorial.nacional
+                        ? Icons.public
+                        : Icons.account_balance,
+                    size: 16,
+                    color: const Color(0xFF7A1E3A),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    nivel == NivelTerritorial.nacional
+                        ? 'Vista Nacional — Incidencias agrupadas por estado'
+                        : 'Vista Estatal — Baja California Norte · Incidencias por municipio',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                ]),
+              ),
+            ),
+          ),
+
+        // ── Controles (solo en nivel municipal) ───────────────────────────
+        // MOBILE: botón flotante de filtros
+        if (esMunicipal && isMobile)
           Positioned(
             top: 16,
             right: 16,
@@ -343,9 +531,9 @@ class _MapaPageState extends State<MapaPage> {
                 ]),
               ),
             ),
-          )
-        else
-          // DESKTOP: barras de filtros originales
+          ),
+        // DESKTOP: barras de filtros originales
+        if (esMunicipal && !isMobile)
           Positioned(
             top: 16,
             left: 16,
@@ -447,8 +635,9 @@ class _MapaPageState extends State<MapaPage> {
             ]),
           ),
 
-        // Leyenda
-        Positioned(
+        // Leyenda (solo nivel municipal)
+        if (esMunicipal)
+          Positioned(
           bottom: 16,
           left: 16,
           child: _MapControl(
@@ -495,8 +684,9 @@ class _MapaPageState extends State<MapaPage> {
           ),
         ),
 
-        // Counter badge
-        Positioned(
+        // Counter badge (solo nivel municipal)
+        if (esMunicipal)
+          Positioned(
           bottom: 16,
           right: 16,
           child: _MapControl(

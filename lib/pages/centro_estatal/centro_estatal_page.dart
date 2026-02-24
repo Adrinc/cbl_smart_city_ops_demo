@@ -75,8 +75,8 @@ class CentroEstatalPage extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
-          // CTA Ensenada
-          _CtaEnsenadaCard(theme: theme),
+          // CTA Tijuana
+          _CtaTijuanaCard(theme: theme),
           const SizedBox(height: 8),
         ],
       ),
@@ -190,7 +190,7 @@ class _MunicipiosCard extends StatelessWidget {
           ),
           Divider(color: theme.border, height: 1),
           ...sorted.map((e) {
-            final isDemo = e.key == 'Ensenada';
+            final isDemo = e.key == 'Tijuana';
             final pct = e.value / maxVal;
             final criticas = _municipioCriticas[e.key] ?? 0;
             final sla = _municipioSla[e.key] ?? 90.0;
@@ -308,8 +308,8 @@ class _AlertasCard extends StatelessWidget {
   }
 }
 
-class _CtaEnsenadaCard extends StatelessWidget {
-  const _CtaEnsenadaCard({required this.theme});
+class _CtaTijuanaCard extends StatelessWidget {
+  const _CtaTijuanaCard({required this.theme});
   final AppTheme theme;
 
   @override
@@ -350,7 +350,7 @@ class _CtaEnsenadaCard extends StatelessWidget {
                         fontSize: 11,
                         letterSpacing: 0.5)),
                 const SizedBox(height: 2),
-                const Text('Ensenada',
+                const Text('Tijuana',
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,

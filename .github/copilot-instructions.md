@@ -36,7 +36,7 @@ NACIONAL  →  ESTATAL  →  MUNICIPAL
 | Estatal | Coordinación de municipios, SLA regional | "Entrar a Municipio →" |
 | Municipal | Órdenes, mapa, técnicos, materiales, SLA | Operación completa |
 
-**Demo hardcodeada**: Estado = Baja California Norte · Municipio = Ensenada
+**Demo hardcodeada**: Estado = Baja California Norte · Municipio = Tijuana
 
 ---
 
@@ -60,7 +60,7 @@ El operador humano siempre revisa antes de aprobar (**humano en el loop**).
 |------|-------|-------------|
 | `/` | Nacional | Visión Nacional (dashboard de entrada) |
 | `/state` | Estatal | Centro Operativo Estatal — Baja California Norte |
-| `/municipal` | Municipal | Centro Operativo Municipal — Ensenada |
+| `/municipal` | Municipal | Centro Operativo Municipal — Tijuana |
 | `/ordenes` | Municipal | Órdenes / Incidencias (PlutoGrid completo) |
 | `/mapa` | Municipal | Mapa operativo interactivo |
 | `/tecnicos` | Municipal | Gestión de técnicos y cuadrillas |
@@ -84,7 +84,7 @@ El operador humano siempre revisa antes de aprobar (**humano en el loop**).
 
 El sidebar **cambia su menú según el nivel activo**. Siempre muestra:
 - Logo + nombre del sistema (parte superior)
-- Context breadcrumb: `México > Baja California > Ensenada` (simulado)
+- Context breadcrumb: `México > Baja California > Tijuana` (simulado)
 - Botón **"Salir de la Demo"** (parte inferior, siempre visible)
 
 ### Sidebar Nacional
@@ -118,10 +118,10 @@ México > Baja California
 [ Salir de la Demo ]
 ```
 
-### Sidebar Municipal (Ensenada) — menú completo operativo
+### Sidebar Municipal (Tijuana) — menú completo operativo
 ```
 [Logo] Terranex
-México > BC > Ensenada
+México > BC > Tijuana
 ─────────────────
 ○ Visión Nacional
 ○ Centro Estatal
@@ -366,9 +366,10 @@ class KpiMunicipal {
 - Municipios: Tijuana, Mexicali, Ensenada, Tecate, Rosarito
 - 329 incidencias activas, 43 críticas, 58 técnicos activos
 
-**Municipio demo**: Ensenada
+**Municipio demo**: Tijuana
 - 56 incidencias activas, 10 críticas, 13 técnicos activos
 - SLA 89% cumplimiento
+- Coordenadas centro: `32.5027, -117.0037`
 
 **Imágenes de evidencia** (reutilizar según categoría):
 - `assets/images/casos/alumbrado/` → Alumbrado público
@@ -382,13 +383,21 @@ Todos los datos en `lib/data/mock_data.dart`.
 
 ---
 
-## Mapa Operativo — flutter_map
+## Mapa Operativo — flutter_map (adaptativo por nivel)
+
+El mapa ajusta automáticamente zoom, centro y tipo de marcadores según el `NivelTerritorial` activo:
+
+| Nivel | Centro | Zoom | Marcadores |
+|-------|--------|------|-----------|
+| Nacional | `23.6, -102.5` (México) | 5.2 | Clusters por estado (15 estados) |
+| Estatal | `30.7, -115.8` (BC) | 7.6 | Clusters por municipio (5 municipios BC) |
+| Municipal | `32.5027, -117.0037` (Tijuana) | 11.5 | Marcadores individuales por incidencia |
 
 ```dart
 // OpenStreetMap sin API key (flutter_map ya en pubspec.yaml)
 FlutterMap(
   options: MapOptions(
-    initialCenter: LatLng(31.8667, -116.5963), // Ensenada, BC
+    initialCenter: LatLng(32.5027, -117.0037), // Tijuana, BC
     initialZoom: 10,
   ),
   children: [
@@ -570,7 +579,7 @@ Constante `mobileSize = 768` en `lib/helpers/constants.dart`
 | **Exit URL** | https://cbluna.com/ (misma ventana `_self`) |
 | **Favicon** | `assets/images/favicon.png` |
 | **Estado demo** | Baja California Norte |
-| **Municipio demo** | Ensenada |
+| **Municipio demo** | Tijuana |
 | **Package name** | `nethive_neo` (no cambiar) |
 | **Mapa** | OpenStreetMap via flutter_map (sin API key) |
 | **Imágenes evidencia** | `assets/images/casos/<categoria>/` |

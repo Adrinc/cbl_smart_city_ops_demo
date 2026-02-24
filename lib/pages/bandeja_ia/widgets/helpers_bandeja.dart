@@ -7,7 +7,7 @@ bool esRechazoIA(Incidencia inc) {
   return p.contains('rechazar') || p.contains('happyface') || p.contains('papelito');
 }
 
-// ── Dirección aproximada (Ensenada) ──────────────────────────────────────────
+// ── Dirección aproximada (Tijuana) ──────────────────────────────────────────
 String approxDireccion(double lat, double lon) {
   if (lat > 31.876) return 'Col. Reforma Norte';
   if (lat > 31.872) return 'Col. El Sauzal';

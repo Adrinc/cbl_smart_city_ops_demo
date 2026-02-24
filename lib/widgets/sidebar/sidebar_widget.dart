@@ -114,6 +114,10 @@ class SidebarWidget extends StatelessWidget {
 
         // ── SELECTOR DE NIVEL (prominente, antes del menú) ──
         _NivelSelector(isExpanded: isExpanded),
+
+        // ── SELECTOR DE TERRITORIO (estado / municipio) ──
+        _TerritorioSelector(isExpanded: isExpanded),
+
         const Divider(color: Color(0xFF7A3048), height: 1),
 
         Expanded(
@@ -302,6 +306,230 @@ class _CollapsedNivelBtn extends StatelessWidget {
           child: Icon(icon,
               size: 18,
               color: isActive ? Colors.white : const Color(0xFFB8909A)),
+        ),
+      ),
+    );
+  }
+}
+
+// ── TerritorioSelector ────────────────────────────────────────────────────────
+/// Muestra dropdowns de Estado y Municipio según el nivel activo.
+/// Solo visible en modo expandido. Seleccionar otro estado/municipio
+/// muestra un aviso demo — en producción se navegaría al territorio real.
+class _TerritorioSelector extends StatelessWidget {
+  final bool isExpanded;
+  const _TerritorioSelector({required this.isExpanded});
+
+  static const _estados = [
+    'Aguascalientes',
+    'Baja California Norte',
+    'Baja California Sur',
+    'Campeche',
+    'Chiapas',
+    'Chihuahua',
+    'Ciudad de México',
+    'Coahuila',
+    'Colima',
+    'Durango',
+    'Estado de México',
+    'Guanajuato',
+    'Guerrero',
+    'Hidalgo',
+    'Jalisco',
+    'Michoacán',
+    'Morelos',
+    'Nayarit',
+    'Nuevo León',
+    'Oaxaca',
+    'Puebla',
+    'Querétaro',
+    'Quintana Roo',
+    'San Luis Potosí',
+    'Sinaloa',
+    'Sonora',
+    'Tabasco',
+    'Tamaulipas',
+    'Tlaxcala',
+    'Veracruz',
+    'Yucatán',
+    'Zacatecas',
+  ];
+
+  static const _municipiosBC = [
+    'Tijuana',
+    'Mexicali',
+    'Ensenada',
+    'Tecate',
+    'Playas de Rosarito',
+  ];
+
+  void _mostrarAvisoDemo(BuildContext context, String nombre) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(children: [
+          const Icon(Icons.info_outline, color: Colors.white, size: 16),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'En producción accederías a $nombre. '
+              'Esta demo opera sobre Baja California Norte / Tijuana.',
+              style: const TextStyle(fontSize: 12),
+            ),
+          ),
+        ]),
+        backgroundColor: const Color(0xFF7A1E3A),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        duration: const Duration(seconds: 4),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final nivel = context.watch<AppLevelProvider>().nivel;
+
+    // Solo mostramos en niveles estatal o municipal (y solo expandido)
+    if (nivel == NivelTerritorial.nacional || !isExpanded) {
+      return const SizedBox.shrink();
+    }
+
+    const labelStyle = TextStyle(
+      color: Color(0xFFB8909A),
+      fontSize: 9.5,
+      fontWeight: FontWeight.w700,
+      letterSpacing: 1.3,
+    );
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Dropdown Estado ─────────────────────────────────────────────
+          const Padding(
+            padding: EdgeInsets.only(left: 4, bottom: 4),
+            child: Text('ESTADO', style: labelStyle),
+          ),
+          _DropdownTerritorio(
+            value: 'Baja California Norte',
+            items: _estados,
+            icon: Icons.account_balance_outlined,
+            onChanged: (v) {
+              if (v != null && v != 'Baja California Norte') {
+                _mostrarAvisoDemo(context, v);
+              }
+            },
+          ),
+
+          // ── Dropdown Municipio (solo en nivel municipal) ─────────────────
+          if (nivel == NivelTerritorial.municipal) ...[
+            const SizedBox(height: 8),
+            const Padding(
+              padding: EdgeInsets.only(left: 4, bottom: 4),
+              child: Text('MUNICIPIO', style: labelStyle),
+            ),
+            _DropdownTerritorio(
+              value: 'Tijuana',
+              items: _municipiosBC,
+              icon: Icons.location_city_outlined,
+              onChanged: (v) {
+                if (v != null && v != 'Tijuana') {
+                  _mostrarAvisoDemo(context, v);
+                }
+              },
+            ),
+          ],
+
+          const SizedBox(height: 4),
+        ],
+      ),
+    );
+  }
+}
+
+// ── DropdownTerritorio ────────────────────────────────────────────────────────
+class _DropdownTerritorio extends StatelessWidget {
+  final String value;
+  final List<String> items;
+  final IconData icon;
+  final ValueChanged<String?> onChanged;
+
+  const _DropdownTerritorio({
+    required this.value,
+    required this.items,
+    required this.icon,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF3D0E1C),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFF7A3048)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          isExpanded: true,
+          iconSize: 16,
+          icon:
+              const Icon(Icons.expand_more, color: Color(0xFFB8909A), size: 16),
+          dropdownColor: const Color(0xFF3D0E1C),
+          style: const TextStyle(
+            color: Color(0xFFF1E8EB),
+            fontSize: 12.5,
+            fontWeight: FontWeight.w600,
+          ),
+          selectedItemBuilder: (context) => items
+              .map((item) => Row(children: [
+                    Icon(icon, size: 14, color: const Color(0xFFD4B8C0)),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        item,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Color(0xFFF1E8EB),
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ]))
+              .toList(),
+          items: items
+              .map((item) => DropdownMenuItem(
+                    value: item,
+                    child: Row(children: [
+                      if (item == value)
+                        const Icon(Icons.circle,
+                            size: 6, color: Color(0xFF7A1E3A))
+                      else
+                        const SizedBox(width: 6),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          item,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: item == value
+                                ? const Color(0xFFF1E8EB)
+                                : const Color(0xFFD4B8C0),
+                            fontSize: 12.5,
+                            fontWeight: item == value
+                                ? FontWeight.w700
+                                : FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                    ]),
+                  ))
+              .toList(),
+          onChanged: onChanged,
         ),
       ),
     );

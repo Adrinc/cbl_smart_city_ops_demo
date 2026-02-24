@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:nethive_neo/data/mock_data.dart';
 import 'package:nethive_neo/models/models.dart';
 
@@ -6,7 +6,7 @@ class SlaProvider extends ChangeNotifier {
   late List<Incidencia> _incidencias;
 
   SlaProvider() {
-    _incidencias = List.from(mockIncidenciasEnsenada);
+    _incidencias = List.from(mockIncidenciasTijuana);
   }
 
   List<Incidencia> get enRiesgo {

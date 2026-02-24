@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:nethive_neo/data/mock_data.dart';
 
 class ReporteProvider extends ChangeNotifier {
   final kpiNacional  = mockKpiNacional;
   final kpiEstatal   = mockKpiEstatal;
-  final kpiMunicipal = mockKpiMunicipalEnsenada;
+  final kpiMunicipal = mockKpiMunicipalTijuana;
   final alertas      = mockAlertasEstatales;
 
   // Tendencias (ultimos 7 dias) — datos del KPI nacional

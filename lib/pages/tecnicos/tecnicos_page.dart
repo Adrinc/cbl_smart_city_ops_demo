@@ -65,7 +65,7 @@ class _TecnicosPageState extends State<TecnicosPage> {
         // ── Header ──────────────────────────────────────────────────────────
         SectionHeader(
           title: 'Gestión de Técnicos',
-          subtitle: 'Cuadrillas · Asignaciones · Disponibilidad — Ensenada',
+          subtitle: 'Cuadrillas · Asignaciones · Disponibilidad — Tijuana',
           trailing: ElevatedButton.icon(
               onPressed: () => _nuevoTecnico(context),
               icon: const Icon(Icons.person_add_outlined, size: 16),
@@ -415,7 +415,7 @@ class _PlutoTecnicosView extends StatelessWidget {
             'estatus': PlutoCell(value: t.estatus),
             'activas': PlutoCell(value: t.incidenciasActivas),
             'cerradas': PlutoCell(value: t.incidenciasCerradasMes),
-            'municipio': PlutoCell(value: t.municipioAsignado ?? 'Ensenada'),
+            'municipio': PlutoCell(value: t.municipioAsignado ?? 'Tijuana'),
             'acc': PlutoCell(value: ''),
           }))
       .toList();
@@ -852,7 +852,7 @@ class _DetalleTecnicoDialog extends StatelessWidget {
                     _InfoRow2('Especialidad',
                         labelCategoria(tecnico.especialidad), theme),
                     _InfoRow2('Municipio',
-                        tecnico.municipioAsignado ?? 'Ensenada', theme),
+                        tecnico.municipioAsignado ?? 'Tijuana', theme),
                     _InfoRow2('ID', tecnico.id, theme),
                     _InfoRow2('Incidencias activas',
                         '${tecnico.incidenciasActivas}', theme),
@@ -1029,7 +1029,7 @@ class _NuevoTecnicoDialogState extends State<_NuevoTecnicoDialog> {
         incidenciasCerradasMes: 0,
         latitud: 31.8667,
         longitud: -116.5963,
-        municipioAsignado: 'Ensenada');
+        municipioAsignado: 'Tijuana');
     prov.agregarTecnico(tec);
     if (_avatarBytes != null) prov.setAvatarBytes(id, _avatarBytes!);
     Navigator.pop(context);

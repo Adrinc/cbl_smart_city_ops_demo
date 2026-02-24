@@ -25,7 +25,7 @@ class ReportesPage extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   color: theme.textPrimary)),
           const SizedBox(height: 6),
-          Text('Compilando métricas operativas de Ensenada',
+          Text('Compilando métricas operativas de Tijuana',
               style: TextStyle(fontSize: 12, color: theme.textSecondary),
               textAlign: TextAlign.center),
         ]),
@@ -73,7 +73,7 @@ class ReportesPage extends StatelessWidget {
           SectionHeader(
             title: 'Reportes y Analítica',
             subtitle:
-                'Vista consolidada de métricas operativas — Ensenada · Baja California Norte',
+                'Vista consolidada de métricas operativas — Tijuana · Baja California Norte',
             trailing: TextButton.icon(
               onPressed: () => _descargarPdfSimulado(context, theme),
               icon: const Icon(Icons.picture_as_pdf_outlined, size: 16),

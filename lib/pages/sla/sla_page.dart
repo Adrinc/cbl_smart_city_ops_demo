@@ -35,7 +35,7 @@ class SlaPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader(
-            title: 'Monitor de SLA — Ensenada',
+            title: 'Monitor de SLA — Tijuana',
             subtitle:
                 'Seguimiento de tiempos de respuesta y cumplimiento de compromisos',
           ),

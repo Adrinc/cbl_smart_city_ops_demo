@@ -32,7 +32,7 @@ class DashboardMunicipalPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader(
-            title: 'Dashboard Municipal — Ensenada',
+            title: 'Dashboard Municipal — Tijuana',
             subtitle:
                 'Centro de operaciones · SLA ${kpi.cumplimientoSla.toStringAsFixed(1)}% · Actualizado hace 2 min',
             trailing: _NivelBadge(theme: theme),
@@ -46,7 +46,7 @@ class DashboardMunicipalPage extends StatelessWidget {
                 accentColor: theme.medium,
                 value: '${kpi.incidenciasActivas}',
                 title: 'Activas',
-                subtitle: 'Ensenada'),
+                subtitle: 'Tijuana'),
             KpiCard(
                 icon: Icons.warning_amber_rounded,
                 accentColor: theme.critical,

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:nethive_neo/data/mock_data.dart';
 import 'package:nethive_neo/models/models.dart';
 
@@ -6,7 +6,7 @@ class BandejaIAProvider extends ChangeNotifier {
   late List<Incidencia> _pendientes;
 
   BandejaIAProvider() {
-    _pendientes = mockIncidenciasEnsenada
+    _pendientes = mockIncidenciasTijuana
         .where((i) => i.estatus == 'en_revision')
         .toList();
   }

@@ -5,8 +5,18 @@ class AppLevelProvider extends ChangeNotifier {
   NivelTerritorial _nivel = NivelTerritorial.nacional;
   bool _sidebarExpanded = true;
 
+  // Banners de ayuda: key = pageRoute, valor = true si YA fue cerrado
+  final Map<String, bool> _bannersDescartados = {};
+
   NivelTerritorial get nivel => _nivel;
   bool get sidebarExpanded => _sidebarExpanded;
+
+  bool bannerDescartado(String pageKey) => _bannersDescartados[pageKey] == true;
+
+  void descartarBanner(String pageKey) {
+    _bannersDescartados[pageKey] = true;
+    notifyListeners();
+  }
 
   String get nivelLabel {
     switch (_nivel) {

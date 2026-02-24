@@ -1,10 +1,10 @@
-import 'dart:typed_data';
+﻿import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:nethive_neo/data/mock_data.dart';
 import 'package:nethive_neo/models/models.dart';
 
 class TecnicoProvider extends ChangeNotifier {
-  final List<Tecnico> _tecnicos = List.from(mockTecnicosEnsenada);
+  final List<Tecnico> _tecnicos = List.from(mockTecnicosTijuana);
   final Map<String, Uint8List> _avatarBytesCache = {};
   String _filtroEstatus = 'todos';
 

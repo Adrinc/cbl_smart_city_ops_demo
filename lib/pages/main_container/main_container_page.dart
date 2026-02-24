@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:nethive_neo/helpers/constants.dart';
 import 'package:nethive_neo/providers/providers.dart';
 import 'package:nethive_neo/theme/theme.dart';
+import 'package:nethive_neo/widgets/shared/demo_info_banner.dart';
 import 'package:nethive_neo/widgets/sidebar/sidebar_widget.dart';
 import 'package:nethive_neo/widgets/topbar/topbar_widget.dart';
 
@@ -48,6 +49,12 @@ class MainContainerPage extends StatelessWidget {
                   height: topbarHeight,
                   child: TopbarWidget(currentPath: currentPath),
                 ),
+                // ── Banner explicativo de la demo (cerrable) ──
+                Builder(builder: (ctx) {
+                  final msg = demoPageDescriptions[currentPath];
+                  if (msg == null) return const SizedBox.shrink();
+                  return DemoInfoBanner(pageKey: currentPath, message: msg);
+                }),
                 Expanded(child: child),
               ],
             ),

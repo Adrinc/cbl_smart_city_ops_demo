@@ -16,7 +16,7 @@ class CatalogosPage extends StatelessWidget {
 
   static const _zonas = [
     {'nombre': 'Zona Centro', 'tipo': 'comercial', 'tecnicos': 3},
-    {'nombre': 'Zona Norte Ensenada', 'tipo': 'residencial', 'tecnicos': 4},
+    {'nombre': 'Zona Norte Tijuana', 'tipo': 'residencial', 'tecnicos': 4},
     {'nombre': 'Zona Puerto', 'tipo': 'industrial', 'tecnicos': 2},
     {'nombre': 'Zona Chapultepec', 'tipo': 'residencial', 'tecnicos': 2},
     {'nombre': 'Zona Gobierno', 'tipo': 'institucional', 'tecnicos': 2},
@@ -27,7 +27,7 @@ class CatalogosPage extends StatelessWidget {
     {'nombre': 'Electricidad Municipal', 'responsable': 'Ing. Pedro Ontiveros', 'categorias': 'Alumbrado'},
     {'nombre': 'CESPE', 'responsable': 'Ing. Maria F. Torres', 'categorias': 'Agua/Drenaje'},
     {'nombre': 'Tránsito Municipal', 'responsable': 'Lic. Jorge Espinoza', 'categorias': 'Señalización'},
-    {'nombre': 'SSP Ensenada', 'responsable': 'C. Roberto Vega', 'categorias': 'Seguridad'},
+    {'nombre': 'SSP Tijuana', 'responsable': 'C. Roberto Vega', 'categorias': 'Seguridad'},
   ];
 
   @override
@@ -38,7 +38,7 @@ class CatalogosPage extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const SectionHeader(
           title: 'Catálogos del Sistema',
-          subtitle: 'Categorías, zonas y dependencias configuradas para Ensenada',
+          subtitle: 'Categorías, zonas y dependencias configuradas para Tijuana',
         ),
         const SizedBox(height: 24),
 
@@ -70,7 +70,7 @@ class CatalogosPage extends StatelessWidget {
         ),
         const SizedBox(height: 28),
 
-        _SectionTitle(icon: Icons.map_outlined, label: 'Zonas Operativas — Ensenada', theme: theme),
+        _SectionTitle(icon: Icons.map_outlined, label: 'Zonas Operativas — Tijuana', theme: theme),
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(color: theme.surface, borderRadius: BorderRadius.circular(10), border: Border.all(color: theme.border)),
