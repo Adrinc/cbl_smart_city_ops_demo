@@ -538,7 +538,7 @@ final List<Incidencia> mockIncidenciasTijuana = [
     entorno: 'institucional',
     prioridad: 'alto',
     descripcion: 'Presión baja en red de agua en escuela secundaria.',
-    imagenPath: null,
+    imagenPath: 'assets/images/casos/drenaje_agua/agua_baja.jpg',
     latitud: 32.496,
     longitud: -117.0054,
     estatus: 'en_revision',
@@ -550,7 +550,7 @@ final List<Incidencia> mockIncidenciasTijuana = [
     iaPrioridadSugerida: 'alto',
     iaConfianza: 0.82,
     iaCoherenciaNota:
-        'Sin imagen. Entorno institucional + descripción coherente = alto.',
+        'Imagen muestra presión baja en red de agua en escuela secundaria. Entorno institucional + descripción coherente = alto.',
   ),
   Incidencia(
     id: '15426',
