@@ -555,8 +555,15 @@ class _Header extends StatelessWidget {
               color: const Color(0xFF7A1E3A),
               borderRadius: BorderRadius.circular(8),
             ),
-            child:
-                const Icon(Icons.location_city, color: Colors.white, size: 18),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                'assets/images/favicon.png',
+                width: 32,
+                height: 32,
+                fit: BoxFit.contain,
+              ),
+            ),
           ),
           if (isExpanded) ...[
             const SizedBox(width: 10),

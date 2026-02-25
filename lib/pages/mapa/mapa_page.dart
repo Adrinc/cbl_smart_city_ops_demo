@@ -257,8 +257,8 @@ class _MapaPageState extends State<MapaPage> {
               decoration: BoxDecoration(
                 color: tecColor,
                 shape: BoxShape.circle,
-                border: Border.all(
-                    color: Colors.white, width: isHovered ? 3 : 2),
+                border:
+                    Border.all(color: Colors.white, width: isHovered ? 3 : 2),
                 boxShadow: [
                   BoxShadow(
                     color: tecColor.withOpacity(isHovered ? 0.7 : 0.4),
@@ -770,8 +770,7 @@ class _MapaPageState extends State<MapaPage> {
                         tecnico: _selectedTecnico!,
                         tecProv: tecProv,
                         theme: theme,
-                        onClose: () =>
-                            setState(() => _selectedTecnico = null))
+                        onClose: () => setState(() => _selectedTecnico = null))
                     : const SizedBox.shrink(),
           ),
         if (isMobile && (_selected != null || _selectedTecnico != null)) ...[
@@ -1314,121 +1313,125 @@ class _TecnicoSidePanel extends StatelessWidget {
         ],
       ),
       child: Column(children: [
-        // ── Header con foto ───────────────────────────────────────────────
-        Stack(children: [
-          // Fondo degradado vino
-          Container(
-            height: 180,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF5C1528), Color(0xFF9B2C4E)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+        // ── Header ───────────────────────────────────────────────────────
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF5C1528), Color(0xFF7A1E3A)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
             ),
           ),
-          // Foto del técnico centrada
-          if (avatarImg != null)
-            Positioned.fill(
-              child: Image(image: avatarImg, fit: BoxFit.cover),
-            ),
-          // Overlay degradado inferior para legibilidad
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: 90,
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.75),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-          // Stripe vino en la parte superior
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(height: 5, color: vinoPrimary),
-          ),
-          // Botón cerrar
-          Positioned(
-            top: 10,
-            right: 10,
-            child: Material(
-                color: Colors.black.withOpacity(0.5),
+          child: Column(children: [
+            // Fila superior: stripe decorativa + botón cerrar
+            Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+              Material(
+                color: Colors.white.withOpacity(0.15),
                 shape: const CircleBorder(),
                 child: InkWell(
                     onTap: onClose,
                     customBorder: const CircleBorder(),
                     child: const Padding(
                         padding: EdgeInsets.all(6),
-                        child: Icon(Icons.close,
-                            color: Colors.white, size: 18)))),
-          ),
-          // Nombre + rol sobre la foto
-          Positioned(
-            left: 12,
-            right: 48,
-            bottom: 10,
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(tecnico.nombre,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          shadows: [
-                            Shadow(color: Colors.black54, blurRadius: 4)
-                          ])),
-                  const SizedBox(height: 3),
-                  Text(labelRolTecnico(tecnico.rol),
-                      style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500)),
-                ]),
-          ),
-          // Badge de estatus (esquina inferior derecha)
-          Positioned(
-            bottom: 10,
-            right: 12,
-            child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                        child:
+                            Icon(Icons.close, color: Colors.white, size: 16))),
+              ),
+            ]),
+            const SizedBox(height: 8),
+            // Avatar circular con borde
+            Container(
+              width: 100,
+              height: 100,
               decoration: BoxDecoration(
-                  color: statusColor,
-                  borderRadius: BorderRadius.circular(20)),
-              child: Text(labelEstatusTecnico(tecnico.estatus),
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 10)),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 3),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipOval(
+                child: avatarImg != null
+                    ? Image(
+                        image: avatarImg,
+                        fit: BoxFit.cover,
+                        width: 100,
+                        height: 100,
+                      )
+                    : Container(
+                        color: const Color(0xFF9B2C4E),
+                        child: Center(
+                          child: Text(
+                            tecnico.iniciales,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 28,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                      ),
+              ),
             ),
-          ),
-        ]),
+            const SizedBox(height: 12),
+            // Nombre
+            Text(
+              tecnico.nombre,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 4),
+            // Rol + badge estatus en la misma fila
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Text(
+                labelRolTecnico(tecnico.rol),
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                decoration: BoxDecoration(
+                    color: statusColor,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                        color: Colors.white.withOpacity(0.4), width: 1)),
+                child: Text(labelEstatusTecnico(tecnico.estatus),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 10)),
+              ),
+            ]),
+          ]),
+        ),
 
         // ── Cuerpo scrollable ─────────────────────────────────────────────
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               // ID + municipio
               Row(children: [
                 Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                         color: theme.border.withOpacity(0.6),
                         borderRadius: BorderRadius.circular(6)),
@@ -1442,8 +1445,7 @@ class _TecnicoSidePanel extends StatelessWidget {
                     size: 12, color: theme.textDisabled),
                 const SizedBox(width: 3),
                 Text(tecnico.municipioAsignado ?? 'Tijuana',
-                    style: TextStyle(
-                        fontSize: 12, color: theme.textSecondary)),
+                    style: TextStyle(fontSize: 12, color: theme.textSecondary)),
               ]),
               const SizedBox(height: 14),
               Divider(color: theme.border),
@@ -1542,8 +1544,7 @@ class _KpiTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
             color: color.withOpacity(0.08),
             borderRadius: BorderRadius.circular(10),
@@ -1551,9 +1552,7 @@ class _KpiTile extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(value,
               style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: color)),
+                  fontSize: 20, fontWeight: FontWeight.w800, color: color)),
           const SizedBox(height: 2),
           Text(label,
               style: TextStyle(fontSize: 10, color: theme.textSecondary)),

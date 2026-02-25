@@ -203,7 +203,7 @@ class _BandejaIAPageState extends State<BandejaIAPage> {
                               onPressed: () {
                                 showDialog(
                                   context: context,
-                                  builder: (_) => AlertDialog(
+                                  builder: (dialogCtx) => AlertDialog(
                                     title: const Text(
                                         'Aprobar todos los recomendados'),
                                     content: Text(
@@ -212,11 +212,11 @@ class _BandejaIAPageState extends State<BandejaIAPage> {
                                     actions: [
                                       TextButton(
                                           onPressed: () =>
-                                              Navigator.pop(context),
+                                              Navigator.pop(dialogCtx),
                                           child: const Text('Cancelar')),
                                       FilledButton(
                                         onPressed: () {
-                                          Navigator.pop(context);
+                                          Navigator.pop(dialogCtx);
                                           _bulkAprobar(context, recomendados);
                                         },
                                         style: FilledButton.styleFrom(
@@ -267,7 +267,7 @@ class _BandejaIAPageState extends State<BandejaIAPage> {
                         onPressed: () {
                           showDialog(
                             context: context,
-                            builder: (_) => AlertDialog(
+                            builder: (dialogCtx) => AlertDialog(
                               title:
                                   const Text('Aprobar todos los recomendados'),
                               content: Text(
@@ -275,11 +275,11 @@ class _BandejaIAPageState extends State<BandejaIAPage> {
                                   '¿Deseas continuar?'),
                               actions: [
                                 TextButton(
-                                    onPressed: () => Navigator.pop(context),
+                                    onPressed: () => Navigator.pop(dialogCtx),
                                     child: const Text('Cancelar')),
                                 FilledButton(
                                   onPressed: () {
-                                    Navigator.pop(context);
+                                    Navigator.pop(dialogCtx);
                                     _bulkAprobar(context, recomendados);
                                   },
                                   style: FilledButton.styleFrom(

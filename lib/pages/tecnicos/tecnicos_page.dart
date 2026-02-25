@@ -513,9 +513,10 @@ class _TecnicoListItem extends StatelessWidget {
                 CircleAvatar(
                     radius: 24,
                     backgroundImage: _resolveAvatar(tecnico, avatarBytes),
-                    backgroundColor: _resolveAvatar(tecnico, avatarBytes) == null
-                        ? color.withOpacity(0.18)
-                        : null,
+                    backgroundColor:
+                        _resolveAvatar(tecnico, avatarBytes) == null
+                            ? color.withOpacity(0.18)
+                            : null,
                     child: _resolveAvatar(tecnico, avatarBytes) == null
                         ? Text(tecnico.iniciales,
                             style: TextStyle(
@@ -815,9 +816,10 @@ class _DetalleTecnicoDialog extends StatelessWidget {
                 CircleAvatar(
                     radius: 30,
                     backgroundImage: _resolveAvatar(tecnico, avatarBytes),
-                    backgroundColor: _resolveAvatar(tecnico, avatarBytes) == null
-                        ? color.withOpacity(0.2)
-                        : null,
+                    backgroundColor:
+                        _resolveAvatar(tecnico, avatarBytes) == null
+                            ? color.withOpacity(0.2)
+                            : null,
                     child: _resolveAvatar(tecnico, avatarBytes) == null
                         ? Text(tecnico.iniciales,
                             style: TextStyle(
