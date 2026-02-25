@@ -18,10 +18,12 @@ class MapaPage extends StatefulWidget {
 
 class _MapaPageState extends State<MapaPage> {
   Incidencia? _selected;
+  Tecnico? _selectedTecnico;
   String? _filterPrioridad;
   String? _filterCategoria;
   bool _showTecnicos = false;
   final Set<String> _hoveredIds = {};
+  final Set<String> _hoveredTecIds = {};
   late final MapController _mapController;
   NivelTerritorial? _prevNivel;
 
@@ -99,6 +101,10 @@ class _MapaPageState extends State<MapaPage> {
   }
 
   void _animateToNivel(NivelTerritorial nivel) {
+    setState(() {
+      _selected = null;
+      _selectedTecnico = null;
+    });
     final target = switch (nivel) {
       NivelTerritorial.nacional => _centerNacional,
       NivelTerritorial.estatal => _centerEstatal,
@@ -201,7 +207,10 @@ class _MapaPageState extends State<MapaPage> {
           onEnter: (_) => setState(() => _hoveredIds.add(i.id)),
           onExit: (_) => setState(() => _hoveredIds.remove(i.id)),
           child: GestureDetector(
-            onTap: () => setState(() => _selected = i),
+            onTap: () => setState(() {
+              _selected = i;
+              _selectedTecnico = null;
+            }),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
               decoration: BoxDecoration(
@@ -227,22 +236,44 @@ class _MapaPageState extends State<MapaPage> {
 
   List<Marker> _buildTecnicoMarkers(List<Tecnico> tecs) {
     if (!_showTecnicos) return [];
-    return tecs
-        .map((t) => Marker(
-              point: LatLng(t.latitud, t.longitud),
-              width: 30,
-              height: 30,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF7A1E3A),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
-                ),
-                child: const Icon(Icons.engineering,
-                    color: Colors.white, size: 14),
+    const tecColor = Color(0xFF7A1E3A);
+    return tecs.map((t) {
+      final isHovered = _hoveredTecIds.contains(t.id);
+      return Marker(
+        point: LatLng(t.latitud, t.longitud),
+        width: isHovered ? 44 : 34,
+        height: isHovered ? 44 : 34,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (_) => setState(() => _hoveredTecIds.add(t.id)),
+          onExit: (_) => setState(() => _hoveredTecIds.remove(t.id)),
+          child: GestureDetector(
+            onTap: () => setState(() {
+              _selectedTecnico = t;
+              _selected = null;
+            }),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              decoration: BoxDecoration(
+                color: tecColor,
+                shape: BoxShape.circle,
+                border: Border.all(
+                    color: Colors.white, width: isHovered ? 3 : 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: tecColor.withOpacity(isHovered ? 0.7 : 0.4),
+                    blurRadius: isHovered ? 14 : 6,
+                    spreadRadius: isHovered ? 2 : 0,
+                  ),
+                ],
               ),
-            ))
-        .toList();
+              child: Icon(Icons.engineering,
+                  color: Colors.white, size: isHovered ? 22 : 16),
+            ),
+          ),
+        ),
+      );
+    }).toList();
   }
 
   void _mostrarFiltrosMobile(BuildContext context, AppTheme theme) {
@@ -427,7 +458,10 @@ class _MapaPageState extends State<MapaPage> {
           options: MapOptions(
             initialCenter: initialCenter,
             initialZoom: initialZoom,
-            onTap: (_, __) => setState(() => _selected = null),
+            onTap: (_, __) => setState(() {
+              _selected = null;
+              _selectedTecnico = null;
+            }),
           ),
           children: [
             TileLayer(
@@ -723,7 +757,7 @@ class _MapaPageState extends State<MapaPage> {
             curve: Curves.easeOutCubic,
             top: 0,
             bottom: 0,
-            right: _selected != null ? 0 : -370,
+            right: (_selected != null || _selectedTecnico != null) ? 0 : -370,
             width: 360,
             child: _selected != null
                 ? _MapaSidePanel(
@@ -731,13 +765,23 @@ class _MapaPageState extends State<MapaPage> {
                     theme: theme,
                     tecProv: tecProv,
                     onClose: () => setState(() => _selected = null))
-                : const SizedBox.shrink(),
+                : _selectedTecnico != null
+                    ? _TecnicoSidePanel(
+                        tecnico: _selectedTecnico!,
+                        tecProv: tecProv,
+                        theme: theme,
+                        onClose: () =>
+                            setState(() => _selectedTecnico = null))
+                    : const SizedBox.shrink(),
           ),
-        if (isMobile && _selected != null) ...[
+        if (isMobile && (_selected != null || _selectedTecnico != null)) ...[
           // Fondo semitransparente
           Positioned.fill(
             child: GestureDetector(
-              onTap: () => setState(() => _selected = null),
+              onTap: () => setState(() {
+                _selected = null;
+                _selectedTecnico = null;
+              }),
               child: Container(color: Colors.black.withOpacity(0.35)),
             ),
           ),
@@ -750,12 +794,19 @@ class _MapaPageState extends State<MapaPage> {
             child: ClipRRect(
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(18)),
-              child: _MapaSidePanel(
-                inc: _selected!,
-                theme: theme,
-                tecProv: tecProv,
-                onClose: () => setState(() => _selected = null),
-              ),
+              child: _selected != null
+                  ? _MapaSidePanel(
+                      inc: _selected!,
+                      theme: theme,
+                      tecProv: tecProv,
+                      onClose: () => setState(() => _selected = null),
+                    )
+                  : _TecnicoSidePanel(
+                      tecnico: _selectedTecnico!,
+                      tecProv: tecProv,
+                      theme: theme,
+                      onClose: () => setState(() => _selectedTecnico = null),
+                    ),
             ),
           ),
         ],
@@ -1210,6 +1261,304 @@ class _MapaSidePanel extends StatelessWidget {
         return theme.textDisabled;
     }
   }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// PANEL LATERAL — Técnico
+// ════════════════════════════════════════════════════════════════════════════
+class _TecnicoSidePanel extends StatelessWidget {
+  const _TecnicoSidePanel({
+    required this.tecnico,
+    required this.tecProv,
+    required this.theme,
+    required this.onClose,
+  });
+  final Tecnico tecnico;
+  final TecnicoProvider tecProv;
+  final AppTheme theme;
+  final VoidCallback onClose;
+
+  Color _estatusColor(String estatus) {
+    switch (estatus) {
+      case 'activo':
+        return const Color(0xFF2D7A4F);
+      case 'en_campo':
+        return const Color(0xFFD97706);
+      case 'descanso':
+        return const Color(0xFF64748B);
+      default:
+        return const Color(0xFF94A3B8);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bytes = tecProv.getAvatarBytes(tecnico.id);
+    final ImageProvider? avatarImg = bytes != null
+        ? MemoryImage(bytes)
+        : tecnico.avatarPath != null
+            ? AssetImage(tecnico.avatarPath!) as ImageProvider
+            : null;
+    final statusColor = _estatusColor(tecnico.estatus);
+    const vinoPrimary = Color(0xFF7A1E3A);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.surface,
+        borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.18),
+              blurRadius: 24,
+              offset: const Offset(-4, 0)),
+        ],
+      ),
+      child: Column(children: [
+        // ── Header con foto ───────────────────────────────────────────────
+        Stack(children: [
+          // Fondo degradado vino
+          Container(
+            height: 180,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF5C1528), Color(0xFF9B2C4E)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          ),
+          // Foto del técnico centrada
+          if (avatarImg != null)
+            Positioned.fill(
+              child: Image(image: avatarImg, fit: BoxFit.cover),
+            ),
+          // Overlay degradado inferior para legibilidad
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 90,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [
+                    Colors.black.withOpacity(0.75),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // Stripe vino en la parte superior
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(height: 5, color: vinoPrimary),
+          ),
+          // Botón cerrar
+          Positioned(
+            top: 10,
+            right: 10,
+            child: Material(
+                color: Colors.black.withOpacity(0.5),
+                shape: const CircleBorder(),
+                child: InkWell(
+                    onTap: onClose,
+                    customBorder: const CircleBorder(),
+                    child: const Padding(
+                        padding: EdgeInsets.all(6),
+                        child: Icon(Icons.close,
+                            color: Colors.white, size: 18)))),
+          ),
+          // Nombre + rol sobre la foto
+          Positioned(
+            left: 12,
+            right: 48,
+            bottom: 10,
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(tecnico.nombre,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          shadows: [
+                            Shadow(color: Colors.black54, blurRadius: 4)
+                          ])),
+                  const SizedBox(height: 3),
+                  Text(labelRolTecnico(tecnico.rol),
+                      style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500)),
+                ]),
+          ),
+          // Badge de estatus (esquina inferior derecha)
+          Positioned(
+            bottom: 10,
+            right: 12,
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+              decoration: BoxDecoration(
+                  color: statusColor,
+                  borderRadius: BorderRadius.circular(20)),
+              child: Text(labelEstatusTecnico(tecnico.estatus),
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 10)),
+            ),
+          ),
+        ]),
+
+        // ── Cuerpo scrollable ─────────────────────────────────────────────
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+              // ID + municipio
+              Row(children: [
+                Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                        color: theme.border.withOpacity(0.6),
+                        borderRadius: BorderRadius.circular(6)),
+                    child: Text(tecnico.id,
+                        style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: theme.textSecondary))),
+                const SizedBox(width: 6),
+                Icon(Icons.location_city_outlined,
+                    size: 12, color: theme.textDisabled),
+                const SizedBox(width: 3),
+                Text(tecnico.municipioAsignado ?? 'Tijuana',
+                    style: TextStyle(
+                        fontSize: 12, color: theme.textSecondary)),
+              ]),
+              const SizedBox(height: 14),
+              Divider(color: theme.border),
+              const SizedBox(height: 10),
+
+              // Especialidad
+              _TecRow(
+                Icons.build_outlined,
+                'Especialidad',
+                labelCategoria(tecnico.especialidad),
+                theme,
+              ),
+              _TecRow(
+                Icons.work_outline,
+                'Rol',
+                labelRolTecnico(tecnico.rol),
+                theme,
+              ),
+              _TecRow(
+                Icons.location_on_outlined,
+                'Coordenadas',
+                '${tecnico.latitud.toStringAsFixed(4)}, ${tecnico.longitud.toStringAsFixed(4)}',
+                theme,
+              ),
+
+              const SizedBox(height: 14),
+              Divider(color: theme.border),
+              const SizedBox(height: 10),
+
+              // KPIs
+              Text('ACTIVIDAD DEL MES',
+                  style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: vinoPrimary,
+                      letterSpacing: 0.8)),
+              const SizedBox(height: 10),
+              Row(children: [
+                Expanded(
+                  child: _KpiTile(
+                    label: 'Activas',
+                    value: '${tecnico.incidenciasActivas}',
+                    color: tecnico.incidenciasActivas > 0
+                        ? const Color(0xFFD97706)
+                        : theme.low,
+                    theme: theme,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _KpiTile(
+                    label: 'Cerradas /mes',
+                    value: '${tecnico.incidenciasCerradasMes}',
+                    color: theme.low,
+                    theme: theme,
+                  ),
+                ),
+              ]),
+              const SizedBox(height: 12),
+            ]),
+          ),
+        ),
+
+        // ── Footer ────────────────────────────────────────────────────────
+        Container(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          decoration: BoxDecoration(
+              color: theme.background,
+              border: Border(top: BorderSide(color: theme.border))),
+          child: SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: onClose,
+              icon: const Icon(Icons.close, size: 15),
+              label: const Text('Cerrar'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: theme.textSecondary,
+              ),
+            ),
+          ),
+        ),
+      ]),
+    );
+  }
+}
+
+class _KpiTile extends StatelessWidget {
+  const _KpiTile(
+      {required this.label,
+      required this.value,
+      required this.color,
+      required this.theme});
+  final String label, value;
+  final Color color;
+  final AppTheme theme;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+            color: color.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: color.withOpacity(0.25))),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(value,
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: color)),
+          const SizedBox(height: 2),
+          Text(label,
+              style: TextStyle(fontSize: 10, color: theme.textSecondary)),
+        ]),
+      );
 }
 
 // ── Fila de dato del técnico ────────────────────────────────────────────────

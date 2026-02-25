@@ -13,6 +13,14 @@ import 'package:nethive_neo/widgets/shared/section_header.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:provider/provider.dart';
 
+/// Resuelve el [ImageProvider] para el avatar de un técnico:
+/// prioridad: bytes subidos por usuario > asset del modelo > null (iniciales).
+ImageProvider? _resolveAvatar(Tecnico tec, Uint8List? uploadedBytes) {
+  if (uploadedBytes != null) return MemoryImage(uploadedBytes);
+  if (tec.avatarPath != null) return AssetImage(tec.avatarPath!);
+  return null;
+}
+
 class TecnicosPage extends StatefulWidget {
   const TecnicosPage({super.key});
   @override
@@ -239,19 +247,20 @@ class _PlutoTecnicosView extends StatelessWidget {
               final prov = context.read<TecnicoProvider>();
               final bytes = tec != null ? prov.getAvatarBytes(tec.id) : null;
               final color = _estatusColor(tec?.estatus ?? '', theme);
-              if (bytes != null)
-                return Center(
-                    child: CircleAvatar(
-                        radius: 22, backgroundImage: MemoryImage(bytes)));
+              final img = tec != null ? _resolveAvatar(tec, bytes) : null;
               return Center(
                   child: CircleAvatar(
                       radius: 22,
-                      backgroundColor: color.withOpacity(0.2),
-                      child: Text(tec?.iniciales ?? '?',
-                          style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w800,
-                              color: color))));
+                      backgroundImage: img,
+                      backgroundColor:
+                          img == null ? color.withOpacity(0.2) : null,
+                      child: img == null
+                          ? Text(tec?.iniciales ?? '?',
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                  color: color))
+                          : null));
             }),
         PlutoColumn(
             title: 'ID',
@@ -503,10 +512,11 @@ class _TecnicoListItem extends StatelessWidget {
               Stack(children: [
                 CircleAvatar(
                     radius: 24,
-                    backgroundImage:
-                        avatarBytes != null ? MemoryImage(avatarBytes!) : null,
-                    backgroundColor: color.withOpacity(0.18),
-                    child: avatarBytes == null
+                    backgroundImage: _resolveAvatar(tecnico, avatarBytes),
+                    backgroundColor: _resolveAvatar(tecnico, avatarBytes) == null
+                        ? color.withOpacity(0.18)
+                        : null,
+                    child: _resolveAvatar(tecnico, avatarBytes) == null
                         ? Text(tecnico.iniciales,
                             style: TextStyle(
                                 fontSize: 13,
@@ -658,10 +668,11 @@ class _TecnicoCard extends StatelessWidget {
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             CircleAvatar(
                 radius: 26,
-                backgroundImage:
-                    avatarBytes != null ? MemoryImage(avatarBytes!) : null,
-                backgroundColor: color.withOpacity(0.18),
-                child: avatarBytes == null
+                backgroundImage: _resolveAvatar(tecnico, avatarBytes),
+                backgroundColor: _resolveAvatar(tecnico, avatarBytes) == null
+                    ? color.withOpacity(0.18)
+                    : null,
+                child: _resolveAvatar(tecnico, avatarBytes) == null
                     ? Text(tecnico.iniciales,
                         style: TextStyle(
                             fontSize: 14,
@@ -803,10 +814,11 @@ class _DetalleTecnicoDialog extends StatelessWidget {
               child: Row(children: [
                 CircleAvatar(
                     radius: 30,
-                    backgroundImage:
-                        avatarBytes != null ? MemoryImage(avatarBytes!) : null,
-                    backgroundColor: color.withOpacity(0.2),
-                    child: avatarBytes == null
+                    backgroundImage: _resolveAvatar(tecnico, avatarBytes),
+                    backgroundColor: _resolveAvatar(tecnico, avatarBytes) == null
+                        ? color.withOpacity(0.2)
+                        : null,
+                    child: _resolveAvatar(tecnico, avatarBytes) == null
                         ? Text(tecnico.iniciales,
                             style: TextStyle(
                                 fontSize: 16,
@@ -1027,8 +1039,8 @@ class _NuevoTecnicoDialogState extends State<_NuevoTecnicoDialog> {
         estatus: _estatus,
         incidenciasActivas: 0,
         incidenciasCerradasMes: 0,
-        latitud: 31.8667,
-        longitud: -116.5963,
+        latitud: 32.5027,
+        longitud: -117.0037,
         municipioAsignado: 'Tijuana');
     prov.agregarTecnico(tec);
     if (_avatarBytes != null) prov.setAvatarBytes(id, _avatarBytes!);

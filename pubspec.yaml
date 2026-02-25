@@ -91,6 +91,7 @@ flutter:
   assets:
     - assets/images/
     - assets/images/avatares/
+    - assets/images/tecnicos/
     - assets/images/casos/alumbrado/
     - assets/images/casos/bacheo/
     - assets/images/casos/basura/

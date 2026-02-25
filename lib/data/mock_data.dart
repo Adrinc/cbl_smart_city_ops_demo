@@ -23,7 +23,7 @@ final List<Tecnico> mockTecnicosTijuana = [
     latitud: 32.495,
     longitud: -116.9994,
     municipioAsignado: 'Tijuana',
-    avatarPath: 'assets/images/avatares/Carlos.png',
+    avatarPath: 'assets/images/tecnicos/jefecuadrilla_alumbrado_carlos.png',
   ),
   const Tecnico(
     id: 'T02',
@@ -36,7 +36,7 @@ final List<Tecnico> mockTecnicosTijuana = [
     latitud: 32.501,
     longitud: -116.9944,
     municipioAsignado: 'Tijuana',
-    avatarPath: 'assets/images/avatares/Eduardo.png',
+    avatarPath: 'assets/images/tecnicos/tecnico_alumbrado_eduardo.png',
   ),
   const Tecnico(
     id: 'T03',
@@ -49,7 +49,7 @@ final List<Tecnico> mockTecnicosTijuana = [
     latitud: 32.508,
     longitud: -117.0084,
     municipioAsignado: 'Tijuana',
-    avatarPath: 'assets/images/avatares/Fernando.png',
+    avatarPath: 'assets/images/tecnicos/tecnico_bacheo_fernando.png',
   ),
   const Tecnico(
     id: 'T04',
@@ -62,7 +62,7 @@ final List<Tecnico> mockTecnicosTijuana = [
     latitud: 32.496,
     longitud: -117.0024,
     municipioAsignado: 'Tijuana',
-    avatarPath: 'assets/images/avatares/Juan.png',
+    avatarPath: 'assets/images/tecnicos/jefecuadrilla_bacheo_juan.png',
   ),
   const Tecnico(
     id: 'T05',
@@ -75,7 +75,7 @@ final List<Tecnico> mockTecnicosTijuana = [
     latitud: 32.514,
     longitud: -116.9974,
     municipioAsignado: 'Tijuana',
-    avatarPath: 'assets/images/avatares/Mario.png',
+    avatarPath: 'assets/images/tecnicos/tecnico_basura_mario.png',
   ),
   const Tecnico(
     id: 'T06',
@@ -88,7 +88,7 @@ final List<Tecnico> mockTecnicosTijuana = [
     latitud: 32.5027,
     longitud: -117.0037,
     municipioAsignado: 'Tijuana',
-    avatarPath: 'assets/images/avatares/Laura.png',
+    avatarPath: 'assets/images/tecnicos/supervisora_general_laura.png',
   ),
   const Tecnico(
     id: 'T07',
@@ -101,7 +101,7 @@ final List<Tecnico> mockTecnicosTijuana = [
     latitud: 32.488,
     longitud: -117.0154,
     municipioAsignado: 'Tijuana',
-    avatarPath: 'assets/images/avatares/Maria.png',
+    avatarPath: 'assets/images/tecnicos/tecnica_aguadrenaje_maria.png',
   ),
   const Tecnico(
     id: 'T08',
@@ -114,7 +114,7 @@ final List<Tecnico> mockTecnicosTijuana = [
     latitud: 32.499,
     longitud: -117.0014,
     municipioAsignado: 'Tijuana',
-    avatarPath: 'assets/images/avatares/Marta.png',
+    avatarPath: 'assets/images/tecnicos/tecnica_alumbrado_marta.png',
   ),
   const Tecnico(
     id: 'T09',
@@ -127,7 +127,7 @@ final List<Tecnico> mockTecnicosTijuana = [
     latitud: 32.506,
     longitud: -116.9904,
     municipioAsignado: 'Tijuana',
-    avatarPath: 'assets/images/avatares/Valeria.png',
+    avatarPath: 'assets/images/tecnicos/tecnica_senalizacion_valeria.png',
   ),
   const Tecnico(
     id: 'T10',
@@ -140,7 +140,7 @@ final List<Tecnico> mockTecnicosTijuana = [
     latitud: 32.5027,
     longitud: -117.0037,
     municipioAsignado: 'Tijuana',
-    avatarPath: 'assets/images/avatares/Yuna.png',
+    avatarPath: 'assets/images/tecnicos/supervisora_municipal_yuna.png',
   ),
   const Tecnico(
     id: 'T11',
@@ -153,7 +153,7 @@ final List<Tecnico> mockTecnicosTijuana = [
     latitud: 32.517,
     longitud: -116.9954,
     municipioAsignado: 'Tijuana',
-    avatarPath: null,
+    avatarPath: 'assets/images/tecnicos/tecnico_basura_roberto.png',
   ),
   const Tecnico(
     id: 'T12',
@@ -166,11 +166,11 @@ final List<Tecnico> mockTecnicosTijuana = [
     latitud: 32.484,
     longitud: -117.0094,
     municipioAsignado: 'Tijuana',
-    avatarPath: null,
+    avatarPath: 'assets/images/tecnicos/tecnico_seguridad_andres.png',
   ),
   const Tecnico(
     id: 'T13',
-    nombre: 'Sofía Herrera',
+    nombre: 'Melisa Vázquez',
     rol: 'tecnico_campo',
     especialidad: 'seguridad',
     estatus: 'inactivo',
@@ -179,7 +179,7 @@ final List<Tecnico> mockTecnicosTijuana = [
     latitud: 32.5027,
     longitud: -117.0037,
     municipioAsignado: 'Tijuana',
-    avatarPath: null,
+    avatarPath: 'assets/images/tecnicos/tecnica_seguridad_melisa.png',
   ),
 ];
 
