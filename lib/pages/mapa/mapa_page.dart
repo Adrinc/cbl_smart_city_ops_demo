@@ -36,36 +36,42 @@ class _MapaPageState extends State<MapaPage> {
   };
 
   // ── Centros por nivel ───────────────────────────────────────────────────
-  static const _centerNacional  = LatLng(23.6, -102.5);
-  static const _centerEstatal   = LatLng(30.7, -115.8);
+  static const _centerNacional = LatLng(23.6, -102.5);
+  static const _centerEstatal = LatLng(30.7, -115.8);
   static const _centerMunicipal = LatLng(32.5027, -117.0037);
 
   // ── Clusters Estatal (municipios de BC) ─────────────────────────────────
   static const _municipiosClusters = [
-    (name: 'Tijuana',  lat: 32.5027, lng: -117.0037, count: 142, sev: 'critico'),
-    (name: 'Mexicali', lat: 32.6245, lng: -115.4523, count: 87,  sev: 'alto'),
-    (name: 'Ensenada', lat: 31.8667, lng: -116.5963, count: 56,  sev: 'alto'),
-    (name: 'Tecate',   lat: 32.5732, lng: -116.6279, count: 28,  sev: 'medio'),
-    (name: 'Rosarito', lat: 32.3710, lng: -117.0640, count: 16,  sev: 'bajo'),
+    (name: 'Tijuana', lat: 32.5027, lng: -117.0037, count: 142, sev: 'critico'),
+    (name: 'Mexicali', lat: 32.6245, lng: -115.4523, count: 87, sev: 'alto'),
+    (name: 'Ensenada', lat: 31.8667, lng: -116.5963, count: 56, sev: 'alto'),
+    (name: 'Tecate', lat: 32.5732, lng: -116.6279, count: 28, sev: 'medio'),
+    (name: 'Rosarito', lat: 32.3710, lng: -117.0640, count: 16, sev: 'bajo'),
   ];
 
   // ── Clusters Nacional (estados) ──────────────────────────────────────────
   static const _estadosClusters = [
-    (name: 'CDMX',          lat: 19.432, lng: -99.133,  count: 312, sev: 'critico'),
-    (name: 'Jalisco',       lat: 20.660, lng: -103.350, count: 187, sev: 'critico'),
-    (name: 'Baja California', lat: 30.730, lng: -115.800, count: 143, sev: 'alto'),
-    (name: 'Nuevo León',    lat: 25.592, lng: -99.996,  count: 201, sev: 'critico'),
-    (name: 'Veracruz',      lat: 19.173, lng: -96.134,  count: 98,  sev: 'alto'),
-    (name: 'Puebla',        lat: 19.043, lng: -98.198,  count: 134, sev: 'alto'),
-    (name: 'Guanajuato',    lat: 21.019, lng: -101.258, count: 112, sev: 'medio'),
-    (name: 'Chihuahua',     lat: 28.635, lng: -106.089, count: 76,  sev: 'medio'),
-    (name: 'Oaxaca',        lat: 17.060, lng: -96.722,  count: 45,  sev: 'bajo'),
-    (name: 'Yucatán',       lat: 20.968, lng: -89.623,  count: 58,  sev: 'medio'),
-    (name: 'Sonora',        lat: 29.073, lng: -110.955, count: 67,  sev: 'medio'),
-    (name: 'Tamaulipas',    lat: 24.266, lng: -98.836,  count: 89,  sev: 'alto'),
-    (name: 'Michoacán',     lat: 19.566, lng: -101.707, count: 54,  sev: 'medio'),
-    (name: 'Querétaro',     lat: 20.593, lng: -100.389, count: 41,  sev: 'bajo'),
-    (name: 'Quintana Roo',  lat: 19.181, lng: -88.479,  count: 30,  sev: 'bajo'),
+    (name: 'CDMX', lat: 19.432, lng: -99.133, count: 312, sev: 'critico'),
+    (name: 'Jalisco', lat: 20.660, lng: -103.350, count: 187, sev: 'critico'),
+    (
+      name: 'Baja California',
+      lat: 30.730,
+      lng: -115.800,
+      count: 143,
+      sev: 'alto'
+    ),
+    (name: 'Nuevo León', lat: 25.592, lng: -99.996, count: 201, sev: 'critico'),
+    (name: 'Veracruz', lat: 19.173, lng: -96.134, count: 98, sev: 'alto'),
+    (name: 'Puebla', lat: 19.043, lng: -98.198, count: 134, sev: 'alto'),
+    (name: 'Guanajuato', lat: 21.019, lng: -101.258, count: 112, sev: 'medio'),
+    (name: 'Chihuahua', lat: 28.635, lng: -106.089, count: 76, sev: 'medio'),
+    (name: 'Oaxaca', lat: 17.060, lng: -96.722, count: 45, sev: 'bajo'),
+    (name: 'Yucatán', lat: 20.968, lng: -89.623, count: 58, sev: 'medio'),
+    (name: 'Sonora', lat: 29.073, lng: -110.955, count: 67, sev: 'medio'),
+    (name: 'Tamaulipas', lat: 24.266, lng: -98.836, count: 89, sev: 'alto'),
+    (name: 'Michoacán', lat: 19.566, lng: -101.707, count: 54, sev: 'medio'),
+    (name: 'Querétaro', lat: 20.593, lng: -100.389, count: 41, sev: 'bajo'),
+    (name: 'Quintana Roo', lat: 19.181, lng: -88.479, count: 30, sev: 'bajo'),
   ];
 
   @override
@@ -94,13 +100,13 @@ class _MapaPageState extends State<MapaPage> {
 
   void _animateToNivel(NivelTerritorial nivel) {
     final target = switch (nivel) {
-      NivelTerritorial.nacional  => _centerNacional,
-      NivelTerritorial.estatal   => _centerEstatal,
+      NivelTerritorial.nacional => _centerNacional,
+      NivelTerritorial.estatal => _centerEstatal,
       NivelTerritorial.municipal => _centerMunicipal,
     };
     final zoom = switch (nivel) {
-      NivelTerritorial.nacional  => 5.2,
-      NivelTerritorial.estatal   => 7.6,
+      NivelTerritorial.nacional => 5.2,
+      NivelTerritorial.estatal => 7.6,
       NivelTerritorial.municipal => 11.5,
     };
     _mapController.move(target, zoom);
@@ -403,13 +409,13 @@ class _MapaPageState extends State<MapaPage> {
 
     // Centro e zoom iniciales según nivel
     final initialCenter = switch (nivel) {
-      NivelTerritorial.nacional  => _centerNacional,
-      NivelTerritorial.estatal   => _centerEstatal,
+      NivelTerritorial.nacional => _centerNacional,
+      NivelTerritorial.estatal => _centerEstatal,
       NivelTerritorial.municipal => _centerMunicipal,
     };
     final initialZoom = switch (nivel) {
-      NivelTerritorial.nacional  => 5.2,
-      NivelTerritorial.estatal   => 7.6,
+      NivelTerritorial.nacional => 5.2,
+      NivelTerritorial.estatal => 7.6,
       NivelTerritorial.municipal => 11.5,
     };
 
@@ -431,9 +437,11 @@ class _MapaPageState extends State<MapaPage> {
             ),
             // Markers según nivel
             if (nivel == NivelTerritorial.nacional)
-              MarkerLayer(markers: _buildClusterMarkers(_estadosClusters.toList()))
+              MarkerLayer(
+                  markers: _buildClusterMarkers(_estadosClusters.toList()))
             else if (nivel == NivelTerritorial.estatal)
-              MarkerLayer(markers: _buildClusterMarkers(_municipiosClusters.toList()))
+              MarkerLayer(
+                  markers: _buildClusterMarkers(_municipiosClusters.toList()))
             else ...[
               MarkerLayer(markers: _buildIncidenciaMarkers(incs)),
               MarkerLayer(markers: _buildTecnicoMarkers(tecs)),
@@ -449,7 +457,8 @@ class _MapaPageState extends State<MapaPage> {
             right: 0,
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.93),
                   borderRadius: BorderRadius.circular(10),
@@ -638,73 +647,74 @@ class _MapaPageState extends State<MapaPage> {
         // Leyenda (solo nivel municipal)
         if (esMunicipal)
           Positioned(
-          bottom: 16,
-          left: 16,
-          child: _MapControl(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text('Leyenda',
-                    style:
-                        TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-                const SizedBox(height: 6),
-                ...[
-                  ('critico', 'Crítico'),
-                  ('alto', 'Alto'),
-                  ('medio', 'Medio'),
-                  ('bajo', 'Bajo'),
-                ].map((e) => Padding(
-                      padding: const EdgeInsets.only(bottom: 3),
-                      child: Row(mainAxisSize: MainAxisSize.min, children: [
-                        Container(
-                            width: 12,
-                            height: 12,
-                            decoration: BoxDecoration(
-                                color: _prioColor(e.$1),
-                                shape: BoxShape.circle)),
-                        const SizedBox(width: 6),
-                        Text(e.$2, style: const TextStyle(fontSize: 11)),
-                      ]),
-                    )),
-                if (_showTecnicos) ...[
-                  const SizedBox(height: 2),
-                  Row(mainAxisSize: MainAxisSize.min, children: [
-                    Container(
-                        width: 12,
-                        height: 12,
-                        decoration: const BoxDecoration(
-                            color: Color(0xFF7A1E3A), shape: BoxShape.circle)),
-                    const SizedBox(width: 6),
-                    const Text('Técnico', style: TextStyle(fontSize: 11)),
-                  ]),
+            bottom: 16,
+            left: 16,
+            child: _MapControl(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Leyenda',
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 6),
+                  ...[
+                    ('critico', 'Crítico'),
+                    ('alto', 'Alto'),
+                    ('medio', 'Medio'),
+                    ('bajo', 'Bajo'),
+                  ].map((e) => Padding(
+                        padding: const EdgeInsets.only(bottom: 3),
+                        child: Row(mainAxisSize: MainAxisSize.min, children: [
+                          Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                  color: _prioColor(e.$1),
+                                  shape: BoxShape.circle)),
+                          const SizedBox(width: 6),
+                          Text(e.$2, style: const TextStyle(fontSize: 11)),
+                        ]),
+                      )),
+                  if (_showTecnicos) ...[
+                    const SizedBox(height: 2),
+                    Row(mainAxisSize: MainAxisSize.min, children: [
+                      Container(
+                          width: 12,
+                          height: 12,
+                          decoration: const BoxDecoration(
+                              color: Color(0xFF7A1E3A),
+                              shape: BoxShape.circle)),
+                      const SizedBox(width: 6),
+                      const Text('Técnico', style: TextStyle(fontSize: 11)),
+                    ]),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
-        ),
 
         // Counter badge (solo nivel municipal)
         if (esMunicipal)
           Positioned(
-          bottom: 16,
-          right: 16,
-          child: _MapControl(
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Text(
-                  '${incs.where((i) => const {
-                        'aprobado',
-                        'asignado',
-                        'en_proceso'
-                      }.contains(i.estatus)).length}',
-                  style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: theme.primaryColor)),
-              const Text('en operación', style: TextStyle(fontSize: 11)),
-            ]),
+            bottom: 16,
+            right: 16,
+            child: _MapControl(
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                Text(
+                    '${incs.where((i) => const {
+                          'aprobado',
+                          'asignado',
+                          'en_proceso'
+                        }.contains(i.estatus)).length}',
+                    style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: theme.primaryColor)),
+                const Text('en operación', style: TextStyle(fontSize: 11)),
+              ]),
+            ),
           ),
-        ),
 
         // Panel lateral derecho (desktop) / modal inferior (mobile)
         if (!isMobile)
